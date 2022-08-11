@@ -140,9 +140,10 @@ export default async function handler(
                 });
 
                 let classDataSem1: any[] = []; // TODO
-                if (data.semesterData[0]?.timetable) {
+                console.log(data.semesterData[0])
+                if (data.semesterData?.[0]?.timetable) {
                     classDataSem1 =
-                        data.semesterData[0]?.timetable.map((classItem) => {
+                        data.semesterData[0].timetable.map((classItem) => {
                             return [
                                 moduleCode,
                                 classItem.lessonType,
@@ -160,9 +161,9 @@ export default async function handler(
                 }
 
                 let classDataSem2: any[] = []; // TODO
-                if (data.semesterData[1]?.timetable) {
+                if (data.semesterData?.[1]?.timetable) {
                     classDataSem2 =
-                        data.semesterData[1]?.timetable.map((classItem) => {
+                        data.semesterData[1].timetable.map((classItem) => {
                             return [
                                 moduleCode,
                                 classItem.lessonType,
