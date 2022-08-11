@@ -86,7 +86,7 @@ export default async function handler(
         // check if the system has up to date (1 day old or less) data for the semester and module codes for this AY
         let ay = process.env.AY;
         if (!ay) {
-            console.log("no AY!")
+            console.log("no AY!");
             ay = "2022-2023";
         }
         for (const { moduleCode } of classesSelected) {
@@ -102,7 +102,7 @@ export default async function handler(
                     query: `DELETE FROM modulelist WHERE moduleCode = ?`,
                     values: [moduleCode],
                 });
-                
+
                 console.log(
                     `${moduleCode} expired, refreshing at ${`https://api.nusmods.com/v2/${ay}/modules/${moduleCode}.json`}`
                 );
@@ -139,39 +139,48 @@ export default async function handler(
                     values: [process.env.AY, moduleCode],
                 });
 
-                const classDataSem1 =
-                    data.semesterData[0]?.timetable.map((classItem) => {
-                        return [
-                            moduleCode,
-                            classItem.lessonType,
-                            classItem.classNo,
-                            classItem.day,
-                            classItem.startTime,
-                            classItem.endTime,
-                            classItem.venue,
-                            classItem.size,
-                            JSON.stringify(classItem.weeks),
-                            process.env.AY,
-                            data.semesterData[0].semester,
-                        ];
-                    }) || [];
-                const classDataSem2 =
-                    data.semesterData[1]?.timetable.map((classItem) => {
-                        return [
-                            moduleCode,
-                            classItem.lessonType,
-                            classItem.classNo,
-                            classItem.day,
-                            classItem.startTime,
-                            classItem.endTime,
-                            classItem.venue,
-                            classItem.size,
-                            JSON.stringify(classItem.weeks),
-                            process.env.AY,
-                            data.semesterData[1].semester,
-                        ];
-                    }) || [];
+                let classDataSem1: any[] = []; // TODO
+                if (data.semesterData[0]?.timetable) {
+                    classDataSem1 =
+                        data.semesterData[0]?.timetable.map((classItem) => {
+                            return [
+                                moduleCode,
+                                classItem.lessonType,
+                                classItem.classNo,
+                                classItem.day,
+                                classItem.startTime,
+                                classItem.endTime,
+                                classItem.venue,
+                                classItem.size,
+                                JSON.stringify(classItem.weeks),
+                                process.env.AY,
+                                data.semesterData[0].semester,
+                            ];
+                        }) || [];
+                }
+
+                let classDataSem2: any[] = []; // TODO
+                if (data.semesterData[1]?.timetable) {
+                    classDataSem2 =
+                        data.semesterData[1]?.timetable.map((classItem) => {
+                            return [
+                                moduleCode,
+                                classItem.lessonType,
+                                classItem.classNo,
+                                classItem.day,
+                                classItem.startTime,
+                                classItem.endTime,
+                                classItem.venue,
+                                classItem.size,
+                                JSON.stringify(classItem.weeks),
+                                process.env.AY,
+                                data.semesterData[1].semester,
+                            ];
+                        }) || [];
+                }
                 const classData = [...classDataSem1, ...classDataSem2];
+
+                console.log(`${classData.length} classes for ${moduleCode}`);
                 await executeQuery({
                     query: `INSERT INTO classList (moduleCode, lessonType, classNo, day, startTime, endTime, venue, size, weeks, ay, semester) VALUES ?`,
                     values: [classData],
@@ -219,6 +228,8 @@ export default async function handler(
 
         // Manipulate the classes selected to the correct data format
         const moduleCodeLessonTypeMap: ModuleCodeLessonType = {};
+
+        console.log({ classesSelected });
 
         classesSelected.forEach(({ moduleCode, timetable }) => {
             Object.keys(timetable).forEach((lessonType) => {
