@@ -15,8 +15,8 @@ export default async function handler(
     req: NextApiRequest,
     res: NextApiResponse<ResponseData>
 ) {
-    const ay = process.env.AY;
-    const semester = process.env.SEM;
+    const ay = process.env.NEXT_PUBLIC_AY;
+    const semester = process.env.NEXT_PUBLIC_SEM;
 
     if (req.method === "POST") {
         const { modules } = req.body as {
@@ -41,7 +41,7 @@ export default async function handler(
                     `${moduleCode} expired or doesn't exist, refreshing`
                 );
                 // const classData = await fetch(
-                //     `https://api.nusmods.com/v2/${process.env.AY}/modules/${module.moduleCode}.json`
+                //     `https://api.nusmods.com/v2/${process.env.NEXT_PUBLIC_AY}/modules/${module.moduleCode}.json`
                 // );
 
                 // const classDataJSON = await classData.json();
@@ -80,7 +80,7 @@ export default async function handler(
                 // insert the class data into the database
                 await executeQuery({
                     query: `DELETE FROM classlist WHERE ay = ? AND moduleCode = ?`,
-                    values: [process.env.AY, moduleCode],
+                    values: [process.env.NEXT_PUBLIC_AY, moduleCode],
                 });
 
                 const classDataSem1 =
@@ -95,7 +95,7 @@ export default async function handler(
                             classItem.venue,
                             classItem.size,
                             JSON.stringify(classItem.weeks),
-                            process.env.AY,
+                            process.env.NEXT_PUBLIC_AY,
                             data.semesterData[0].semester,
                         ];
                     }) || [];
@@ -111,7 +111,7 @@ export default async function handler(
                             classItem.venue,
                             classItem.size,
                             JSON.stringify(classItem.weeks),
-                            process.env.AY,
+                            process.env.NEXT_PUBLIC_AY,
                             data.semesterData[1].semester,
                         ];
                     }) || [];
@@ -129,7 +129,7 @@ export default async function handler(
         // get the list of modules from the database
         const availableClassList: ModuleWithClassDB[] = await executeQuery({
             query: `SELECT * FROM modulelist LEFT JOIN classlist ON modulelist.moduleCode = classlist.moduleCode WHERE classlist.moduleCode IN (?) AND ay = ? AND semester = ?`,
-            values: [modules.map(module => module.moduleCode), process.env.AY, semester],
+            values: [modules.map(module => module.moduleCode), process.env.NEXT_PUBLIC_AY, semester],
         });
 
         console.log({availableClassList})

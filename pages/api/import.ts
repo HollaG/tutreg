@@ -92,7 +92,7 @@ export default async function handler(
             );
 
             // check if the system has up to date (1 day old or less) data for the semester and module codes for this AY
-            let ay = process.env.AY;
+            let ay = process.env.NEXT_PUBLIC_AY;
             if (!ay) {
                 console.log("no AY!");
                 ay = "2022-2023";
@@ -147,7 +147,7 @@ export default async function handler(
                     // insert the class data into the database
                     await executeQuery({
                         query: `DELETE FROM classlist WHERE ay = ? AND moduleCode = ?`,
-                        values: [process.env.AY, moduleCode],
+                        values: [process.env.NEXT_PUBLIC_AY, moduleCode],
                     });
 
                     let classDataSem1: any[] = []; // TODO
@@ -166,7 +166,7 @@ export default async function handler(
                                     classItem.venue,
                                     classItem.size,
                                     JSON.stringify(classItem.weeks),
-                                    process.env.AY,
+                                    process.env.NEXT_PUBLIC_AY,
                                     data.semesterData[0].semester,
                                 ];
                             }) || [];
@@ -186,7 +186,7 @@ export default async function handler(
                                     classItem.venue,
                                     classItem.size,
                                     JSON.stringify(classItem.weeks),
-                                    process.env.AY,
+                                    process.env.NEXT_PUBLIC_AY,
                                     data.semesterData[1].semester,
                                 ];
                             }) || [];
@@ -209,7 +209,7 @@ export default async function handler(
 
             const availableClassList: ModuleWithClassDB[] = await executeQuery({
                 query: `SELECT * FROM modulelist LEFT JOIN classlist ON modulelist.moduleCode = classlist.moduleCode WHERE classlist.moduleCode IN (?) AND ay = ? AND semester = ?`,
-                values: [moduleCodes, process.env.AY, semester],
+                values: [moduleCodes, process.env.NEXT_PUBLIC_AY, semester],
             });
 
             // Manipulate the availableClassList to the format we want

@@ -29,7 +29,7 @@ import ResultContainer from "../components/Sorted/ResultContainer";
 import NextLink from "next/link";
 import { useRouter } from "next/router";
 
-const ay = process.env.AY;
+const ay = process.env.NEXT_PUBLIC_AY;
 const Order: NextPage = () => {
     const [value, setValue] = useState("");
     const [selectedModules, setSelectedModules] = useState<Option[]>([]);
@@ -49,7 +49,6 @@ const Order: NextPage = () => {
     };
 
     const data = useSelector((state: RootState) => state.classesInfo);
-
 
     // fetch the list of modules from nusmods
     const [moduleList, setModuleList] = useState<ModuleCondensed[]>();
@@ -153,7 +152,9 @@ const Order: NextPage = () => {
         setSelectedModules([]);
     };
 
-
+    const removeAll = () => {
+        dispatch(classesActions.removeAll());
+    }
 
     return (
         <Stack spacing={5}>
@@ -176,16 +177,17 @@ const Order: NextPage = () => {
                 </Box>
                 <Button onClick={() => addModules()}> Add </Button>
             </Flex>
-            {/* <Center>
-                <NextLink href="/sorted" passHref>
-                    <Link as={Button} colorScheme="blue" size="md"> View your rankings</Link>
-                </NextLink>
-            </Center> */}
+            <Center>
+                <Button size="sm" colorScheme="red" onClick={() => removeAll()}>
+                    {" "}
+                    Remove all mods{" "}
+                </Button>
+            </Center>
 
-            {/* <ModuleSortContainer /> */}
+            <ModuleSortContainer />
             <ClassSortContainer />
             <Center>
-                {/* <ResultContainer /> */}
+                <ResultContainer />
             </Center>
         </Stack>
     );

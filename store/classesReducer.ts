@@ -14,7 +14,7 @@ const loadState = () => {
 };
 const initialState: Data = loadState() || {
     selectedClasses: [],
-    totalModuleCodeLessonTypeMap: [],
+    totalModuleCodeLessonTypeMap: {},
     moduleOrder: [],
 };
 
@@ -145,13 +145,13 @@ const classesSlice = createSlice({
             state.selectedClasses[action.payload.moduleCodeLessonType] =
                 action.payload.newOrder;
         },
-        // clearImport(state) {
-        //     return {
-        //         selectedClasses: state.selectedClasses,
-        //         totalModuleCodeLessonTypeMap: []
-
-        //     }
-        // },
+        removeAll(state) {
+            return {
+                moduleOrder: [],
+                selectedClasses: {},
+                totalModuleCodeLessonTypeMap: {}
+            }
+        }
     },
 });
 

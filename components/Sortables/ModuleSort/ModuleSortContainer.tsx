@@ -33,7 +33,7 @@ const ModuleSortContainer: React.FC = () => {
     }[]>([]);
 
     useEffect(() => {
-        if (!data.moduleOrder?.length) return
+        if (!data.moduleOrder?.length) return setModulesList([])
         const modulesList = (data.moduleOrder || []).map((selClass, index) => ({
             id: index,
             name: selClass,
