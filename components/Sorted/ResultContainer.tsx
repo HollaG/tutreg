@@ -113,7 +113,7 @@ const ResultContainer: React.FC = () => {
                 <Stack>
                     <Flex  alignItems="center">
                         <Heading size="md" flex={1}>
-                            Priority (using Sam Chan's algorithm)
+                            Priority (using Sam Chan&apos;s algorithm)
                         </Heading>
                         <Box>
                             <Tooltip hasArrow label="When unlocked, you can manually change your final class priority. This will not affect your main priority rankings." textAlign='center'>
