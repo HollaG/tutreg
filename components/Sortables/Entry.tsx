@@ -12,7 +12,7 @@ interface Props extends ChakraProps {
     children: React.ReactNode | React.ReactNode[];
 }
 
-const Entry: React.FC<Props> = (props, ref: any) => {
+const Entry: React.FC<Props> = (props) => {
     // const {
     //     attributes,
     //     listeners,
@@ -27,7 +27,7 @@ const Entry: React.FC<Props> = (props, ref: any) => {
     //   };
     return (
         <Box
-            ref={ref}
+           
             border={"2px"}
             borderBlock="solid"
             backgroundColor={useColorModeValue("white", "gray.600")}
