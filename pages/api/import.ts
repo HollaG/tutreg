@@ -57,8 +57,6 @@ export default async function handler(
         }[] = [];
 
         for (const p of params) {
-         
-
             const moduleCode = p[0];
             const selectedLessons = p[1];
 
@@ -86,8 +84,11 @@ export default async function handler(
         );
 
         // check if the system has up to date (1 day old or less) data for the semester and module codes for this AY
-        const ay = process.env.AY;
-
+        let ay = process.env.AY;
+        if (!ay) {
+            console.log("no AY!")
+            ay = "2022-2023";
+        }
         for (const { moduleCode } of classesSelected) {
             const moduleData: ModuleDB[] = await executeQuery({
                 query: `SELECT * FROM modulelist WHERE moduleCode = ?`,
@@ -95,13 +96,16 @@ export default async function handler(
             });
 
             if (!moduleData.length) {
-                console.log(`${moduleCode} expired, refreshing`);
                 // either expired or never imported
                 // drop the module code from the list
                 await executeQuery({
                     query: `DELETE FROM modulelist WHERE moduleCode = ?`,
                     values: [moduleCode],
                 });
+                
+                console.log(
+                    `${moduleCode} expired, refreshing at ${`https://api.nusmods.com/v2/${ay}/modules/${moduleCode}.json`}`
+                );
 
                 // make request to NUSMods for the module data
                 const result = await fetch(
@@ -175,7 +179,6 @@ export default async function handler(
             }
         }
 
-  
         const availableClassList: ModuleWithClassDB[] = await executeQuery({
             query: `SELECT * FROM modulelist LEFT JOIN classlist ON modulelist.moduleCode = classlist.moduleCode WHERE classlist.moduleCode IN (?) AND ay = ? AND semester = ?`,
             values: [moduleCodes, process.env.AY, semester],
@@ -199,9 +202,9 @@ export default async function handler(
             }
 
             // don't need to filter by lessonType and moduleCode because we are already in that group
-            const classes = totalModuleCodeLessonTypeMap[moduleCodeLessonType].find(
-                (classItem) => classItem.classNo === availableClass.classNo
-            );
+            const classes = totalModuleCodeLessonTypeMap[
+                moduleCodeLessonType
+            ].find((classItem) => classItem.classNo === availableClass.classNo);
             if (classes) classes.classes.push(availableClass);
             else
                 totalModuleCodeLessonTypeMap[moduleCodeLessonType].push({
@@ -213,8 +216,6 @@ export default async function handler(
                     classes: [availableClass],
                 });
         });
-
-       
 
         // Manipulate the classes selected to the correct data format
         const moduleCodeLessonTypeMap: ModuleCodeLessonType = {};
@@ -230,7 +231,7 @@ export default async function handler(
                             .includes(lessonType.toLowerCase()) &&
                         classData.moduleCode === moduleCode
                 ); // use filter bc there might be 2 of the same classNo / lessonType / moduleCode, aka when you have 2 tuts per wk
-                    console.log({classData})
+                console.log({ classData });
                 if (classData) {
                     const moduleCodeLessonType = `${moduleCode}: ${classData[0].lessonType}`;
 
