@@ -11,7 +11,7 @@ import {
     useColorModeValue,
 } from "@chakra-ui/react";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { arrayMove, List } from "react-movable";
 import { useDispatch, useSelector } from "react-redux";
 import { ReactSortable } from "react-sortablejs";
@@ -27,10 +27,21 @@ const ModuleSortContainer: React.FC = () => {
 
     // const [modulesState, setModulesState] = useState<any[]>()
 
-    const modulesList = (data.moduleOrder || []).map((selClass, index) => ({
-        id: index,
-        name: selClass,
-    }));
+    const [modulesList, setModulesList] = useState<{
+        id: number;
+        name: string;
+    }[]>([]);
+
+    useEffect(() => {
+        if (!data.moduleOrder?.length) return
+        const modulesList = (data.moduleOrder || []).map((selClass, index) => ({
+            id: index,
+            name: selClass,
+        }));
+        setModulesList(modulesList)
+    }, [data.moduleOrder])
+
+   
 
     const dragHandler = ({
         oldIndex,

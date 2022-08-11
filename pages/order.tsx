@@ -49,14 +49,14 @@ const Order: NextPage = () => {
     };
 
     const data = useSelector((state: RootState) => state.classesInfo);
-    console.log({ selectedModules });
+
 
     // fetch the list of modules from nusmods
     const [moduleList, setModuleList] = useState<ModuleCondensed[]>();
 
     useEffect(() => {
         if (!ay) console.log("ERROR: no ay");
-        fetch(`https://api.nusmods.com/v2/2022-2023/moduleList.json`)
+        fetch(`https://api.nusmods.com/v2/${ay}/moduleList.json`)
             .then((res) => res.json())
             .then((data) => {
                 console.log("this is the data");
@@ -65,7 +65,6 @@ const Order: NextPage = () => {
             });
     }, [ay]);
 
-    console.log(value);
     const loadOptions = (inputValue: string) =>
         new Promise<any[]>((resolve) => {
             if (!moduleList) return resolve([]);
@@ -154,7 +153,7 @@ const Order: NextPage = () => {
         setSelectedModules([]);
     };
 
-    const router = useRouter();
+
 
     return (
         <Stack spacing={5}>
@@ -183,10 +182,10 @@ const Order: NextPage = () => {
                 </NextLink>
             </Center> */}
 
-            <ModuleSortContainer />
+            {/* <ModuleSortContainer /> */}
             <ClassSortContainer />
             <Center>
-                <ResultContainer />
+                {/* <ResultContainer /> */}
             </Center>
         </Stack>
     );

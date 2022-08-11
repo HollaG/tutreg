@@ -8,7 +8,7 @@ import {
     Stack,
     Text,
 } from "@chakra-ui/react";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Select } from "chakra-react-select";
 import { Option, RootState } from "../../../types/types";
@@ -18,10 +18,17 @@ import { arrayMove, List } from "react-movable";
 import { classesActions } from "../../../store/classesReducer";
 import ClassList from "./ClassList";
 import { keepAndCapFirstThree } from "../../../lib/functions";
+import { Data } from "../../../pages/api/import";
 
 const ClassSortContainer: React.FC = () => {
     const data = useSelector((state: RootState) => state.classesInfo);
     const dispatch = useDispatch();
+
+    const [loadedData, setLoadedData] = useState<Data>();
+
+    useEffect(() => {
+        if (data) setLoadedData(data)
+    }, [data])
 
     const generateOptionsForModule = useCallback(
         (moduleCodeLessonType: string) => {
@@ -61,19 +68,17 @@ const ClassSortContainer: React.FC = () => {
         [moduleCodeLessonType: string]: Option[]; // classNo
     }>({});
 
-    const selectClassHandler = (
+    const selectClassHandler = useCallback((
         opt: Option[],
         moduleCodeLessonType: string
     ) => {
         setSelectClassContainer((prevState) => ({
             ...prevState,
             [moduleCodeLessonType]: opt,
-        }));
+        }));       
+    }, []);
 
-        console.log(selectClassContainer);
-    };
-
-    const addClassHandler = (moduleCodeLessonType: string) => {
+    const addClassHandler = useCallback((moduleCodeLessonType: string) => {
         const selectedClasses = selectClassContainer[moduleCodeLessonType];
         if (!selectedClasses) return;
 
@@ -95,11 +100,11 @@ const ClassSortContainer: React.FC = () => {
             newState[moduleCodeLessonType] = [];
             return newState;
         });
-    };
+    }, [dispatch, selectClassContainer]);
 
     return (
         <SimpleGrid columns={{ base: 1, md: 2 }} spacing={5}>
-            {data.moduleOrder.map((moduleCodeLessonType, index) => (
+            {loadedData &&  loadedData.moduleOrder.map((moduleCodeLessonType, index) => (
                 <Card key={index}>
                     <Stack spacing={3}>
                         <Box textAlign="center">
@@ -108,7 +113,7 @@ const ClassSortContainer: React.FC = () => {
                             </Heading>
                             <Text>
                                 {
-                                    data.totalModuleCodeLessonTypeMap[
+                                    loadedData.totalModuleCodeLessonTypeMap[
                                         moduleCodeLessonType
                                     ]?.[0].size
                                 }{" "}
@@ -116,7 +121,7 @@ const ClassSortContainer: React.FC = () => {
                             </Text>
                             <Text>
                                 Weeks{" "}
-                                {data.totalModuleCodeLessonTypeMap[
+                                {loadedData.totalModuleCodeLessonTypeMap[
                                     moduleCodeLessonType
                                 ]?.[0].classes[0].weeks
                                     .toString()
@@ -124,11 +129,11 @@ const ClassSortContainer: React.FC = () => {
                             </Text>
                         </Box>
 
-                        {/* @ts-ignore */}
+                    
                         <ClassList
                             moduleCodeLessonType={moduleCodeLessonType}
                         />
-                        {!data.selectedClasses[moduleCodeLessonType] && (
+                        {!loadedData.selectedClasses[moduleCodeLessonType] && (
                             <Text> No classes selected yet! </Text>
                         )}
 

@@ -114,18 +114,6 @@ const classesSlice = createSlice({
             
             if (!selectedClass) return;
 
-            // account for when user adds a new moduleCodeLessonType but hasn't added any classes yet
-
-            // console.log({state, selectedClass, moduleCodeLessonType}, !selectedClass)
-            // if (!state.selectedClasses[moduleCodeLessonType]) {
-            //     state.selectedClasses[moduleCodeLessonType] = [selectedClass];
-            // } else {
-            //     state.selectedClasses[moduleCodeLessonType] = [
-            //         ...(state.selectedClasses[moduleCodeLessonType] || []),
-            //         selectedClass,
-            //     ];
-            // }
-
             return {
                 ...state,
                 selectedClasses: {
