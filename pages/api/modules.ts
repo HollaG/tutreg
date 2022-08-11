@@ -79,7 +79,7 @@ export default async function handler(
 
                 // insert the class data into the database
                 await executeQuery({
-                    query: `DELETE FROM classList WHERE ay = ? AND moduleCode = ?`,
+                    query: `DELETE FROM classlist WHERE ay = ? AND moduleCode = ?`,
                     values: [process.env.AY, moduleCode],
                 });
 
@@ -118,7 +118,7 @@ export default async function handler(
                 const classData = [...classDataSem1, ...classDataSem2];
 
                 await executeQuery({
-                    query: `INSERT INTO classList (moduleCode, lessonType, classNo, day, startTime, endTime, venue, size, weeks, ay, semester) VALUES ?`,
+                    query: `INSERT INTO classlist (moduleCode, lessonType, classNo, day, startTime, endTime, venue, size, weeks, ay, semester) VALUES ?`,
                     values: [classData],
                 });
             } else {
