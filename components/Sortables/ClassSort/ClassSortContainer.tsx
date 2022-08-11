@@ -103,7 +103,7 @@ const ClassSortContainer: React.FC = () => {
     }, [dispatch, selectClassContainer]);
 
     return (
-        <SimpleGrid columns={{ base: 1, md: 2 }} spacing={5}>
+        <SimpleGrid columns={{ base: 1, md: loadedData?.moduleOrder.length === 1 ? 1 : 2 }} spacing={5}>
             {loadedData &&  loadedData.moduleOrder.map((moduleCodeLessonType, index) => (
                 <Card key={index}>
                     <Stack spacing={3}>

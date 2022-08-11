@@ -54,8 +54,7 @@ const classesSlice = createSlice({
 
             // TODO: decouple moduleOrder from Data type
             state.moduleOrder = Object.keys(selectedBiddableClasses);
-            console.log("Set state to");
-            console.log(action.payload);
+        
         },
 
         changeModuleCodeLessonTypeOrder(

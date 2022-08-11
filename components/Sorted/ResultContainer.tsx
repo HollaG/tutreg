@@ -30,11 +30,11 @@ const ResultContainer: React.FC = () => {
 
         const columnNumber = moduleOrder.length;
 
-        console.log({ columnNumber, highestNumber });
+      
         for (let i = 0; i < highestNumber; i = i + 2) {
-            console.log(`${i} value of i`);
+          
             for (let j = 0; j < columnNumber; j++) {
-                console.log(`${j} start`);
+                
                 const module_ = moduleOrder[j];
 
                 // add each mod's highest ranked class to the holderArray if it exists
@@ -45,7 +45,7 @@ const ResultContainer: React.FC = () => {
             let reverse = i + 1;
             if (reverse >= highestNumber) break;
             for (let j = columnNumber - 1; j >= 0; j--) {
-                console.log(`${j} reverse`);
+               
 
                 const module_ = moduleOrder[j];
 
@@ -55,7 +55,7 @@ const ResultContainer: React.FC = () => {
             }
         }
 
-        console.log({ tempHolderArray });
+      
         setHolderArray(tempHolderArray);
     }, [moduleOrder, selectedClasses]);
 

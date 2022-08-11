@@ -55,11 +55,9 @@ const Order: NextPage = () => {
 
     useEffect(() => {
         if (!ay) console.log("ERROR: no ay");
-        fetch(`https://api.nusmods.com/v2/${ay}/moduleList.json`)
+        fetch(`https://api.nusmods.com/v2/${ay || "2022-2023"}/moduleList.json`)
             .then((res) => res.json())
-            .then((data) => {
-                console.log("this is the data");
-                console.log(data);
+            .then((data) => {             
                 setModuleList(data);
             });
     }, [ay]);
@@ -144,7 +142,7 @@ const Order: NextPage = () => {
             })),
         });
 
-        console.log({ response });
+       
         if (!response.success || !response.data)
             return alert("Unexpected error");
         dispatch(classesActions.addAvailableClasses(response.data));

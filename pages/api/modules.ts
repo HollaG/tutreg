@@ -25,8 +25,7 @@ export default async function handler(
                 // moduleName?: string;
             }[];
         };
-        console.log("HELLO");
-        console.log({ modules });
+ 
 
         // check if each module is in  our database
         for (const module_ of modules) {
@@ -132,7 +131,7 @@ export default async function handler(
             values: [modules.map(module => module.moduleCode), process.env.NEXT_PUBLIC_AY, semester],
         });
 
-        console.log({availableClassList})
+    
         // Manipulate the availableClassList to the format we want
         const totalModuleCodeLessonTypeMap: ModuleCodeLessonType = {};
         availableClassList.forEach((availableClass) => {
@@ -173,7 +172,7 @@ export default async function handler(
             }
         });
 
-        console.log({totalModuleCodeLessonTypeMap})
+
 
         res.status(200).json({
             success: true,

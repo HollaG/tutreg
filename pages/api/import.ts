@@ -42,8 +42,7 @@ export default async function handler(
                 return;
             }
 
-            console.log(`URL Importing - ${url}`);
-
+            
             // get the semester from the link
             const semester = url.includes("sem-1") ? "1" : "2";
 
@@ -84,7 +83,7 @@ export default async function handler(
                 });
             }
 
-            console.log({ classesSelected });
+           
 
             // console.log({classesSelected})
             const moduleCodes = classesSelected.map(
@@ -93,10 +92,7 @@ export default async function handler(
 
             // check if the system has up to date (1 day old or less) data for the semester and module codes for this AY
             let ay = process.env.NEXT_PUBLIC_AY;
-            if (!ay) {
-                console.log("no AY!");
-                ay = "2022-2023";
-            }
+            
 
             for (const { moduleCode } of classesSelected) {
                 console.log(`Running loop for ${moduleCode}`);
@@ -250,7 +246,6 @@ export default async function handler(
             // Manipulate the classes selected to the correct data format
             const moduleCodeLessonTypeMap: ModuleCodeLessonType = {};
 
-            console.log({ classesSelected });
 
             classesSelected.forEach(({ moduleCode, timetable }) => {
                 Object.keys(timetable).forEach((lessonType) => {
@@ -263,7 +258,7 @@ export default async function handler(
                                 .includes(lessonType.toLowerCase()) &&
                             classData.moduleCode === moduleCode
                     ); // use filter bc there might be 2 of the same classNo / lessonType / moduleCode, aka when you have 2 tuts per wk
-                    console.log({ classData });
+                  
                     if (classData.length) {
                         const moduleCodeLessonType = `${moduleCode}: ${classData[0].lessonType}`;
 
