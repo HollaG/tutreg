@@ -141,7 +141,6 @@ export default async function handler(
 
                 let classDataSem1: any[] = []; // TODO
                 console.log(JSON.stringify(data, null, 2));
-                
 
                 if (data.semesterData?.[0]?.timetable) {
                     classDataSem1 =
@@ -247,7 +246,7 @@ export default async function handler(
                         classData.moduleCode === moduleCode
                 ); // use filter bc there might be 2 of the same classNo / lessonType / moduleCode, aka when you have 2 tuts per wk
                 console.log({ classData });
-                if (Object.keys(classData).length) {
+                if (classData.length) {
                     const moduleCodeLessonType = `${moduleCode}: ${classData[0].lessonType}`;
 
                     if (!moduleCodeLessonTypeMap[moduleCodeLessonType]) {
