@@ -29,5 +29,5 @@ const Entry:React.FC<Props> = React.forwardRef((props, ref: any) => {
 
     </Box>
 })
-
+Entry.displayName = "Entry"
 export default Entry
