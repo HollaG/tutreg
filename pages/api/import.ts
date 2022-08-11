@@ -140,7 +140,9 @@ export default async function handler(
                 });
 
                 let classDataSem1: any[] = []; // TODO
-                console.log(data.semesterData[0])
+                console.log(JSON.stringify(data, null, 2));
+                
+
                 if (data.semesterData?.[0]?.timetable) {
                     classDataSem1 =
                         data.semesterData[0].timetable.map((classItem) => {
@@ -182,10 +184,11 @@ export default async function handler(
                 const classData = [...classDataSem1, ...classDataSem2];
 
                 console.log(`${classData.length} classes for ${moduleCode}`);
-                await executeQuery({
-                    query: `INSERT INTO classList (moduleCode, lessonType, classNo, day, startTime, endTime, venue, size, weeks, ay, semester) VALUES ?`,
-                    values: [classData],
-                });
+                if (classData.length)
+                    await executeQuery({
+                        query: `INSERT INTO classList (moduleCode, lessonType, classNo, day, startTime, endTime, venue, size, weeks, ay, semester) VALUES ?`,
+                        values: [classData],
+                    });
             }
         }
 
