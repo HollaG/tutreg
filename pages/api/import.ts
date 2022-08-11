@@ -38,8 +38,7 @@ export default async function handler(
             return;
         }
 
-        console.log(`URL Importing - ${url}`)
-
+        console.log(`URL Importing - ${url}`);
 
         // get the semester from the link
         const semester = url.includes("sem-1") ? "1" : "2";
@@ -81,7 +80,7 @@ export default async function handler(
             });
         }
 
-        console.log({classesSelected})
+        console.log({ classesSelected });
 
         // console.log({classesSelected})
         const moduleCodes = classesSelected.map(
@@ -94,12 +93,15 @@ export default async function handler(
             console.log("no AY!");
             ay = "2022-2023";
         }
+
         for (const { moduleCode } of classesSelected) {
+            console.log(`Running loop for ${moduleCode}`);
             const moduleData: ModuleDB[] = await executeQuery({
                 query: `SELECT * FROM modulelist WHERE moduleCode = ?`,
                 values: [moduleCode],
             });
 
+            console.log(`Found ${moduleData.length} modules`);
             if (!moduleData.length) {
                 // either expired or never imported
                 // drop the module code from the list
@@ -145,9 +147,9 @@ export default async function handler(
                 });
 
                 let classDataSem1: any[] = []; // TODO
-                console.log("------------------------")
+                console.log("------------------------");
                 console.log(JSON.stringify(data, null, 2));
-                console.log("------------------------")
+                console.log("------------------------");
 
                 if (data.semesterData?.[0]?.timetable) {
                     classDataSem1 =
@@ -190,11 +192,14 @@ export default async function handler(
                 const classData = [...classDataSem1, ...classDataSem2];
 
                 console.log(`${classData.length} classes for ${moduleCode}`);
-                if (classData.length)
+                if (classData.length) {
+                    console.log(`Inserting classes for ${moduleCode}`);
+                    console.log(classData)
                     await executeQuery({
                         query: `INSERT INTO classList (moduleCode, lessonType, classNo, day, startTime, endTime, venue, size, weeks, ay, semester) VALUES ?`,
                         values: [classData],
                     });
+                }
             }
         }
 
