@@ -111,12 +111,11 @@ const ResultContainer: React.FC = () => {
         <Container maxW="xl">
             <Card>
                 <Stack>
-                    <Flex>
+                    <Flex  alignItems="center">
                         <Heading size="md" flex={1}>
-                            {" "}
-                            Final priority ranking{" "}
+                            Priority (using Sam Chan's algorithm)
                         </Heading>
-                        <Box alignItems="center">
+                        <Box>
                             <Tooltip hasArrow label="When unlocked, you can manually change your final class priority. This will not affect your main priority rankings." textAlign='center'>
                                 <Button
                                     size="sm"

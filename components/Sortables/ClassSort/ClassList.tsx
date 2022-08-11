@@ -93,7 +93,8 @@ const ClassList: React.FC<{
                         />
                         <Box flex={1} mx={3}>
                             <Text fontWeight={"semibold"}>
-                                {getAlphabet(index || 0)}.{" "}
+                                {/* {getAlphabet(index || 0)}.{" "} */}
+                                {(index||0)+1}.{" "}
                                 {keepAndCapFirstThree(moduleData?.lessonType || "")} [
                                 {moduleData?.classNo}]
                             </Text>
