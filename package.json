@@ -9,14 +9,33 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@chakra-ui/icons": "^2.0.6",
+    "@chakra-ui/react": "^2.2.6",
+    "@dnd-kit/core": "^6.0.5",
+    "@dnd-kit/sortable": "^7.0.1",
+    "@emotion/react": "^11.10.0",
+    "@emotion/styled": "^11.10.0",
+    "@reduxjs/toolkit": "^1.8.3",
+    "chakra-react-select": "^4.1.4",
+    "dotenv": "^16.0.1",
+    "framer-motion": "^6.5.1",
     "next": "12.2.4",
     "react": "18.2.0",
-    "react-dom": "18.2.0"
+    "react-dom": "18.2.0",
+    "react-movable": "^3.0.4",
+    "react-redux": "^8.0.2",
+    "react-select": "^5.4.0",
+    "react-sortablejs": "^6.1.4",
+    "redux": "^4.2.0",
+    "serverless-mysql": "^1.5.4",
+    "sortablejs": "^1.15.0"
   },
   "devDependencies": {
+    "@redux-devtools/core": "^3.13.1",
     "@types/node": "18.6.4",
     "@types/react": "18.0.17",
     "@types/react-dom": "18.0.6",
+    "@types/sortablejs": "^1.13.0",
     "eslint": "8.21.0",
     "eslint-config-next": "12.2.4",
     "typescript": "4.7.4"
