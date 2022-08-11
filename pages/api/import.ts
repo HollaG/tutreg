@@ -151,9 +151,7 @@ export default async function handler(
                     });
 
                     let classDataSem1: any[] = []; // TODO
-                    console.log("------------------------");
-                    console.log(JSON.stringify(data, null, 2));
-                    console.log("------------------------");
+                 
 
                     if (data.semesterData?.[0]?.timetable) {
                         classDataSem1 =
@@ -199,13 +197,12 @@ export default async function handler(
                         `${classData.length} classes for ${moduleCode}`
                     );
                     if (classData.length) {
-                        console.log(`Inserting classes for ${moduleCode}`);
-                        console.log(classData);
+                       
                         const result = await executeQuery({
                             query: `INSERT INTO classlist (moduleCode, lessonType, classNo, day, startTime, endTime, venue, size, weeks, ay, semester) VALUES ?`,
                             values: [classData],
                         });
-                        console.log({result})
+                        
                     }
                 }
             }
