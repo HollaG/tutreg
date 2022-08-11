@@ -1,18 +1,15 @@
-import {
-    Box,
-    ChakraProps,
-    ChakraStyledOptions,
-    useColorModeValue,
-} from "@chakra-ui/react";
+import { Box, ChakraProps, ChakraStyledOptions, useColorModeValue } from "@chakra-ui/react";
 import { useSortable } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
+import {CSS} from '@dnd-kit/utilities';
 import React from "react";
 
 interface Props extends ChakraProps {
-    children: React.ReactNode | React.ReactNode[];
+    children: React.ReactNode|React.ReactNode[];
+    
 }
 
-const Entry: React.FC<Props> = (props) => {
+
+const Entry:React.FC<Props> = React.forwardRef((props, ref: any) => {
     // const {
     //     attributes,
     //     listeners,
@@ -20,27 +17,17 @@ const Entry: React.FC<Props> = (props) => {
     //     transform,
     //     transition,
     //   } = useSortable({id});
-
+      
     //   const style = {
     //     transform: CSS.Transform.toString(transform),
     //     transition,
     //   };
-    return (
-        <Box
-           
-            border={"2px"}
-            borderBlock="solid"
-            backgroundColor={useColorModeValue("white", "gray.600")}
-            borderWidth={2}
-            p={3}
-            borderColor={useColorModeValue("gray.200", "gray.700")}
-            borderRadius={"md"}
-            w="100%"
-            {...props}
-        >
-            {props.children}
-        </Box>
-    );
-};
+    return <Box  ref={ref} border={"2px"} borderBlock="solid" backgroundColor={useColorModeValue("white", "gray.600")} borderWidth={2} p={3} borderColor={useColorModeValue("gray.200", "gray.700")} borderRadius={'md'} w="100%" {...props}>
+        
+        {props.children}
 
-export default Entry;
+
+    </Box>
+})
+
+export default Entry
