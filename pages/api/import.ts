@@ -247,7 +247,7 @@ export default async function handler(
                         classData.moduleCode === moduleCode
                 ); // use filter bc there might be 2 of the same classNo / lessonType / moduleCode, aka when you have 2 tuts per wk
                 console.log({ classData });
-                if (classData) {
+                if (Object.keys(classData).length) {
                     const moduleCodeLessonType = `${moduleCode}: ${classData[0].lessonType}`;
 
                     if (!moduleCodeLessonTypeMap[moduleCodeLessonType]) {
