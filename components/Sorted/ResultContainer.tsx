@@ -35,11 +35,11 @@ const ResultContainer: React.FC = () => {
             console.log(`${i} value of i`);
             for (let j = 0; j < columnNumber; j++) {
                 console.log(`${j} start`);
-                const module = moduleOrder[j];
+                const module_ = moduleOrder[j];
 
                 // add each mod's highest ranked class to the holderArray if it exists
-                if (selectedClasses[module] && selectedClasses[module][i])
-                    tempHolderArray.push(selectedClasses[module][i]);
+                if (selectedClasses[module_] && selectedClasses[module_][i])
+                    tempHolderArray.push(selectedClasses[module_][i]);
             }
 
             let reverse = i + 1;
@@ -47,11 +47,11 @@ const ResultContainer: React.FC = () => {
             for (let j = columnNumber - 1; j >= 0; j--) {
                 console.log(`${j} reverse`);
 
-                const module = moduleOrder[j];
+                const module_ = moduleOrder[j];
 
                 // add each mod's highest ranked class to the holderArray if it exists
-                if (selectedClasses[module] && selectedClasses[module][reverse])
-                    tempHolderArray.push(selectedClasses[module][reverse]);
+                if (selectedClasses[module_] && selectedClasses[module_][reverse])
+                    tempHolderArray.push(selectedClasses[module_][reverse]);
             }
         }
 

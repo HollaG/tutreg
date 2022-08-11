@@ -29,11 +29,11 @@ export default async function handler(
         console.log({ modules });
 
         // check if each module is in  our database
-        for (const module of modules) {
-            const moduleCode = module.moduleCode;
+        for (const module_ of modules) {
+            const moduleCode = module_.moduleCode;
             const moduleExists = await executeQuery({
                 query: `SELECT * FROM modulelist LEFT JOIN classlist ON modulelist.moduleCode = classlist.moduleCode WHERE modulelist.moduleCode = ? AND modulelist.lastUpdated > DATE_SUB(NOW(), INTERVAL 1 DAY);`,
-                values: [module.moduleCode],
+                values: [module_.moduleCode],
             });
 
             if (moduleExists.length === 0) {
