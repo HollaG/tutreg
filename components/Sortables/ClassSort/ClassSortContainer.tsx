@@ -117,7 +117,7 @@ const ClassSortContainer: React.FC = () => {
                                         moduleCodeLessonType
                                     ]?.[0].size
                                 }{" "}
-                                vacancies / slot
+                                vacancies / slot (Rd 1)
                             </Text>
                             <Text>
                                 Weeks{" "}

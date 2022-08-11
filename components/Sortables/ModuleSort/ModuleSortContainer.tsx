@@ -138,7 +138,7 @@ const ModuleSortContainer: React.FC = () => {
                                                             value
                                                         ]?.[0]?.classes[0]?.size
                                                     }{" "}
-                                                    vacancies / slot
+                                                    vacancies / slot (Rd 1)
                                                 </Text>
                                             </Box>
                                             <DeleteIcon
