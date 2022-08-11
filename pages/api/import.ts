@@ -38,6 +38,9 @@ export default async function handler(
             return;
         }
 
+        console.log(`URL Importing - ${url}`)
+
+
         // get the semester from the link
         const semester = url.includes("sem-1") ? "1" : "2";
 
@@ -77,6 +80,8 @@ export default async function handler(
                 timetable,
             });
         }
+
+        console.log({classesSelected})
 
         // console.log({classesSelected})
         const moduleCodes = classesSelected.map(
@@ -140,7 +145,9 @@ export default async function handler(
                 });
 
                 let classDataSem1: any[] = []; // TODO
+                console.log("------------------------")
                 console.log(JSON.stringify(data, null, 2));
+                console.log("------------------------")
 
                 if (data.semesterData?.[0]?.timetable) {
                     classDataSem1 =
