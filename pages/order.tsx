@@ -26,6 +26,7 @@ import {
     Collapse,
     Divider,
     Tooltip,
+    useToast,
 } from "@chakra-ui/react";
 import { AnyARecord } from "dns";
 import { NextPage } from "next";
@@ -50,6 +51,7 @@ import { ImportResponseData } from "./api/import";
 
 const ay = process.env.NEXT_PUBLIC_AY;
 const Order: NextPage = () => {
+    const toast = useToast()
     const [link, setLink] = useState("");
     const isError =
         !link.startsWith("https://nusmods.com/timetable/sem") && link !== "";
@@ -59,8 +61,21 @@ const Order: NextPage = () => {
         });
 
         const data = result.data;
-        console.log({ data });
-        if (!data) return;
+    
+        if (!data) return toast({
+            title: "Error importing classes!",
+            description: result.error,
+            status: 'error',
+          duration: 5000,
+          isClosable: true,
+        });
+
+        toast({
+            title: "Classes imported",
+            status: 'success',
+          duration: 5000,
+          isClosable: true,
+        })
         dispatch(classesActions.setState(data));
     };
 

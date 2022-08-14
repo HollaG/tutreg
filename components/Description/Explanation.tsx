@@ -4,6 +4,8 @@ import {
     AccordionIcon,
     AccordionItem,
     AccordionPanel,
+    Alert,
+    AlertIcon,
     Box,
     Button,
     Center,
@@ -50,9 +52,15 @@ const Explanation: React.FC = () => {
                 </Text>
                 <Text>
                     {" "}
-                    Click on Computed Ranking to see the final priority ranking
+                    Click on Computed Ranking to see the final priority ranking.
                 </Text>
             </Box>
+           
+            <Alert status="warning">
+                <AlertIcon />
+                Important: ModReg only allows you to select up to 20 tutorial
+                slots! Be mindful of this when selecting your slots.
+            </Alert>
             <Modal isOpen={isOpen} onClose={onClose} size="full">
                 <ModalOverlay />
                 <ModalContent>

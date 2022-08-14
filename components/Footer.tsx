@@ -1,9 +1,10 @@
-import { Box, Container } from "@chakra-ui/react";
+import { Box, Container, useColorModeValue } from "@chakra-ui/react";
 import WebsiteCredits from "./Description/WebsiteCredits";
 
 const Footer = () => {
+    const footerColor = useColorModeValue('blue.50', 'blue.900')
     return (
-        <Box bgColor="blue.50" py={5}>
+        <Box bgColor={footerColor} py={5}>
             <Container maxWidth="container.lg">
                 <WebsiteCredits />
             </Container>

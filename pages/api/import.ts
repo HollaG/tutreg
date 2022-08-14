@@ -29,7 +29,7 @@ export default async function handler(
             if (!url) {
                 res.status(400).json({
                     success: false,
-                    error: "URL is required",
+                    error: "URL is required!",
                 });
                 return;
             }
@@ -38,7 +38,8 @@ export default async function handler(
                 !url.startsWith("https://nusmods.com/timetable/sem-1/share?") &&
                 !url.startsWith("https://nusmods.com/timetable/sem-2/share?")
             ) {
-                res.status(400).json({ success: false, error: "Invalid URL" });
+                console.log("Invalid url!")
+                res.status(400).json({ success: false, error: "Invalid URL! Please check the URL and try again." });
                 return;
             }
 
@@ -124,7 +125,7 @@ export default async function handler(
                     if (!data) {
                         res.status(400).json({
                             success: false,
-                            error: "Invalid response from NUSMods",
+                            error: "Invalid response from NUSMods! Please try again in a while.",
                         });
                         return;
                     }
