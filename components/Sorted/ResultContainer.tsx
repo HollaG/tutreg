@@ -11,7 +11,7 @@ import {
     Tooltip,
 } from "@chakra-ui/react";
 import { Select } from "chakra-react-select";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { arrayMove, List } from "react-movable";
 import { useSelector } from "react-redux";
 import { combineNumbers, getAlphabet, keepAndCapFirstThree } from "../../lib/functions";
@@ -34,7 +34,7 @@ const ResultContainer: React.FC<{ showAdd: boolean }> = ({ showAdd }) => {
     const { moduleOrder, selectedClasses } = useSelector(
         (state: RootState) => state.classesInfo
     );
-    const copiedModuleOrder = [...moduleOrder];
+    const copiedModuleOrder = useMemo(() => [...moduleOrder], [moduleOrder]);
     const [value, setValue] = useState<Option>(options[0]);
 
     const [decouple, setDecouple] = useState(false);
