@@ -132,7 +132,7 @@ const ResultContainer: React.FC<{ showAdd: boolean }> = ({ showAdd }) => {
 
             setHolderArray(tempHolderArray);
         }
-    }, [moduleOrder, selectedClasses, decouple, value]);
+    }, [copiedModuleOrder, selectedClasses, decouple, value]);
 
     const toggleDecouple = () => setDecouple(!decouple);
 

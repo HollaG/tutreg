@@ -6,6 +6,7 @@ import {
     AccordionPanel,
     Box,
     Button,
+    Center,
     Code,
     Highlight,
     Link,
@@ -31,21 +32,26 @@ const Explanation: React.FC = () => {
                 TUTORIALS/LABS) Rounds 1 and 2.
             </Text>
 
-            <Text display="flex" alignItems="center">
-                The ranking algorithm is based on that in the{" "}
-                <Button ml={2} size="xs" onClick={onOpen}>
-                    {" "}
-                    message by Sam Chan
-                </Button>
-                , which is routinely forwarded during ModReg rounds.
+            <Text alignItems="center">
+                The ranking algorithm is based on that in the message by Sam
+                Chan , which is routinely forwarded during ModReg rounds.
             </Text>
+            <Center>
+                <Button size="xs" onClick={onOpen}>
+                    {" "}
+                    View message
+                </Button>
+            </Center>
             <Box>
                 <Text>
                     {" "}
                     First, select or import some modules, then rank the modules
                     and classes based on your preferences.
                 </Text>
-                <Text> Click on Computed Ranking to see the final priority ranking for each class.</Text>
+                <Text>
+                    {" "}
+                    Click on Computed Ranking to see the final priority ranking
+                </Text>
             </Box>
             <Modal isOpen={isOpen} onClose={onClose} size="full">
                 <ModalOverlay />
