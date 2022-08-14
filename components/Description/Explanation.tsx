@@ -34,7 +34,7 @@ const Explanation: React.FC = () => {
 
             <Text alignItems="center">
                 The ranking algorithm is based on that in the message by Sam
-                Chan , which is routinely forwarded during ModReg rounds.
+                Chan, which is routinely forwarded during ModReg rounds.
             </Text>
             <Center>
                 <Button size="xs" onClick={onOpen}>
