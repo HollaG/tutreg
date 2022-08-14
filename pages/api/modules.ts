@@ -2,10 +2,10 @@ import { NextApiRequest, NextApiResponse } from "next";
 import executeQuery from "../../lib/db";
 import { canBeBidFor, sortByDay } from "../../lib/functions";
 import { ModuleWithClassDB } from "../../types/db";
-import { Module } from "../../types/modules";
+import { Module, ModuleCondensed } from "../../types/modules";
 import { ModuleCodeLessonType } from "../../types/types";
 
-export type ResponseData = {
+export type ModulesResponseData = {
     success: boolean;
     error?: string;
     data?: ModuleCodeLessonType;
@@ -13,19 +13,18 @@ export type ResponseData = {
 
 export default async function handler(
     req: NextApiRequest,
-    res: NextApiResponse<ResponseData>
+    res: NextApiResponse<ModulesResponseData>
 ) {
     const ay = process.env.NEXT_PUBLIC_AY;
     const semester = process.env.NEXT_PUBLIC_SEM;
 
     if (req.method === "POST") {
         const { modules } = req.body as {
-            modules: {
-                moduleCode: string;
-                // moduleName?: string;
-            }[];
+            modules: ModuleCondensed[];
         };
  
+
+     
 
         // check if each module is in  our database
         for (const module_ of modules) {
@@ -131,6 +130,7 @@ export default async function handler(
             values: [modules.map(module => module.moduleCode), process.env.NEXT_PUBLIC_AY, semester],
         });
 
+
     
         // Manipulate the availableClassList to the format we want
         const totalModuleCodeLessonTypeMap: ModuleCodeLessonType = {};
@@ -172,7 +172,7 @@ export default async function handler(
             }
         });
 
-
+   
 
         res.status(200).json({
             success: true,

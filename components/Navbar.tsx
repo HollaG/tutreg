@@ -44,7 +44,7 @@ export default function Nav() {
                     alignItems={"center"}
                     justifyContent={"space-between"}
                 >
-                    <Box>Website Name Here :)</Box>
+                    <Box>ModRank 🔢</Box>
 
                     <Flex alignItems={"center"}>
                         <Stack direction={"row"} spacing={7}>

@@ -11,7 +11,7 @@ export interface Data {
     moduleOrder: string[];
 }
 
-export type ResponseData = {
+export type ImportResponseData = {
     success: boolean;
     error?: string;
     data?: Data;
@@ -19,7 +19,7 @@ export type ResponseData = {
 
 export default async function handler(
     req: NextApiRequest,
-    res: NextApiResponse<ResponseData>
+    res: NextApiResponse<ImportResponseData>
 ) {
     try {
         if (req.method === "POST") {

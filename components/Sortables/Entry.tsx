@@ -22,7 +22,7 @@ const Entry:React.FC<Props> = React.forwardRef((props, ref: any) => {
     //     transform: CSS.Transform.toString(transform),
     //     transition,
     //   };
-    return <Box  ref={ref} border={"2px"} borderBlock="solid" backgroundColor={useColorModeValue("white", "gray.600")} borderWidth={2} p={3} borderColor={useColorModeValue("gray.200", "gray.700")} borderRadius={'md'} w="100%" {...props}>
+    return <Box  ref={ref} border={"2px"} borderBlock="solid" backgroundColor={useColorModeValue("gray.100", "gray.600")} borderWidth={2} p={3} borderColor={useColorModeValue("gray.200", "gray.700")} borderRadius={'md'} w="100%" {...props}>
         
         {props.children}
 

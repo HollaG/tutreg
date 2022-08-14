@@ -10,7 +10,8 @@ import Entry from "../Entry";
 
 const ClassList: React.FC<{
     moduleCodeLessonType: string;
-}> = ({ moduleCodeLessonType }) => {
+    showAdd: boolean
+}> = ({ moduleCodeLessonType, showAdd }) => {
     const data = useSelector((state: RootState) => state.classesInfo);
     const dispatch = useDispatch();
     const dragHandler = ({
@@ -44,7 +45,7 @@ const ClassList: React.FC<{
         }
     };
 
-    const dragColor = useColorModeValue("gray.50", "gray.400");
+    const dragColor = useColorModeValue("gray.200", "gray.400");
     const deleteColor = useColorModeValue("red.300", "red.500");
 
     const deleteHandler = (moduleData: ClassOverview) => {
@@ -55,6 +56,9 @@ const ClassList: React.FC<{
             })
         );
     };
+
+    const deleteIconColor = useColorModeValue("red.500", "red.500");
+
     return (
         <List
             removableByMove
@@ -80,7 +84,7 @@ const ClassList: React.FC<{
                             ? isOutOfBounds
                                 ? deleteColor
                                 : dragColor
-                            : ""
+                            : undefined
                     }
                     key={index}
                     {...props}
@@ -103,8 +107,7 @@ const ClassList: React.FC<{
                                     <Box key={index}>
                                         <Text>
                                             {classSel.day} {classSel.startTime}-
-                                            {classSel.endTime} ({classSel.venue}
-                                            )
+                                            {classSel.endTime} {showAdd && `(${classSel.venue})`}
                                         </Text>
                                     </Box>
                                 )
@@ -113,6 +116,7 @@ const ClassList: React.FC<{
                         <DeleteIcon
                             cursor="pointer"
                             onClick={() => deleteHandler(moduleData)}
+                            color={deleteIconColor}
                         />
                     </Flex>
                 </Entry>

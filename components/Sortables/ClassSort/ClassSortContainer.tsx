@@ -7,6 +7,7 @@ import {
     SimpleGrid,
     Stack,
     Text,
+    useColorModeValue
 } from "@chakra-ui/react";
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -17,18 +18,18 @@ import Entry from "../Entry";
 import { arrayMove, List } from "react-movable";
 import { classesActions } from "../../../store/classesReducer";
 import ClassList from "./ClassList";
-import { keepAndCapFirstThree } from "../../../lib/functions";
+import { combineNumbers, keepAndCapFirstThree } from "../../../lib/functions";
 import { Data } from "../../../pages/api/import";
 
-const ClassSortContainer: React.FC = () => {
+const ClassSortContainer: React.FC<{ showAdd: boolean }> = ({ showAdd }) => {
     const data = useSelector((state: RootState) => state.classesInfo);
     const dispatch = useDispatch();
 
     const [loadedData, setLoadedData] = useState<Data>();
 
     useEffect(() => {
-        if (data) setLoadedData(data)
-    }, [data])
+        if (data) setLoadedData(data);
+    }, [data]);
 
     const generateOptionsForModule = useCallback(
         (moduleCodeLessonType: string) => {
@@ -68,117 +69,134 @@ const ClassSortContainer: React.FC = () => {
         [moduleCodeLessonType: string]: Option[]; // classNo
     }>({});
 
-    const selectClassHandler = useCallback((
-        opt: Option[],
-        moduleCodeLessonType: string
-    ) => {
-        setSelectClassContainer((prevState) => ({
-            ...prevState,
-            [moduleCodeLessonType]: opt,
-        }));       
-    }, []);
+    const selectClassHandler = useCallback(
+        (opt: Option[], moduleCodeLessonType: string) => {
+            setSelectClassContainer((prevState) => ({
+                ...prevState,
+                [moduleCodeLessonType]: opt,
+            }));
+        },
+        []
+    );
 
-    const addClassHandler = useCallback((moduleCodeLessonType: string) => {
-        const selectedClasses = selectClassContainer[moduleCodeLessonType];
-        if (!selectedClasses) return;
+    const addClassHandler = useCallback(
+        (moduleCodeLessonType: string) => {
+            const selectedClasses = selectClassContainer[moduleCodeLessonType];
+            if (!selectedClasses) return;
 
-        for (const selectedClass of selectedClasses) {
-            if (!selectedClass) continue;
-            const classNo = selectedClass.value;
-            dispatch(
-                classesActions.addSelectedClass({
-                    moduleCodeLessonType,
-                    classNo,
-                })
-            );
-            
-        }
-        // reset the selectClassContainer
-        setSelectClassContainer((prevState) => {
-            const newState = { ...prevState };
+            for (const selectedClass of selectedClasses) {
+                if (!selectedClass) continue;
+                const classNo = selectedClass.value;
+                dispatch(
+                    classesActions.addSelectedClass({
+                        moduleCodeLessonType,
+                        classNo,
+                    })
+                );
+            }
+            // reset the selectClassContainer
+            setSelectClassContainer((prevState) => {
+                const newState = { ...prevState };
 
-            newState[moduleCodeLessonType] = [];
-            return newState;
-        });
-    }, [dispatch, selectClassContainer]);
+                newState[moduleCodeLessonType] = [];
+                return newState;
+            });
+        },
+        [dispatch, selectClassContainer]
+    );
 
     return (
-        <SimpleGrid columns={{ base: 1, md: loadedData?.moduleOrder.length === 1 ? 1 : 2 }} spacing={5}>
-            {loadedData &&  loadedData.moduleOrder.map((moduleCodeLessonType, index) => (
-                <Card key={index}>
-                    <Stack spacing={3}>
-                        <Box textAlign="center">
-                            <Heading size="sm" mb={1}>
-                                {index + 1}. {moduleCodeLessonType}
-                            </Heading>
-                            <Text>
-                                {
-                                    loadedData.totalModuleCodeLessonTypeMap[
-                                        moduleCodeLessonType
-                                    ]?.[0].size
-                                }{" "}
-                                vacancies / slot (Rd 1)
-                            </Text>
-                            <Text>
-                                Weeks{" "}
-                                {loadedData.totalModuleCodeLessonTypeMap[
-                                    moduleCodeLessonType
-                                ]?.[0].classes[0].weeks
-                                    .toString()
-                                    .replace(/\[|\]/g, "")}
-                            </Text>
-                        </Box>
-
-                    
-                        <ClassList
-                            moduleCodeLessonType={moduleCodeLessonType}
-                        />
-                        {!loadedData.selectedClasses[moduleCodeLessonType] && (
-                            <Text> No classes selected yet! </Text>
-                        )}
-
-                        <Entry>
-                            <Flex>
-                                <Box flex={1} mr={3}>
-                                    <Select
-                                    instanceId={moduleCodeLessonType}
-                                        isMulti
-                                        closeMenuOnSelect={false}
-                                        isSearchable={false}
-                                        placeholder="Add another slot..."
-                                        size="sm"
-                                        options={generateOptionsForModule(
-                                            moduleCodeLessonType
-                                        )}
-                                        value={
-                                            selectClassContainer[
+        <SimpleGrid
+            columns={{
+                base: 1,
+                md: loadedData?.moduleOrder.length === 1 ? 1 : 2,
+            }}
+            spacing={5}
+        >
+            {loadedData &&
+                loadedData.moduleOrder.map((moduleCodeLessonType, index) => (
+                    <Card key={index}>
+                        <Stack spacing={3}>
+                            <Box textAlign="center">
+                                <Heading size="sm" mb={1}>
+                                    {index + 1}. {moduleCodeLessonType}
+                                </Heading>
+                                {showAdd && (
+                                    <>
+                                        <Text>
+                                            {
+                                                loadedData
+                                                    .totalModuleCodeLessonTypeMap[
+                                                    moduleCodeLessonType
+                                                ]?.[0].size
+                                            }{" "}
+                                            vacancies / slot (Rd 1)
+                                        </Text>
+                                        <Text>
+                                            Weeks{" "}
+                                            {combineNumbers(loadedData.totalModuleCodeLessonTypeMap[
                                                 moduleCodeLessonType
-                                            ]
-                                        }
-                                        onChange={(opt: any) =>
-                                            selectClassHandler(
-                                                opt,
+                                            ]?.[0].classes[0].weeks
+                                                .toString()
+                                                .replace(/\[|\]/g, "").split(","))}
+                                        </Text>{" "}
+                                    </>
+                                )}
+                            </Box>
+
+                            <ClassList
+                                moduleCodeLessonType={moduleCodeLessonType}
+                                showAdd={showAdd}
+                            />
+                            {!loadedData.selectedClasses[
+                                moduleCodeLessonType
+                            ] && <Text> No classes selected yet! </Text>}
+
+                            <Entry>
+                                <Flex>
+                                    <Box flex={1} mr={3}>
+                                        <Select
+                                        
+                                            instanceId={moduleCodeLessonType}
+                                            isMulti
+                                            closeMenuOnSelect={false}
+                                            isSearchable={false}
+                                            placeholder="Add another slot..."
+                                            size="sm"
+                                            options={generateOptionsForModule(
+                                                moduleCodeLessonType
+                                            )}
+                                            value={
+                                                selectClassContainer[
+                                                    moduleCodeLessonType
+                                                ]
+                                            }
+                                            onChange={(opt: any) =>
+                                                selectClassHandler(
+                                                    opt,
+                                                    moduleCodeLessonType
+                                                )
+                                            }
+                                            classNamePrefix="lp-copy-sel"
+                                        />
+                                    </Box>
+
+                                    <Button
+                                        colorScheme="blue"
+                                        size="sm"
+                                        onClick={() =>
+                                            addClassHandler(
                                                 moduleCodeLessonType
                                             )
                                         }
-                                        classNamePrefix="lp-copy-sel"
-                                    />
-                                </Box>
-
-                                <Button
-                                    colorScheme="blue"
-                                    size="sm"
-                                    onClick={() =>
-                                        addClassHandler(moduleCodeLessonType)
-                                    }
-                                >
-                                    Add
-                                </Button>
-                            </Flex>
-                        </Entry>
-                    </Stack>
-                </Card>
-            ))}
+                                    >
+                                        Add
+                                    </Button>
+                                </Flex>
+                            </Entry>
+                        </Stack>
+                    </Card>
+                ))}
         </SimpleGrid>
     );
 };

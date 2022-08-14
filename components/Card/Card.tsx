@@ -9,8 +9,8 @@ const Card: React.FC<Props> = ({ children, ...props }) => {
         <Box
             {...props}
             w={"full"}
-            bg={useColorModeValue("white", "gray.600")}
-            boxShadow={"md"}
+            bg={useColorModeValue("gray.50", "gray.600")}
+            // boxShadow={"md"}
             rounded={"md"}
             // overflow={"hidden"}
             p={3}

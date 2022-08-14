@@ -1,20 +1,29 @@
 import "../styles/globals.css";
 import type { AppProps } from "next/app";
-import { ChakraProvider, Container } from "@chakra-ui/react";
+import { Box, ChakraProvider, Container } from "@chakra-ui/react";
 import Nav from "../components/Navbar";
 import store from "../store";
 import { Provider } from "react-redux";
 import { DndContext } from "@dnd-kit/core";
+import Footer from "../components/Footer";
 
 function MyApp({ Component, pageProps }: AppProps) {
     return (
         <ChakraProvider>
             <DndContext>
                 <Provider store={store}>
-                    <Nav></Nav>
-                    <Container maxW="container.lg" pt={6} height="100vh">
-                        <Component {...pageProps} />
-                    </Container>
+                    <Box minHeight="100%">
+                        <Nav />
+                        <Container
+                            maxW="container.lg"
+                            pt={6}
+                            pb="48px"
+                            height={"calc(100% - 64px)"}
+                        >
+                            <Component {...pageProps} />
+                        </Container>
+                    </Box>
+                    <Footer />
                 </Provider>
             </DndContext>
         </ChakraProvider>

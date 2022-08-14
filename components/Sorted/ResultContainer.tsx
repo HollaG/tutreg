@@ -1,12 +1,8 @@
-import {
-    DragHandleIcon,
-    DeleteIcon,
-    LockIcon,
-    UnlockIcon,
-} from "@chakra-ui/icons";
+import { DragHandleIcon, LockIcon, UnlockIcon } from "@chakra-ui/icons";
 import {
     Box,
     Button,
+    Center,
     Container,
     Flex,
     Heading,
@@ -14,64 +10,129 @@ import {
     Text,
     Tooltip,
 } from "@chakra-ui/react";
+import { Select } from "chakra-react-select";
 import { useEffect, useState } from "react";
 import { arrayMove, List } from "react-movable";
 import { useSelector } from "react-redux";
-import { getAlphabet, keepAndCapFirstThree } from "../../lib/functions";
-import { ClassOverview, RootState } from "../../types/types";
+import { combineNumbers, getAlphabet, keepAndCapFirstThree } from "../../lib/functions";
+import { ClassOverview, Option, RootState } from "../../types/types";
 import Card from "../Card/Card";
 import Entry from "../Sortables/Entry";
 
-const ResultContainer: React.FC = () => {
+const options = [
+    {
+        label: "Rank on selected module order",
+        value: "selected",
+    },
+    {
+        label: "Rank on lowest vacancy first",
+        value: "vacancy",
+    },
+];
+
+const ResultContainer: React.FC<{ showAdd: boolean }> = ({ showAdd }) => {
     const { moduleOrder, selectedClasses } = useSelector(
         (state: RootState) => state.classesInfo
     );
+    const copiedModuleOrder = [...moduleOrder];
+    const [value, setValue] = useState<Option>(options[0]);
+
     const [decouple, setDecouple] = useState(false);
 
     const [holderArray, setHolderArray] = useState<ClassOverview[]>([]);
 
     useEffect(() => {
-        if (!moduleOrder || !selectedClasses) return;
+        if (!copiedModuleOrder || !selectedClasses) return;
         if (decouple) return;
-        let tempHolderArray: ClassOverview[] = [];
-        // find the highest number of selected classes in each selected module
 
-        // highest number is the number of rows of the 2d matrix
-        const highestNumber = Object.keys(selectedClasses).reduce(
-            (prevVal, currentVal) =>
-                Number(prevVal) > selectedClasses[currentVal].length
-                    ? prevVal
-                    : selectedClasses[currentVal].length,
-            0
-        );
+        if (value.value === "selected") {
+            // rank according to selection
 
-        const columnNumber = moduleOrder.length;
+            let tempHolderArray: ClassOverview[] = [];
+            // find the highest number of selected classes in each selected module
 
-        for (let i = 0; i < highestNumber; i = i + 2) {
-            for (let j = 0; j < columnNumber; j++) {
-                const module_ = moduleOrder[j];
+            // highest number is the number of rows of the 2d matrix
+            const highestNumber = Object.keys(selectedClasses).reduce(
+                (prevVal, currentVal) =>
+                    Number(prevVal) > selectedClasses[currentVal].length
+                        ? prevVal
+                        : selectedClasses[currentVal].length,
+                0
+            );
 
-                // add each mod's highest ranked class to the holderArray if it exists
-                if (selectedClasses[module_] && selectedClasses[module_][i])
-                    tempHolderArray.push(selectedClasses[module_][i]);
+            const columnNumber = copiedModuleOrder.length;
+
+            for (let i = 0; i < highestNumber; i = i + 2) {
+                for (let j = 0; j < columnNumber; j++) {
+                    const module_ = copiedModuleOrder[j];
+
+                    // add each mod's highest ranked class to the holderArray if it exists
+                    if (selectedClasses[module_] && selectedClasses[module_][i])
+                        tempHolderArray.push(selectedClasses[module_][i]);
+                }
+
+                let reverse = i + 1;
+                if (reverse >= highestNumber) break;
+                for (let j = columnNumber - 1; j >= 0; j--) {
+                    const module_ = copiedModuleOrder[j];
+
+                    // add each mod's highest ranked class to the holderArray if it exists
+                    if (
+                        selectedClasses[module_] &&
+                        selectedClasses[module_][reverse]
+                    )
+                        tempHolderArray.push(selectedClasses[module_][reverse]);
+                }
             }
 
-            let reverse = i + 1;
-            if (reverse >= highestNumber) break;
-            for (let j = columnNumber - 1; j >= 0; j--) {
-                const module_ = moduleOrder[j];
+            setHolderArray(tempHolderArray);
+        } else if (value.value === "vacancy") {
+            let tempHolderArray: ClassOverview[] = [];
+           
+            const vacancyModuleOrder = copiedModuleOrder.sort(
+                (a, b) =>
+                    selectedClasses?.[a]?.[0]?.size -
+                    selectedClasses?.[b]?.[0]?.size
+            );
+            
 
-                // add each mod's highest ranked class to the holderArray if it exists
-                if (
-                    selectedClasses[module_] &&
-                    selectedClasses[module_][reverse]
-                )
-                    tempHolderArray.push(selectedClasses[module_][reverse]);
+            // highest number is the number of rows of the 2d matrix
+            const highestNumber = Object.keys(selectedClasses).reduce(
+                (prevVal, currentVal) =>
+                    Number(prevVal) > selectedClasses[currentVal].length
+                        ? prevVal
+                        : selectedClasses[currentVal].length,
+                0
+            );
+
+            const columnNumber = vacancyModuleOrder.length;
+
+            for (let i = 0; i < highestNumber; i = i + 2) {
+                for (let j = 0; j < columnNumber; j++) {
+                    const module_ = vacancyModuleOrder[j];
+
+                    // add each mod's highest ranked class to the holderArray if it exists
+                    if (selectedClasses[module_] && selectedClasses[module_][i])
+                        tempHolderArray.push(selectedClasses[module_][i]);
+                }
+
+                let reverse = i + 1;
+                if (reverse >= highestNumber) break;
+                for (let j = columnNumber - 1; j >= 0; j--) {
+                    const module_ = vacancyModuleOrder[j];
+
+                    // add each mod's highest ranked class to the holderArray if it exists
+                    if (
+                        selectedClasses[module_] &&
+                        selectedClasses[module_][reverse]
+                    )
+                        tempHolderArray.push(selectedClasses[module_][reverse]);
+                }
             }
+
+            setHolderArray(tempHolderArray);
         }
-
-        setHolderArray(tempHolderArray);
-    }, [moduleOrder, selectedClasses, decouple]);
+    }, [moduleOrder, selectedClasses, decouple, value]);
 
     const toggleDecouple = () => setDecouple(!decouple);
 
@@ -107,64 +168,86 @@ const ResultContainer: React.FC = () => {
             setHolderArray((prev) => arrayMove(prev, oldIndex, newIndex));
         }
     };
+
+   
+
     return (
-        <Container maxW="xl">
-            <Card>
-                <Stack>
-                    <Flex  alignItems="center">
-                        <Heading size="md" flex={1}>
-                            Priority (using Sam Chan&apos;s algorithm)
-                        </Heading>
-                        <Box>
-                            <Tooltip hasArrow label="When unlocked, you can manually change your final class priority. This will not affect your main priority rankings." textAlign='center'>
-                                <Button
-                                    size="sm"
-                                    onClick={() => toggleDecouple()}
-                                >
-                                    {decouple ? <UnlockIcon /> : <LockIcon /> }
-                                </Button>
-                            </Tooltip>
-                        </Box>
-                    </Flex>
-                    <List
-                        values={holderArray}
-                        onChange={dragHandler}
-                        renderList={({ children, props, isDragged }) => (
-                            <Box
-                                {...props}
-                                cursor={isDragged ? "grabbing" : "inherit"}
-                            >
-                                {children}
-                            </Box>
-                        )}
-                        renderItem={({ value, index, props, isDragged }) => (
-                            <Entry key={index} {...props}>
-                                <Flex alignItems="center">
-                                    {decouple && (
-                                        <DragHandleIcon
-                                            data-movable-handle
-                                            cursor={
-                                                isDragged ? "grabbing" : "grab"
-                                            }
-                                            tabIndex={-1}
-                                        />
-                                    )}
-                                    <Box flex={1} mx={3}>
-                                        <Text fontWeight={"semibold"}>
-                                            {(index || 0) + 1}.{" "}
-                                            {value.moduleCode}{" "}
-                                            {keepAndCapFirstThree(
-                                                value.lessonType || ""
-                                            )}{" "}
-                                            [{value.classNo}]
-                                        </Text>
+        <Stack spacing={3}>
+            <Flex alignItems="center">
+                {/* <Heading size="md" flex={1}>
+                    Priority (using Sam Chan&apos;s algorithm)
+                </Heading> */}
+                {/* <Select  size="sm" flex={1} placeholder="Select option">
+                    <option value="option1">Sam Chan</option>
+                    <option value="option2">Lowest Vacancy First</option>
+                    <option value="option3">Unlocked</option>
+                </Select> */}
+                <Box flex={1}>
+                    <Select
+                        size="sm"
+                        options={options}
+                        value={value}
+                        onChange={(opt: any) => {
+                            setValue(opt);
+                            setDecouple(false);
+                        }}
+                    />
+                </Box>
+
+                <Box>
+                    <Tooltip
+                        hasArrow
+                        label="When unlocked, you can make changes to your final class priority."
+                        textAlign="center"
+                    >
+                        <Button size="sm" onClick={() => toggleDecouple()}>
+                            {decouple ? <UnlockIcon /> : <LockIcon />}
+                        </Button>
+                    </Tooltip>
+                </Box>
+            </Flex>
+            <List
+                values={holderArray}
+                onChange={dragHandler}
+                renderList={({ children, props, isDragged }) => (
+                    <Box {...props} cursor={isDragged ? "grabbing" : "inherit"}>
+                        {children}
+                    </Box>
+                )}
+                renderItem={({ value, index, props, isDragged }) => (
+                    <Entry
+                        key={index}
+                        {...props}
+                        pointerEvents={decouple ? undefined : "none"}
+                    >
+                        <Flex alignItems="center">
+                            {decouple && (
+                                <DragHandleIcon
+                                    data-movable-handle
+                                    cursor={isDragged ? "grabbing" : "grab"}
+                                    tabIndex={-1}
+                                />
+                            )}
+                            <Box flex={1} mx={3}>
+                                <Text fontWeight={"semibold"}>
+                                    {(index || 0) + 1}. {value.moduleCode}{" "}
+                                    {keepAndCapFirstThree(
+                                        value.lessonType || ""
+                                    )}{" "}
+                                    [{value.classNo}]
+                                </Text>
+                                {showAdd && (
+                                    <>
                                         <Text>{value.moduleName}</Text>
+                                        <Text>
+                                            {value.classes[0].size} vacancies / slot
+                                        </Text>
                                         <Text mb={2}>
                                             {" "}
                                             Weeks{" "}
-                                            {value.classes[0].weeks
+                                            {combineNumbers((value.classes[0].weeks)
                                                 .toString()
-                                                .replace(/\[|\]/g, "")}
+                                                .replace(/\[|\]/g, "").split(","))}
                                         </Text>
                                         {(value?.classes || []).map(
                                             (classSel, index) => (
@@ -178,14 +261,14 @@ const ResultContainer: React.FC = () => {
                                                 </Box>
                                             )
                                         )}
-                                    </Box>
-                                </Flex>
-                            </Entry>
-                        )}
-                    />
-                </Stack>
-            </Card>
-        </Container>
+                                    </>
+                                )}
+                            </Box>
+                        </Flex>
+                    </Entry>
+                )}
+            />
+        </Stack>
     );
 };
 
