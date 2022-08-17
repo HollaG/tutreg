@@ -27,13 +27,16 @@ import {
     Divider,
     Tooltip,
     useToast,
+    InputLeftAddon,
+    InputRightElement,
+    useClipboard,
 } from "@chakra-ui/react";
 import { AnyARecord } from "dns";
 import { NextPage } from "next";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import ReactSelect, { InputActionMeta, MultiValue } from "react-select";
-import { AsyncSelect } from "chakra-react-select";
+import { AsyncSelect, Select } from "chakra-react-select";
 import ModuleSortContainer from "../components/Sortables/ModuleSort/ModuleSortContainer";
 import ClassSortContainer from "../components/Sortables/ClassSort/ClassSortContainer";
 import { sendPOST } from "../lib/fetcher";
@@ -48,10 +51,11 @@ import NextLink from "next/link";
 import { useRouter } from "next/router";
 import Explanation from "../components/Description/Explanation";
 import { ImportResponseData } from "./api/import";
+import { generateLink } from "../lib/functions";
 
 const ay = process.env.NEXT_PUBLIC_AY;
 const Order: NextPage = () => {
-    const toast = useToast()
+    const toast = useToast();
     const [link, setLink] = useState("");
     const isError =
         !link.startsWith("https://nusmods.com/timetable/sem") && link !== "";
@@ -61,21 +65,22 @@ const Order: NextPage = () => {
         });
 
         const data = result.data;
-    
-        if (!data) return toast({
-            title: "Error importing classes!",
-            description: result.error,
-            status: 'error',
-          duration: 5000,
-          isClosable: true,
-        });
+
+        if (!data)
+            return toast({
+                title: "Error importing classes!",
+                description: result.error,
+                status: "error",
+                duration: 5000,
+                isClosable: true,
+            });
 
         toast({
             title: "Classes imported",
-            status: 'success',
-          duration: 5000,
-          isClosable: true,
-        })
+            status: "success",
+            duration: 5000,
+            isClosable: true,
+        });
         dispatch(classesActions.setState(data));
     };
 
@@ -132,8 +137,6 @@ const Order: NextPage = () => {
                 module.moduleCode.includes(sanitizedValue)
             );
 
-           
-
             if (!matchedModules.length) return resolve([]);
 
             // Request from internal database
@@ -142,7 +145,7 @@ const Order: NextPage = () => {
             }).then((result: ModulesResponseData) => {
                 if (!result.success || !result.data)
                     return console.log("error");
-            
+
                 const options = Object.keys(result.data).map((key) => ({
                     value: key,
                     label: key,
@@ -184,7 +187,7 @@ const Order: NextPage = () => {
                             ?.options.push(option);
                     }
                 });
-             
+
                 resolve(groupedOptions);
             });
         });
@@ -218,6 +221,16 @@ const Order: NextPage = () => {
 
     const [isLargerThan500] = useMediaQuery(["min-width: 500px"]);
 
+    // Update the displayed link whenever the modules changes
+    const [timetableLink, setTimetableLink] = useState("");
+    useEffect(() => {
+        setTimetableLink(
+            generateLink({ ...data.selectedClasses, ...data.nonBiddable })
+        );
+    }, [data]);
+
+    const { hasCopied, onCopy } = useClipboard(timetableLink);
+
     return (
         <Stack spacing={5}>
             <Heading size="lg" textAlign="center">
@@ -240,7 +253,11 @@ const Order: NextPage = () => {
                         )}
                     </FormControl>
                 </Box>
-                <Tooltip hasArrow label="Importing a new timetable will clear your previously selected modules, if any!" textAlign="center">
+                <Tooltip
+                    hasArrow
+                    label="Importing a new timetable will clear your previously selected modules, if any!"
+                    textAlign="center"
+                >
                     <Button
                         type="submit"
                         colorScheme="blue"
@@ -340,6 +357,29 @@ const Order: NextPage = () => {
                             </TabPanel>
                         </TabPanels>
                     </Tabs>
+
+                    <Box>
+                        <InputGroup>
+                            <InputLeftAddon>1st choice</InputLeftAddon>
+                            <Input readOnly value={timetableLink} />
+                            <InputRightElement width="4.5rem">
+                                <Button h="1.75rem" size="sm" onClick={onCopy}>
+                                    {hasCopied ? "Copied!" : "Copy"}
+                                </Button>
+                            </InputRightElement>
+                        </InputGroup>
+                        <Center mt={2}>
+                            <Link isExternal href={timetableLink}>
+                                {" "}
+                                Open in new tab{" "}
+                            </Link>
+                        </Center>
+                    </Box>
+                    {/* <Box id="divContainer">
+                        <Box id="frameContainer">
+                            <iframe src={timetableLink} width="100%" height="1000px" frameBorder="0" allowFullScreen></iframe>
+                        </Box>
+                    </Box> */}
                 </Stack>
             </Collapse>
             <Divider />

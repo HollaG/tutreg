@@ -4,6 +4,7 @@
 // Output:
 
 import { ClassDB } from "../types/db";
+import { ClassOverview, ModuleCodeLessonType } from "../types/types";
 
 //     SEC
 export const keepAndCapFirstThree = (string: string) => {
@@ -95,4 +96,34 @@ export const combineNumbers = (numbers: string[]) => {
     return combined.join(", ");
 };
 
-export const combineArrayNumbers = (array: number[]) => {};
+// Function to generate the NUSMods Timetable Link based on the modules selected
+export const generateLink = (classesSelected: ModuleCodeLessonType, priority = 0) => {
+    const holder: {
+        [moduleCode: string]: ClassOverview[]
+    } = {}
+    for (const moduleCodeLessonType in classesSelected) { 
+        const classes = classesSelected[moduleCodeLessonType];
+        const moduleCode = classes[0].moduleCode
+        const lessonType = classes[0].lessonType
+
+        if (!holder[moduleCode]) holder[moduleCode] = [];
+        holder[moduleCode].push(classes[0]); // only add the first class selected. TODO: Change this to be user selectable
+    }
+
+    const holder2: {
+        [moduleCode: string]: string
+    } = {}
+
+    for (const moduleCode in holder) { 
+        holder2[moduleCode] = holder[moduleCode].map(classes => `${keepAndCapFirstThree(classes.lessonType)}:${classes.classNo}`).join(",")
+    }
+
+    // let link = "https://nusmods.com/timetable/sem-1/share?CFG1002=&CS1101S=TUT:09F,REC:11B,LEC:1&CS1231S=TUT:08A,LEC:1&IS1108=TUT:03,LEC:1&MA2001=TUT:31,LAB:5,LEC:1&RVX1002=SEC:2"
+    let link = `https://nusmods.com/timetable/sem-${process.env.NEXT_PUBLIC_SEM}/share?`
+
+    
+    link += new URLSearchParams(holder2).toString()
+    console.log({link})
+    return link;
+}
+

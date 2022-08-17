@@ -170,6 +170,7 @@ const ResultContainer: React.FC<{ showAdd: boolean }> = ({ showAdd }) => {
     };
 
    
+    
 
     return (
         <Stack spacing={3}>
