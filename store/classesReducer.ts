@@ -12,10 +12,16 @@ const loadState = () => {
         return undefined;
     }
 };
-const initialState: Data = loadState() || {
-    selectedClasses: [],
+
+export interface ClassState extends Data  {
+    moduleOrder: string[],
+    nonBiddable: ModuleCodeLessonType
+}
+const initialState: ClassState = loadState() || {
+    selectedClasses: {},
     totalModuleCodeLessonTypeMap: {},
     moduleOrder: [],
+    nonBiddable: {}
 };
 
 const classesSlice = createSlice({
@@ -52,6 +58,7 @@ const classesSlice = createSlice({
                 totalModuleCodeLessonTypeMap:
                     action.payload.totalModuleCodeLessonTypeMap,
                 moduleOrder: Object.keys(selectedBiddableClasses),
+                nonBiddable: nonBiddableClasses
             };
 
             state.selectedClasses = selectedBiddableClasses;
@@ -105,6 +112,7 @@ const classesSlice = createSlice({
                 moduleOrder: newModuleOrder,
                 selectedClasses: newSelectedClasses,
                 totalModuleCodeLessonTypeMap: newTotalModuleCodeLessonTypeMap,
+                nonBiddable: { ...state.nonBiddable }
             };
         },
         addAvailableClasses(
@@ -191,6 +199,7 @@ const classesSlice = createSlice({
                 moduleOrder: [],
                 selectedClasses: {},
                 totalModuleCodeLessonTypeMap: {},
+                nonBiddable: {}
             };
         },
     },

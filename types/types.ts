@@ -1,7 +1,8 @@
 import { Data } from "../pages/api/import";
+import { ClassState } from "../store/classesReducer";
 import { ModuleWithClassDB } from "./db";
 
-export type RootState = {classesInfo: Data}
+export type RootState = {classesInfo: ClassState}
 
 export type ClassOverview = {
     classNo: string;

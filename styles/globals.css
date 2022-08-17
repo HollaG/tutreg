@@ -1,4 +1,4 @@
-html { 
+html {
     overflow-y: scroll;
 }
 
@@ -11,7 +11,7 @@ body {
 
     height: 100%;
 }
-#__next { 
+#__next {
     height: 100%;
 }
 a {
@@ -35,4 +35,8 @@ a {
 
 .lp-copy-sel__option {
     white-space: pre-wrap !important;
-  }
+}
+
+:not(.chakra-dont-set-collapse) > .chakra-collapse {
+    overflow: initial !important;
+}
