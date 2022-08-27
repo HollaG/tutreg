@@ -123,7 +123,8 @@ export const generateLink = (classesSelected: ModuleCodeLessonType, priority = 0
 
     
     link += new URLSearchParams(holder2).toString()
-    console.log({link})
     return link;
 }
+
+
 
