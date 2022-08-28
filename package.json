@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -p 80",
     "build": "next build",
     "start": "next start -p 8087",
     "lint": "next lint"
@@ -17,6 +17,7 @@
     "@emotion/styled": "^11.10.0",
     "@reduxjs/toolkit": "^1.8.3",
     "chakra-react-select": "^4.1.4",
+    "chakra-ui-steps": "^1.7.4",
     "dotenv": "^16.0.1",
     "framer-motion": "^6.5.1",
     "next": "12.2.4",
@@ -26,9 +27,11 @@
     "react-redux": "^8.0.2",
     "react-select": "^5.4.0",
     "react-sortablejs": "^6.1.4",
+    "react-telegram-login": "^1.1.2",
     "redux": "^4.2.0",
     "serverless-mysql": "^1.5.4",
-    "sortablejs": "^1.15.0"
+    "sortablejs": "^1.15.0",
+    "telegram-login-button": "^0.0.3"
   },
   "devDependencies": {
     "@redux-devtools/core": "^3.13.1",

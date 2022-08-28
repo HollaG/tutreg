@@ -17,6 +17,11 @@ const Home: NextPage = () => {
                     Click here for Tutorial ranking
                 </Button>
             </NextLink>
+            <NextLink href="/swap">
+                <Button width="100%" height="16rem">
+                    Click here for Tutorial swaps
+                </Button>
+            </NextLink>
         </Stack>
     );
 };

@@ -119,6 +119,7 @@ const classesSlice = createSlice({
             state,
             action: PayloadAction<ModuleCodeLessonType>
         ) {
+         
             return {
                 ...state,
                 totalModuleCodeLessonTypeMap: {

@@ -1,15 +1,21 @@
 import "../styles/globals.css";
 import type { AppProps } from "next/app";
-import { Box, ChakraProvider, Container } from "@chakra-ui/react";
+import { Box, ChakraProvider, Container, extendTheme } from "@chakra-ui/react";
 import Nav from "../components/Navbar";
 import store from "../store";
 import { Provider } from "react-redux";
 import { DndContext } from "@dnd-kit/core";
 import Footer from "../components/Footer";
+import { StepsStyleConfig as Steps } from 'chakra-ui-steps';
+const theme = extendTheme({
+    components: {
+      Steps,
+    },
+  });
 
 function MyApp({ Component, pageProps }: AppProps) {
     return (
-        <ChakraProvider>
+        <ChakraProvider theme={theme}>
             <DndContext>
                 <Provider store={store}>
                     <Box minHeight="100%">
