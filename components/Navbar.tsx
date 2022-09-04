@@ -15,15 +15,22 @@ import {
     Stack,
     useColorMode,
     Center,
+    IconButton,
+    useToast,
 } from "@chakra-ui/react";
-import { MoonIcon, SunIcon } from "@chakra-ui/icons";
+import { MoonIcon, SunIcon, TimeIcon } from "@chakra-ui/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../types/types";
 import { TelegramUser } from "telegram-login-button";
 import { userActions } from "../store/user";
 import LoginButton from "./User/LoginButton";
 
-import Telegram from '../public/Telegram.png'
+import Telegram from "../public/Telegram.png";
+import Timer from "./Timer";
+
+import { MdNotificationsActive, MdNotificationsOff } from "react-icons/md";
+import { sendPOST } from "../lib/fetcher";
+import { miscActions } from "../store/misc";
 
 const NavLink = ({ children }: { children: ReactNode }) => (
     <Link
@@ -44,8 +51,10 @@ export default function Nav() {
     const { colorMode, toggleColorMode } = useColorMode();
     const { isOpen, onOpen, onClose } = useDisclosure();
 
+    const toast = useToast();
     // Handle user
     const userState = useSelector((state: RootState) => state.user);
+    const miscState = useSelector((state: RootState) => state.misc);
 
     const [user, setUser] = useState<TelegramUser | null>();
     useEffect(() => {
@@ -56,6 +65,35 @@ export default function Nav() {
     const dispatch = useDispatch();
     const logoutHandler = () => {
         dispatch(userActions.logout());
+    };
+
+    // load user's notification settings
+    useEffect(() => {
+        if (user) {
+            // load user's notification settings
+            sendPOST("/api/users/getNotificationSettings", {
+                id: user.id,
+            }).then((res) => {
+                dispatch(miscActions.updateNotificationStatus(res.data));
+            });
+        }
+    }, [user, dispatch]);
+
+    const toggleNotification = () => {
+        if (user) {
+            sendPOST("/api/users/toggleNotification", { id: user.id, hash: user.hash }).then(
+                (res) => {
+                    dispatch(miscActions.updateNotificationStatus(res.data));
+                    toast({
+                        title: `Notifications ${res.data ? "enabled" : "disabled"}`,
+
+                        status: "success",
+                        duration: 3000,
+                        isClosable: true,
+                    });
+                }
+            );
+        }
     };
 
     return (
@@ -69,7 +107,8 @@ export default function Nav() {
                     <Box>ModRank 🔢</Box>
 
                     <Flex alignItems={"center"}>
-                        <Stack direction={"row"} spacing={7}>
+                        <Stack direction={"row"} spacing={4}>
+                            <Timer />
                             <Button onClick={toggleColorMode}>
                                 {colorMode === "light" ? (
                                     <MoonIcon />
@@ -78,7 +117,16 @@ export default function Nav() {
                                 )}
                             </Button>
 
-                            <Menu>
+                            {user && (
+                                <Button onClick={toggleNotification}>
+                                    {miscState.notify ? (
+                                        <MdNotificationsActive />
+                                    ) : (
+                                        <MdNotificationsOff />
+                                    )}
+                                </Button>
+                            )}
+                            <Menu isLazy>
                                 <MenuButton
                                     as={Button}
                                     rounded={"full"}
@@ -89,7 +137,9 @@ export default function Nav() {
                                     <Avatar
                                         size={"sm"}
                                         src={
-                                            user ? user.photo_url : "/Telegram.svg"
+                                            user
+                                                ? user.photo_url
+                                                : "/Telegram.svg"
                                         }
                                         name={user?.first_name}
                                     />

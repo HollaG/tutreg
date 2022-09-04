@@ -28,7 +28,7 @@ export default async function executeQuery({
             return results;
         }
     } catch (error) {
-        return { error };
+        throw  error ;
     }
 }
 

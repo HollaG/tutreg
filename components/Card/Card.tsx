@@ -2,6 +2,7 @@ import { Box, ChakraProps, useColorModeValue } from "@chakra-ui/react";
 
 interface Props extends ChakraProps {
     children: React.ReactNode|React.ReactNode[];
+    onClick?: () => void;
 }
 
 const Card: React.FC<Props> = ({ children, ...props }) => {
@@ -15,6 +16,7 @@ const Card: React.FC<Props> = ({ children, ...props }) => {
             // overflow={"hidden"}
             p={3}
             height="fit-content"
+            transition={"all 0.1s ease-in-out"}
         >
             {" "}
             {children}{" "}

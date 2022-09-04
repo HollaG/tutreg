@@ -27,15 +27,20 @@ export default async function handler(
 
             if (userDB.length) {
                 // update
-                await executeQuery({
-                    query: `UPDATE users SET ?`,
-                    values: [user],
+                const res = await executeQuery({
+                    query: `UPDATE users SET ? WHERE id = ?`,
+                    values: [user, user.id],
                 });
+                // console.log(res)
             } else {
                 // insert
+                const updatedUser = {
+                    ...user,
+                    can_notify: false
+                }
                 const results = await executeQuery({
                     query: `INSERT INTO users SET ?`,
-                    values: [user],
+                    values: [updatedUser],
                 });
             }
 
@@ -46,5 +51,6 @@ export default async function handler(
         }
     } catch (e) {
         console.log(e);
+      
     }
 }

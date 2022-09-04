@@ -49,7 +49,8 @@ export default async function handler(
             status: "Open",
             to_t_id: "",
             ay: process.env.NEXT_PUBLIC_AY,
-            semester: process.env.NEXT_PUBLIC_SEM
+            semester: process.env.NEXT_PUBLIC_SEM,
+            notified: true
         }
 
         const inserted = await executeQuery({

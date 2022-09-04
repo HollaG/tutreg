@@ -6,7 +6,8 @@
     "dev": "next dev -p 80",
     "build": "next build",
     "start": "next start -p 8087",
-    "lint": "next lint"
+    "lint": "next lint",
+    "bot": "node ./telegram/dist/index.js"
   },
   "dependencies": {
     "@chakra-ui/icons": "^2.0.6",
@@ -23,6 +24,7 @@
     "next": "12.2.4",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "react-icons": "^4.4.0",
     "react-movable": "^3.0.4",
     "react-redux": "^8.0.2",
     "react-select": "^5.4.0",

@@ -4,7 +4,7 @@ export type ModuleDB = {
     lastUpdated: Date;
 };
 export type ClassDB = {
-    uniqueClassId: number;
+    // uniqueClassId: number;
     moduleCode: string;
     venue: string;
     lessonType: "Tutorial" | "Lecture" | "Sectional" | "Lab";

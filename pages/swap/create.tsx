@@ -36,8 +36,10 @@ import { Option, RootState } from "../../types/types";
 import Entry from "../../components/Sortables/Entry";
 import OrderSwapPriorityList from "../../components/Swap/OrderSwapPriorityList";
 import { ArrowDownIcon, DeleteIcon } from "@chakra-ui/icons";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
+import SwapEntry from "../../components/Swap/SwapEntry";
+import { miscActions } from "../../store/misc";
 
 const steps = [
     {
@@ -252,28 +254,14 @@ const Step2: React.FC<{
                     Next{" "}
                 </Button>
             </Center>
-            <Entry>
-                <Flex alignItems="center">
-                    <Box flex={1} mx={3}>
-                        <Text fontWeight={"semibold"}>
-                            {currentClassInfo.moduleCode}{" "}
-                            {keepAndCapFirstThree(currentClassInfo.lessonType)}{" "}
-                            [{currentClassInfo.classNo}]
-                        </Text>
-                        {classes[currentClassInfo.classNo].map(
-                            (classSel, index) => (
-                                <Box key={index}>
-                                    <Text>
-                                        {classSel.day} {classSel.startTime}-
-                                        {classSel.endTime}{" "}
-                                        {/* {showAdd && `(${classSel.venue})`} */}
-                                    </Text>
-                                </Box>
-                            )
-                        )}
-                    </Box>
-                </Flex>
-            </Entry>
+            <SwapEntry
+                classNo={currentClassInfo.classNo}
+                classes={classes[currentClassInfo.classNo]}
+                title={`${currentClassInfo.moduleCode} ${keepAndCapFirstThree(
+                    currentClassInfo.lessonType
+                )} [${currentClassInfo.classNo}]`}
+            />
+
             <Center>
                 <ArrowDownIcon w={12} h={12} />
             </Center>
@@ -383,61 +371,29 @@ const Step3: React.FC<{
                 desiredClasses={desiredClasses}
                 setDesiredClasses={setDesiredClasses}
             /> */}
-            <Entry>
-                <Flex alignItems="center">
-                    <Box flex={1} mx={3}>
-                        <Text fontWeight={"semibold"}>
-                            {currentClassInfo.moduleCode}{" "}
-                            {keepAndCapFirstThree(currentClassInfo.lessonType)}{" "}
-                            [{currentClassInfo.classNo}]
-                        </Text>
-                        {classes[currentClassInfo.classNo].map(
-                            (classSel, index) => (
-                                <Box key={index}>
-                                    <Text>
-                                        {classSel.day} {classSel.startTime}-
-                                        {classSel.endTime}{" "}
-                                        {/* {showAdd && `(${classSel.venue})`} */}
-                                    </Text>
-                                </Box>
-                            )
-                        )}
-                    </Box>
-                </Flex>
-            </Entry>
+            <SwapEntry
+                classNo={currentClassInfo.classNo}
+                classes={classes[currentClassInfo.classNo]}
+                title={`${currentClassInfo.moduleCode} ${keepAndCapFirstThree(
+                    currentClassInfo.lessonType
+                )} [${currentClassInfo.classNo}]`}
+            />
+
             <Center>
                 <ArrowDownIcon w={12} h={12} />
             </Center>
 
             {desiredClasses.map((desiredClassNo, index) => (
-                <Entry key={index}>
-                    <Flex alignItems="center">
-                        <Box flex={1} mx={3}>
-                            <Text fontWeight={"semibold"}>
-                                {/* {getAlphabet(index || 0)}.{" "} */}
-                                {(index || 0) + 1}.{" "}
-                                {keepAndCapFirstThree(
-                                    classes[desiredClassNo][0]?.lessonType || ""
-                                )}{" "}
-                                [{desiredClassNo}]
-                            </Text>
-                            {classes[desiredClassNo].map((classSel, index) => (
-                                <Box key={index}>
-                                    <Text>
-                                        {classSel.day} {classSel.startTime}-
-                                        {classSel.endTime}{" "}
-                                        {/* {showAdd && `(${classSel.venue})`} */}
-                                    </Text>
-                                </Box>
-                            ))}
-                        </Box>
-                        <DeleteIcon
-                            cursor="pointer"
-                            onClick={() => deleteHandler(desiredClassNo)}
-                            color={deleteIconColor}
-                        />
-                    </Flex>
-                </Entry>
+                <SwapEntry
+                    key={index}
+                    classNo={currentClassInfo.classNo}
+                    classes={classes[desiredClassNo]}
+                    title={`${(index || 0) + 1}. ${keepAndCapFirstThree(
+                        currentClassInfo.lessonType
+                    )} [${desiredClassNo}]`}
+                    canDelete
+                    deleteHandler={() => deleteHandler(desiredClassNo)}
+                />
             ))}
         </Stack>
     );
@@ -468,8 +424,9 @@ const CreateSwap: NextPage = () => {
 
     // const [isEqualRank, setIsEqualRank] = useBoolean(false);
 
-    const user = useSelector((state:RootState) => state.user)
-        const router = useRouter()
+    const user = useSelector((state: RootState) => state.user);
+    const router = useRouter();
+    const dispatch = useDispatch()
     const submitHandler = async () => {
         console.log(desiredClasses);
         console.log(currentClassInfo);
@@ -477,55 +434,66 @@ const CreateSwap: NextPage = () => {
         const response = await sendPOST("/api/swap/create", {
             desiredClasses,
             currentClassInfo,
-            user
-        })
+            user,
+        });
         if (!response.success) {
             alert(response.error);
-        } else { 
-            router.push("/swap") // todo change to ID
+        } else {
+            router.push("/swap"); // todo change to ID
         }
     };
 
+
+    // Redirect back to homepage if no user
+    useEffect(() => {
+        if (!user) {
+            // router.push("/swap");
+            dispatch(miscActions.setNeedsLogIn(true))
+        }
+    }, [user, dispatch]);
+
     return (
-        <Stack spacing={5} alignItems="center" h="100%">
-            <Steps activeStep={activeStep}>
-                {steps.map(({ label }) => (
-                    <Step label={label} key={label}></Step>
-                ))}
-            </Steps>
-            {activeStep === 0 && (
-                <Step1
-                    {...stepsControl}
-                    setCurrentClassInfo={setCurrentClassInfo}
-                    classes={classes}
-                    setClasses={setClasses}
-                    currentClassInfo={currentClassInfo}
-                />
-            )}
-            {activeStep === 1 && (
-                <Step2
-                    {...stepsControl}
-                    currentClassInfo={currentClassInfo}
-                    setCurrentClassInfo={setCurrentClassInfo}
-                    classes={classes}
-                    setClasses={setClasses}
-                    values={desiredClasses}
-                    setValues={setDesiredClasses}
-                />
-            )}
-            {activeStep === 2 && (
-                <Step3
-                    {...stepsControl}
-                    currentClassInfo={currentClassInfo}
-                    classes={classes}
-                    desiredClasses={desiredClasses}
-                    setDesiredClasses={setDesiredClasses}
-                    // isEqualRank={isEqualRank}
-                    // setIsEqualRank={setIsEqualRank}
-                    submitHandler={submitHandler}
-                />
-            )}
-        </Stack>
+        user && (
+            <Stack spacing={5} alignItems="center" h="100%">
+                <Steps activeStep={activeStep}>
+                    {steps.map(({ label }) => (
+                        <Step label={label} key={label}></Step>
+                    ))}
+                </Steps>
+                {activeStep === 0 && (
+                    <Step1
+                        {...stepsControl}
+                        setCurrentClassInfo={setCurrentClassInfo}
+                        classes={classes}
+                        setClasses={setClasses}
+                        currentClassInfo={currentClassInfo}
+                    />
+                )}
+                {activeStep === 1 && (
+                    <Step2
+                        {...stepsControl}
+                        currentClassInfo={currentClassInfo}
+                        setCurrentClassInfo={setCurrentClassInfo}
+                        classes={classes}
+                        setClasses={setClasses}
+                        values={desiredClasses}
+                        setValues={setDesiredClasses}
+                    />
+                )}
+                {activeStep === 2 && (
+                    <Step3
+                        {...stepsControl}
+                        currentClassInfo={currentClassInfo}
+                        classes={classes}
+                        desiredClasses={desiredClasses}
+                        setDesiredClasses={setDesiredClasses}
+                        // isEqualRank={isEqualRank}
+                        // setIsEqualRank={setIsEqualRank}
+                        submitHandler={submitHandler}
+                    />
+                )}
+            </Stack>
+        )
     );
 };
 

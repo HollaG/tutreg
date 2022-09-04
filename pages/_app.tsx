@@ -7,6 +7,8 @@ import { Provider } from "react-redux";
 import { DndContext } from "@dnd-kit/core";
 import Footer from "../components/Footer";
 import { StepsStyleConfig as Steps } from 'chakra-ui-steps';
+import LogInModal from "../components/Modal/LogInModal";
+import path from "path";
 const theme = extendTheme({
     components: {
       Steps,
@@ -30,6 +32,7 @@ function MyApp({ Component, pageProps }: AppProps) {
                         </Container>
                     </Box>
                     <Footer />
+                    <LogInModal />
                 </Provider>
             </DndContext>
         </ChakraProvider>
@@ -37,3 +40,4 @@ function MyApp({ Component, pageProps }: AppProps) {
 }
 
 export default MyApp;
+

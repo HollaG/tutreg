@@ -1,6 +1,7 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { RootState } from "../types/types";
 import classesSlice from "./classesReducer";
+import miscSlice from "./misc";
 import userSlice from "./user";
 
 
@@ -21,7 +22,8 @@ const store = configureStore({
         // status: statusSlice.reducer,
         // personnel: personnelSlice.reducer
         classesInfo: classesSlice.reducer,
-        user: userSlice.reducer
+        user: userSlice.reducer,
+        misc: miscSlice.reducer,
     }
 })
 

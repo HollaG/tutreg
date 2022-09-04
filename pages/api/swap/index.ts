@@ -28,14 +28,25 @@ export default async function handler(
     if (req.method === "GET") {
         // get the open requests that are of the correct AY and sem and NOT yours
         const openSwaps: ClassSwapRequest[] = await executeQuery({
-            query: `SELECT * FROM swaps LEFT JOIN users ON swaps.from_t_id = users.id WHERE status = 'Open' AND ay = ? AND semester = ?`,
+            query: `SELECT * FROM swaps LEFT JOIN users ON swaps.from_t_id = users.id WHERE status = 'Open' OR status = "Completed" AND ay = ? AND semester = ?`,
             values: [process.env.NEXT_PUBLIC_AY, process.env.NEXT_PUBLIC_SEM]
         })
 
+        if (!openSwaps.length) {
+            return res.status(200).json({
+                success: true,
+                data: {
+                    openSwaps: [],
+                    requestedClasses: {},
+                    classData: [],
+                    selfSwaps: []
+                }
+            })
+        }
         // for every module in openSwaps, get all the class data
         const classData: ModuleWithClassDB[] = await executeQuery({
-            query: `SELECT * FROM classlist LEFT JOIN modulelist ON classlist.moduleCode = modulelist.moduleCode WHERE classlist.moduleCode IN (?) AND ay = ? AND semester = ?`,
-            values: [[...new Set(openSwaps.map(swap => swap.moduleCode))], process.env.NEXT_PUBLIC_AY, process.env.NEXT_PUBLIC_SEM]
+            query: `SELECT * FROM classlist LEFT JOIN modulelist ON classlist.moduleCode = modulelist.moduleCode WHERE classlist.moduleCode IN (?) AND ay = ? AND semester = ? AND classlist.lessonType IN (?)`,
+            values: [[...new Set(openSwaps.map(swap => swap.moduleCode))], process.env.NEXT_PUBLIC_AY, process.env.NEXT_PUBLIC_SEM, [...new Set(openSwaps.map(swap => swap.lessonType))]]
         })
 
 
@@ -47,6 +58,7 @@ export default async function handler(
             values: [openSwaps.map(swap => swap.swapId)]
         })
 
+     
 
         const groupedBySwapId = (requestedClasses || []).reduce<GroupedBySwapId>((r, a) => {
             r[a.swapId] = [...(r[a.swapId] || []), a];
