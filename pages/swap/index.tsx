@@ -40,7 +40,7 @@ import SwapEntry from "../../components/Swap/SwapEntry";
 import LoginButton from "../../components/User/LoginButton";
 import UserDisplay from "../../components/User/UserDisplay";
 import { sendDELETE, sendPOST } from "../../lib/fetcher";
-import { keepAndCapFirstThree } from "../../lib/functions";
+import { cleanArrayString, keepAndCapFirstThree } from "../../lib/functions";
 import { requestSwapHelper } from "../../lib/helpers";
 import { requestComm } from "../../lib/requestor";
 import { miscActions } from "../../store/misc";
@@ -124,8 +124,8 @@ const Swap: NextPage = () => {
                     user,
                     type
                 );
-
-                if (!response || response.error || !response.success) {
+                if (!response) return
+                if (response.error || !response.success) {
                     toast({
                         title: "Error",
                         description: response?.error,
@@ -201,6 +201,8 @@ const Swap: NextPage = () => {
         }
     };
 
+    // color for highlighted tut class
+    const highlightedColor = useColorModeValue("green.200", "green.700");
     const [selectedModuleCodeLessonType, setSelectedModuleCodeLessonType] =
         useState<Option | null>(null);
     const [availableClassNos, setAvailableClassNos] = useState<string[]>([]);
@@ -235,6 +237,7 @@ const Swap: NextPage = () => {
     };
     const selectClassNoHandler = (opt: Option) => {
         setSelectedClassNo(opt);
+        dispatch(miscActions.setHighlightedClassNos([opt.value]));
     };
 
     const checkIfShouldDisplay = (swap: ClassSwapRequest) => {
@@ -265,6 +268,15 @@ const Swap: NextPage = () => {
         }
     };
 
+    const [tabIndex, setTabIndex] = useState(0);
+    const handleTabsChange = (index: number) => {
+        setTabIndex(index);
+    };
+
+    useEffect(() => {
+        if (!user) setTabIndex(0)
+    }, [user])
+    
     return (
         <Stack spacing={5} h="100%">
             <Center>
@@ -276,7 +288,13 @@ const Swap: NextPage = () => {
                 </Button>
             </Center>
 
-            <Tabs variant="enclosed" colorScheme="blue" isFitted>
+            <Tabs
+                variant="enclosed"
+                colorScheme="blue"
+                isFitted
+                index={tabIndex}
+                onChange={handleTabsChange}
+            >
                 <TabList>
                     <Tab>All swaps</Tab>
                     {user && <Tab>Your swaps</Tab>}
@@ -289,11 +307,16 @@ const Swap: NextPage = () => {
                     borderColor={borderColor}
                 >
                     <TabPanel>
-                        <SimpleGrid columns={{ base: 1, md: 2 }} mb={3}>
+                        <SimpleGrid
+                            columns={{ base: 1, md: 2 }}
+                            mb={3}
+                            spacing={3}
+                        >
                             <Select
-                                options={swapData?.openSwaps.map((swap) => ({
-                                    label: `${swap.moduleCode}: ${swap.lessonType}`,
-                                    value: `${swap.moduleCode}: ${swap.lessonType}`,
+                                // first filter the array, making a string[] so we cna remove duplicates with set, then map it back into Option
+                                options={[...new Set(swapData?.openSwaps.map((swap) => (`${swap.moduleCode}: ${swap.lessonType}`)))].map((moduleCodeLessonType) => ({
+                                    value: moduleCodeLessonType,
+                                    label: moduleCodeLessonType
                                 }))}
                                 placeholder="Filter by module and lesson type (tut/sec etc...)"
                                 value={selectedModuleCodeLessonType}
@@ -331,6 +354,13 @@ const Swap: NextPage = () => {
                                         >
                                             <Stack spacing={3}>
                                                 <SwapEntry
+                                                    bgColor={
+                                                        state.misc.highlightedClassNos.includes(
+                                                            swap.classNo
+                                                        )
+                                                            ? highlightedColor
+                                                            : undefined
+                                                    }
                                                     title={`${swap.moduleCode}
                                             ${keepAndCapFirstThree(
                                                 swap.lessonType
@@ -370,20 +400,15 @@ const Swap: NextPage = () => {
                                                             requestedClass,
                                                             index3
                                                         ) => (
-                                                            // <Entry key={index3}>
-                                                            //     <Text textAlign="center">
-                                                            //         {keepAndCapFirstThree(
-                                                            //             swap.lessonType
-                                                            //         )}{" "}
-                                                            //         [
-                                                            //         {
-                                                            //             requestedClass.wantedClassNo
-                                                            //         }
-                                                            //         ]{" "}
-                                                            //     </Text>
-                                                            // </Entry>
                                                             <SwapEntry
-                                                            key={index3}
+                                                                bgColor={
+                                                                    state.misc.highlightedClassNos.includes(
+                                                                        requestedClass.wantedClassNo
+                                                                    )
+                                                                        ? highlightedColor
+                                                                        : undefined
+                                                                }
+                                                                key={index3}
                                                                 classNo={
                                                                     requestedClass.wantedClassNo
                                                                 }
@@ -412,7 +437,7 @@ const Swap: NextPage = () => {
                                                 </SimpleGrid>
                                                 <Divider />
                                                 <Center>
-                                                    {swap.requestors.includes(
+                                                    {cleanArrayString(swap.requestors).includes(
                                                         user?.id.toString() ||
                                                             ""
                                                     ) && (
@@ -433,7 +458,7 @@ const Swap: NextPage = () => {
                                                             />
                                                         </HStack>
                                                     </HStack>
-                                                    {swap.requestors.includes(
+                                                    {cleanArrayString(swap.requestors).includes(
                                                         user?.id.toString() ||
                                                             ""
                                                     ) ? (

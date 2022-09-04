@@ -16,12 +16,14 @@ import { ModuleCodeLessonType, ClassOverview } from "../types/types";
 
 export interface MiscState { 
     needsLogIn: boolean;
-    notify: boolean
+    notify: boolean,
+    highlightedClassNos: string[]
 }
 
 const initialState: MiscState = {
     needsLogIn: false,
-    notify: false
+    notify: false,
+    highlightedClassNos: []
 }
 
 const miscSlice = createSlice({
@@ -33,6 +35,9 @@ const miscSlice = createSlice({
         },
         updateNotificationStatus: (state, action: PayloadAction<boolean>) => {
             state.notify = action.payload;
+        },
+        setHighlightedClassNos: (state, action: PayloadAction<string[]>) => {
+            state.highlightedClassNos = action.payload;
         }
     },
 });

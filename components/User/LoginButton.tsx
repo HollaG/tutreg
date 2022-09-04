@@ -4,7 +4,7 @@ import { sendPOST } from "../../lib/fetcher";
 import { LoginResponse } from "../../pages/api/users/login";
 import { miscActions } from "../../store/misc";
 import { userActions } from "../../store/user";
-
+const botName = process.env.NEXT_PUBLIC_BOT_NAME
 const LoginButton = () => {
     const dispatch = useDispatch();
     const handleResponse = async (user: TelegramUser) => {
@@ -14,9 +14,9 @@ const LoginButton = () => {
         dispatch(userActions.setUser(response.data));
         dispatch(miscActions.setNeedsLogIn(false))
     };
-
+    
     return (
-        <TelegramLoginButton botName="swaptutbot" dataOnauth={handleResponse} />
+        <TelegramLoginButton botName={botName} dataOnauth={handleResponse} />
     );
 };
 

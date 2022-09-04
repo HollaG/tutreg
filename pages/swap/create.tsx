@@ -436,10 +436,10 @@ const CreateSwap: NextPage = () => {
             currentClassInfo,
             user,
         });
-        if (!response.success) {
+        if (!response.success || !response.data) {
             alert(response.error);
         } else {
-            router.push("/swap"); // todo change to ID
+            router.push(`/swap/${response.data}`); 
         }
     };
 

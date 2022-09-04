@@ -18,7 +18,7 @@ import {
     IconButton,
     useToast,
 } from "@chakra-ui/react";
-import { MoonIcon, SunIcon, TimeIcon } from "@chakra-ui/icons";
+import { ChevronLeftIcon, MoonIcon, SunIcon, TimeIcon } from "@chakra-ui/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../types/types";
 import { TelegramUser } from "telegram-login-button";
@@ -31,7 +31,8 @@ import Timer from "./Timer";
 import { MdNotificationsActive, MdNotificationsOff } from "react-icons/md";
 import { sendPOST } from "../lib/fetcher";
 import { miscActions } from "../store/misc";
-
+import NextLink from "next/link";
+import { useRouter } from "next/router";
 const NavLink = ({ children }: { children: ReactNode }) => (
     <Link
         px={2}
@@ -50,7 +51,7 @@ const NavLink = ({ children }: { children: ReactNode }) => (
 export default function Nav() {
     const { colorMode, toggleColorMode } = useColorMode();
     const { isOpen, onOpen, onClose } = useDisclosure();
-
+    const router = useRouter();
     const toast = useToast();
     // Handle user
     const userState = useSelector((state: RootState) => state.user);
@@ -81,19 +82,24 @@ export default function Nav() {
 
     const toggleNotification = () => {
         if (user) {
-            sendPOST("/api/users/toggleNotification", { id: user.id, hash: user.hash }).then(
-                (res) => {
-                    dispatch(miscActions.updateNotificationStatus(res.data));
-                    toast({
-                        title: `Notifications ${res.data ? "enabled" : "disabled"}`,
+            sendPOST("/api/users/toggleNotification", {
+                id: user.id,
+                hash: user.hash,
+            }).then((res) => {
+                dispatch(miscActions.updateNotificationStatus(res.data));
+                toast({
+                    title: `Notifications ${res.data ? "enabled" : "disabled"}`,
 
-                        status: "success",
-                        duration: 3000,
-                        isClosable: true,
-                    });
-                }
-            );
+                    status: "success",
+                    duration: 3000,
+                    isClosable: true,
+                });
+            });
         }
+    };
+
+    const goBack = () => {
+        router.back();
     };
 
     return (
@@ -104,10 +110,25 @@ export default function Nav() {
                     alignItems={"center"}
                     justifyContent={"space-between"}
                 >
-                    <Box>ModRank 🔢</Box>
+                    <Flex alignItems="center">
+                        <IconButton
+                            onClick={goBack}
+                            variant="ghost"
+                            // w={4}
+                            // h={4}
+                            p={0}
+                            minW={8}
+                            icon={<ChevronLeftIcon p={0} />}
+                            aria-label="Go back"
+                        />
+
+                        <NextLink passHref href={"/"}>
+                            <Link>ModRank 🔢</Link>
+                        </NextLink>
+                    </Flex>
 
                     <Flex alignItems={"center"}>
-                        <Stack direction={"row"} spacing={4}>
+                        <Stack direction={"row"} spacing={2}>
                             <Timer />
                             <Button onClick={toggleColorMode}>
                                 {colorMode === "light" ? (

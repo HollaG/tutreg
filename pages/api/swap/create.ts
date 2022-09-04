@@ -4,7 +4,7 @@ import executeQuery from "../../../lib/db";
 
 type Data = {
     success: boolean,
-    data?: any
+    data?: string
     error?: string
 };
 
@@ -70,7 +70,8 @@ export default async function handler(
         }
 
         res.status(200).json({
-            success: true
+            success: true,
+            data: insertId
         })
     }
 

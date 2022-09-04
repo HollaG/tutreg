@@ -1,5 +1,5 @@
 import { DeleteIcon } from "@chakra-ui/icons";
-import { Flex, Box, Text, useColorModeValue } from "@chakra-ui/react";
+import { Flex, Box, Text, useColorModeValue, HTMLChakraProps, ChakraProps } from "@chakra-ui/react";
 
 import { keepAndCapFirstThree } from "../../lib/functions";
 import Entry from "../Sortables/Entry";
@@ -13,7 +13,7 @@ const DAY_MAP: { [key: string]: any } = {
     Sunday: "Sun",
 };
 
-const SwapEntry: React.FC<{
+interface SwapEntryProps extends ChakraProps {
     classes: {
         day: string;
         startTime: string;
@@ -27,17 +27,22 @@ const SwapEntry: React.FC<{
 
     deleteHandler?: (desiredClassNo: string) => void;
     canDelete?: boolean;
-}> = ({
+}
+
+const SwapEntry: React.FC<SwapEntryProps> = ({
     classes,
     title,
     deleteHandler = (desiredClassNo) => {},
     classNo,
     canDelete = false,
+
+    bgColor 
+    
 }) => {
     const deleteIconColor = useColorModeValue("red.500", "red.500");
 
     return (
-        <Entry>
+        <Entry bgColor={bgColor}>
             <Flex alignItems="center">
                 <Box flex={1} mx={3}>
                     <Text fontWeight={"semibold"}>
