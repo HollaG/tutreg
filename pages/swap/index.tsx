@@ -124,7 +124,7 @@ const Swap: NextPage = () => {
                     user,
                     type
                 );
-                if (!response) return
+                if (!response) return;
                 if (response.error || !response.success) {
                     toast({
                         title: "Error",
@@ -208,6 +208,7 @@ const Swap: NextPage = () => {
     const [availableClassNos, setAvailableClassNos] = useState<string[]>([]);
     const [selectedClassNo, setSelectedClassNo] = useState<Option | null>(null);
     const selectModuleCodeLessonTypeHandler = (opt: Option) => {
+        dispatch(miscActions.setHighlightedClassNos([]));
         setSelectedModuleCodeLessonType(opt);
         setAvailableClassNos([]);
         setSelectedClassNo(null);
@@ -237,7 +238,8 @@ const Swap: NextPage = () => {
     };
     const selectClassNoHandler = (opt: Option) => {
         setSelectedClassNo(opt);
-        dispatch(miscActions.setHighlightedClassNos([opt.value]));
+        if (!opt) dispatch(miscActions.setHighlightedClassNos([]));
+        else dispatch(miscActions.setHighlightedClassNos([opt.value]));
     };
 
     const checkIfShouldDisplay = (swap: ClassSwapRequest) => {
@@ -274,9 +276,12 @@ const Swap: NextPage = () => {
     };
 
     useEffect(() => {
-        if (!user) setTabIndex(0)
-    }, [user])
-    
+        if (!user) {
+            setTabIndex(0);
+        }
+        dispatch(miscActions.setHighlightedClassNos([]))
+    }, [user]);
+
     return (
         <Stack spacing={5} h="100%">
             <Center>
@@ -314,10 +319,21 @@ const Swap: NextPage = () => {
                         >
                             <Select
                                 // first filter the array, making a string[] so we cna remove duplicates with set, then map it back into Option
-                                options={[...new Set(swapData?.openSwaps.map((swap) => (`${swap.moduleCode}: ${swap.lessonType}`)))].map((moduleCodeLessonType) => ({
-                                    value: moduleCodeLessonType,
-                                    label: moduleCodeLessonType
-                                }))}
+                                options={[
+                                    ...new Set(
+                                        swapData?.openSwaps.map(
+                                            (swap) =>
+                                                `${swap.moduleCode}: ${swap.lessonType}`
+                                        )
+                                    ),
+                                ]
+                                    .map((moduleCodeLessonType) => ({
+                                        value: moduleCodeLessonType,
+                                        label: moduleCodeLessonType,
+                                    }))
+                                    .sort((a, b) =>
+                                        a.label.localeCompare(b.label)
+                                    )}
                                 placeholder="Filter by module and lesson type (tut/sec etc...)"
                                 value={selectedModuleCodeLessonType}
                                 isClearable
@@ -327,10 +343,14 @@ const Swap: NextPage = () => {
                             />
                             <Select
                                 placeholder="Filter by class number..."
-                                options={availableClassNos.map((class_) => ({
-                                    label: class_,
-                                    value: class_,
-                                }))}
+                                options={availableClassNos
+                                    .map((class_) => ({
+                                        label: class_,
+                                        value: class_,
+                                    }))
+                                    .sort((a, b) =>
+                                        a.label.localeCompare(b.label)
+                                    )}
                                 onChange={(opt: any) =>
                                     selectClassNoHandler(opt)
                                 }
@@ -437,7 +457,9 @@ const Swap: NextPage = () => {
                                                 </SimpleGrid>
                                                 <Divider />
                                                 <Center>
-                                                    {cleanArrayString(swap.requestors).includes(
+                                                    {cleanArrayString(
+                                                        swap.requestors
+                                                    ).includes(
                                                         user?.id.toString() ||
                                                             ""
                                                     ) && (
@@ -458,7 +480,9 @@ const Swap: NextPage = () => {
                                                             />
                                                         </HStack>
                                                     </HStack>
-                                                    {cleanArrayString(swap.requestors).includes(
+                                                    {cleanArrayString(
+                                                        swap.requestors
+                                                    ).includes(
                                                         user?.id.toString() ||
                                                             ""
                                                     ) ? (
