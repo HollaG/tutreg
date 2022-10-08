@@ -1,5 +1,7 @@
 import { ArrowDownIcon, ExternalLinkIcon } from "@chakra-ui/icons";
 import {
+    Alert,
+    AlertIcon,
     Avatar,
     AvatarGroup,
     Box,
@@ -31,6 +33,7 @@ import UserDisplay from "../../components/User/UserDisplay";
 import { sendDELETE, sendPATCH, sendPOST } from "../../lib/fetcher";
 import { cleanArrayString, keepAndCapFirstThree } from "../../lib/functions";
 import { requestSwapHelper } from "../../lib/helpers";
+import { miscActions } from "../../store/misc";
 import { ModuleWithClassDB } from "../../types/db";
 import { ClassSwapRequest, RootState } from "../../types/types";
 import { SpecificSwapData } from "../api/swap/[swapId]";
@@ -46,7 +49,10 @@ const SpecificSwap: NextPage = () => {
     const [swapData, setSwapData] = useState<SpecificSwapData>();
     const [users, setUsers] = useState<TelegramUser[]>([]);
     const { swap, groupedByClassNo, requestedClassNos } = swapData || {};
+   
     const user = useSelector((state: RootState) => state.user);
+    const misc = useSelector((state: RootState) => state.misc)
+
     useEffect(() => {
         if (swapId) {
             fetch(`/api/swap/${swapId}`)
@@ -185,9 +191,31 @@ const SpecificSwap: NextPage = () => {
         }
     };
 
+    const toggleNotification = () => {
+        if (user) {
+            sendPOST("/api/users/toggleNotification", {
+                id: user.id,
+                hash: user.hash,
+            }).then((res) => {
+                dispatch(miscActions.updateNotificationStatus(res.data));
+                toast({
+                    title: `Notifications ${res.data ? "enabled" : "disabled"}`,
+
+                    status: "success",
+                    duration: 3000,
+                    isClosable: true,
+                });
+            });
+        }
+    };
+
     if (swap && groupedByClassNo && requestedClassNos && swapId)
         return (
-            <Stack spacing={5} alignItems="center" h="100%">
+            <Stack spacing={5} alignItems="center" h="100%">                
+                {user && user.id === swap.from_t_id && !misc.notify && <Alert status='info'>
+                    <AlertIcon/>
+                    To receive notifications on Telegram, click the bell in the top-right corner.
+                </Alert>}
                 <Card>
                     <Flex>
                         <Stack flex={1}>

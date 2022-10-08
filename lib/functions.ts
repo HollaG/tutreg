@@ -4,6 +4,7 @@
 // Output:
 
 import { ClassDB } from "../types/db";
+import { WeekRange, Weeks } from "../types/modules";
 import { ClassOverview, ModuleCodeLessonType } from "../types/types";
 
 //     SEC
@@ -60,7 +61,8 @@ export const canBeBidFor = (moduleCode: string, lessonType: string) => {
 //   [1,2,3, 5,6,7, 9]
 // Output:
 //   [1,3, 5,7, 9,9]
-export const combineNumbers = (numbers: string[]) => {
+export const combineNumbers = (numbers: (string|number)[]) => {
+
     let combined = [];
     let holder: number[] = [];
     for (let i = 0; i < numbers.length; i++) {
@@ -127,6 +129,93 @@ export const generateLink = (classesSelected: ModuleCodeLessonType, priority = 0
 }
 
 // Function to clean the mysql stringified array
-export const cleanArrayString = (arrayString: string) => arrayString.trim().split(",").filter(x => x)
+export const cleanArrayString = (arrayString: string) => !arrayString ? "" : arrayString.trim().split(",").filter(x => x)
+
+
+// Function to return an array of weeks based on the `weeks` property.
+// Input: 
+//     [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+// Output:
+//     [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+
+// Input: 
+// "weeks": {
+//     "start": "2019-01-17",
+//     "end": "2019-04-18"
+// }
+// Output: 
+//     TODO 
+
+// Input: 
+// "weeks": {
+//     "start": "2019-01-17",
+//     "end": "2019-02-21",
+//     "weeks": [1, 2, 4, 6]
+// }
+// Output: 
+//     [1, 2, 4, 6]
+
+// Input: 
+// "weeks": {
+//     "start": "2019-01-17",
+//     "end": "2019-02-28",
+//     "weekInterval": 2
+// }
+// Output: 
+//     ["Every 2 weeks"]
+
+export const formatWeeks = (weeks: Weeks) => {
+    if (Array.isArray(weeks)) {
+        return weeks;
+    } else {
+        if (weeks.weeks) {
+            return weeks.weeks;
+        } else if (weeks.weekInterval) {
+            return [`Every ${weeks.weekInterval} weeks`];
+        } else {
+            return [`Varies, please consult NUSMods.`];
+        }
+    }
+}
+
+// Function to check if there are different week ranges for lessons
+// Input: 
+//     [1,2,3,4,5,6,7,8,9,10] // all the same
+// Output: false
+// Input: 
+//     2 different arrays
+// Output: true
+
+export const checkMultipleDifferentWeeks = (weeks: Weeks[]) => {
+    if (weeks.length === 1) {
+        return false
+    } else {
+        const first = weeks[0]
+        if (weeks.every(x => x === first)) {
+            return false
+        } else {
+            return true;
+        }
+    }
+}
+
+// Function to check if there are different vacancies for lessons
+// Input:
+//     [25, 25, 25, 30, 90]
+// Output: 
+//     "25 - 90"
+
+// Input:
+//    [25, 25, 25, 25, 25]
+// Output:
+//    "25"
+
+export const getVacanciesForAllLessons = (vacancies: number[]) => {
+    console.log({vacancies})
+    const min = Math.min(...vacancies);
+    const max = Math.max(...vacancies);
+    if (min === max) return min;
+    else return `${min}-${max}`;
+}
 
 

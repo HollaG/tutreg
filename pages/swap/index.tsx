@@ -280,7 +280,7 @@ const Swap: NextPage = () => {
             setTabIndex(0);
         }
         dispatch(miscActions.setHighlightedClassNos([]))
-    }, [user]);
+    }, [user, dispatch]);
 
     return (
         <Stack spacing={5} h="100%">

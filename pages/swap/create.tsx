@@ -182,7 +182,7 @@ const Step1: React.FC<{
                     classNamePrefix="lp-copy-sel"
                 />
                 <FormHelperText>
-                    Select the class which you want to swap
+                    Select your class that you don&apos;t want
                 </FormHelperText>
             </FormControl>
             <Center>

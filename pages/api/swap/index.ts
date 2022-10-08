@@ -27,10 +27,13 @@ export default async function handler(
 ) {
     if (req.method === "GET") {
         // get the open requests that are of the correct AY and sem and NOT yours
+        console.log([process.env.NEXT_PUBLIC_AY, process.env.NEXT_PUBLIC_SEM])
         const openSwaps: ClassSwapRequest[] = await executeQuery({
-            query: `SELECT * FROM swaps LEFT JOIN users ON swaps.from_t_id = users.id WHERE status = 'Open' OR status = "Completed" AND ay = ? AND semester = ?`,
+            query: `SELECT * FROM swaps LEFT JOIN users ON swaps.from_t_id = users.id WHERE ay = ? AND semester = ? AND status = 'Open' OR status = "Completed"`,
             values: [process.env.NEXT_PUBLIC_AY, process.env.NEXT_PUBLIC_SEM]
         })
+
+        console.log({openSwaps})
 
         if (!openSwaps.length) {
             return res.status(200).json({

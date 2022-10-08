@@ -59,7 +59,11 @@ const Order: NextPage = () => {
     const [link, setLink] = useState("");
     const isError =
         !link.startsWith("https://nusmods.com/timetable/sem") && link !== "";
-    const handleSubmit = async () => {
+
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const handleSubmit = async () => {        
+        setIsSubmitting(true);
+        
         const result: ImportResponseData = await sendPOST("/api/import", {
             url: link,
         });
@@ -82,6 +86,7 @@ const Order: NextPage = () => {
             isClosable: true,
         });
         dispatch(classesActions.setState(data));
+        setIsSubmitting(false);
     };
 
     const [value, setValue] = useState("");
@@ -262,9 +267,10 @@ const Order: NextPage = () => {
                         type="submit"
                         colorScheme="blue"
                         onClick={() => handleSubmit()}
+                        disabled={isSubmitting || !link}
                     >
                         {" "}
-                        Import{" "}
+                        {isSubmitting ? "Importing..." : "Import"}{" "}
                     </Button>
                 </Tooltip>
             </Flex>

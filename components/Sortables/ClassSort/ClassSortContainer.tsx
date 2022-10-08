@@ -7,7 +7,7 @@ import {
     SimpleGrid,
     Stack,
     Text,
-    useColorModeValue
+    useColorModeValue,
 } from "@chakra-ui/react";
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -18,7 +18,12 @@ import Entry from "../Entry";
 import { arrayMove, List } from "react-movable";
 import { classesActions } from "../../../store/classesReducer";
 import ClassList from "./ClassList";
-import { combineNumbers, keepAndCapFirstThree } from "../../../lib/functions";
+import {
+    checkMultipleDifferentWeeks,
+    combineNumbers,
+    getVacanciesForAllLessons,
+    keepAndCapFirstThree,
+} from "../../../lib/functions";
 import { Data } from "../../../pages/api/import";
 
 const ClassSortContainer: React.FC<{ showAdd: boolean }> = ({ showAdd }) => {
@@ -123,22 +128,29 @@ const ClassSortContainer: React.FC<{ showAdd: boolean }> = ({ showAdd }) => {
                                 </Heading>
                                 {showAdd && (
                                     <>
-                                        <Text>
-                                            {
-                                                loadedData
-                                                    .totalModuleCodeLessonTypeMap[
-                                                    moduleCodeLessonType
-                                                ]?.[0].size
-                                            }{" "}
+                                        <Text>                                            
+                                            {getVacanciesForAllLessons(
+                                                loadedData.totalModuleCodeLessonTypeMap[moduleCodeLessonType]?.map(e => e.size)
+                                            )}{" "}
                                             vacancies / slot (Rd 1)
                                         </Text>
                                         <Text>
                                             Weeks{" "}
-                                            {combineNumbers(loadedData.totalModuleCodeLessonTypeMap[
-                                                moduleCodeLessonType
-                                            ]?.[0].classes[0].weeks
-                                                .toString()
-                                                .replace(/\[|\]/g, "").split(","))}
+                                            {/* If there are multiple different weeks for different classes in the module, show that the weeks vary by class */}
+                                            {checkMultipleDifferentWeeks(
+                                                loadedData.totalModuleCodeLessonTypeMap[
+                                                    moduleCodeLessonType
+                                                ]?.map(e => e.classes[0].weeks)
+                                            )
+                                                ? "vary by class"
+                                                : combineNumbers(
+                                                      loadedData.totalModuleCodeLessonTypeMap[
+                                                          moduleCodeLessonType
+                                                      ]?.[0].classes[0].weeks
+                                                          .toString()
+                                                          .replace(/\[|\]/g, "")
+                                                          .split(",")
+                                                  )}
                                         </Text>{" "}
                                     </>
                                 )}
@@ -156,7 +168,6 @@ const ClassSortContainer: React.FC<{ showAdd: boolean }> = ({ showAdd }) => {
                                 <Flex>
                                     <Box flex={1} mr={3}>
                                         <Select
-                                        
                                             instanceId={moduleCodeLessonType}
                                             isMulti
                                             closeMenuOnSelect={false}

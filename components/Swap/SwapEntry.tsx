@@ -49,7 +49,7 @@ const SwapEntry: React.FC<SwapEntryProps> = ({
                         {/* {getAlphabet(index || 0)}.{" "} */}
                         {title}
                     </Text>
-                    {classes.map((classSel, index) => (
+                    {classes ? classes.map((classSel, index) => (
                         <Box key={index}>
                             <Text>
                                 {DAY_MAP[classSel.day]} {classSel.startTime}-
@@ -57,7 +57,7 @@ const SwapEntry: React.FC<SwapEntryProps> = ({
                                 {/* {showAdd && `(${classSel.venue})`} */}
                             </Text>
                         </Box>
-                    ))}
+                    )) : <> No info! </>}
                 </Box>
                 {canDelete && (
                     <DeleteIcon

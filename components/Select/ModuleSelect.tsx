@@ -27,7 +27,7 @@ const ModuleSelect: React.FC<{
             .then((data) => {
                 setModuleList(data);
             });
-    }, [ay]);
+    }, []);
     const [selectedModules, setSelectedModules] = useState<Option[]>([]);
 
     const handleInputChange = (

@@ -1,6 +1,7 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from "next";
 import executeQuery from "../../lib/db";
+import { formatWeeks } from "../../lib/functions";
 import { ModuleDB, ModuleWithClassDB } from "../../types/db";
 import { Module } from "../../types/modules";
 import { ModuleCodeLessonType } from "../../types/types";
@@ -137,6 +138,7 @@ export default async function handler(
                             {
                                 moduleCode,
                                 moduleName: data.title,
+
                             },
                         ],
                     });
@@ -160,9 +162,9 @@ export default async function handler(
                                     classItem.day,
                                     classItem.startTime,
                                     classItem.endTime,
-                                    classItem.venue,
+                                    classItem.venue || "No venue",
                                     classItem.size,
-                                    JSON.stringify(classItem.weeks),
+                                    JSON.stringify(formatWeeks(classItem.weeks)),
                                     process.env.NEXT_PUBLIC_AY,
                                     data.semesterData[0].semester,
                                 ];
@@ -180,9 +182,9 @@ export default async function handler(
                                     classItem.day,
                                     classItem.startTime,
                                     classItem.endTime,
-                                    classItem.venue,
+                                    classItem.venue || "No venue",
                                     classItem.size,
-                                    JSON.stringify(classItem.weeks),
+                                    JSON.stringify(formatWeeks(classItem.weeks)),
                                     process.env.NEXT_PUBLIC_AY,
                                     data.semesterData[1].semester,
                                 ];

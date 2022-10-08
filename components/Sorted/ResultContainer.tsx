@@ -241,7 +241,7 @@ const ResultContainer: React.FC<{ showAdd: boolean }> = ({ showAdd }) => {
                                     <>
                                         <Text>{value.moduleName}</Text>
                                         <Text>
-                                            {value.classes[0].size} vacancies / slot
+                                            {value.classes[0].size} vacancies
                                         </Text>
                                         <Text mb={2}>
                                             {" "}

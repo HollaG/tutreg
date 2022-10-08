@@ -15,6 +15,7 @@ import { useEffect, useState } from "react";
 import { arrayMove, List } from "react-movable";
 import { useDispatch, useSelector } from "react-redux";
 import { ReactSortable } from "react-sortablejs";
+import { getVacanciesForAllLessons } from "../../../lib/functions";
 import { classesActions } from "../../../store/classesReducer";
 import { RootState } from "../../../types/types";
 import Card from "../../Card/Card";
@@ -90,10 +91,10 @@ const ModuleSortContainer: React.FC<{ showAdd: boolean }> = ({ showAdd }) => {
                 }) => (
                     <Entry
                         bgColor={
-                            (isSelected || isDragged)
-                                ? (isOutOfBounds
+                            isSelected || isDragged
+                                ? isOutOfBounds
                                     ? deleteColor
-                                    : dragColor)
+                                    : dragColor
                                 : undefined
                         }
                         key={value}
@@ -110,12 +111,12 @@ const ModuleSortContainer: React.FC<{ showAdd: boolean }> = ({ showAdd }) => {
                                     {(index || 0) + 1}. {value}
                                 </Text>
                                 {showAdd && (
-                                    <Text>
-                                        {
+                                    <Text>                                        
+                                        {getVacanciesForAllLessons(
                                             data.totalModuleCodeLessonTypeMap[
                                                 value
-                                            ]?.[0]?.classes[0]?.size
-                                        }{" "}
+                                            ]?.map((e) => e.size)
+                                        )}{" "}
                                         vacancies / slot (Rd 1)
                                     </Text>
                                 )}
