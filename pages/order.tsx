@@ -126,7 +126,7 @@ const Order: NextPage = () => {
             .then((data) => {
                 setModuleList(data);
             });
-    }, [ay]);
+    }, []);
 
     const loadOptions = (inputValue: string) =>
         new Promise<any[]>((resolve) => {
