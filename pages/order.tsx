@@ -250,6 +250,9 @@ const Order: NextPage = () => {
                             value={link}
                             onChange={(e) => setLink(e.target.value)}
                         />
+                        <FormHelperText>
+                            Paste the link you get when clicking the [Share/Sync] button on NUSMods above.
+                        </FormHelperText>
 
                         {isError && (
                             <FormErrorMessage>
@@ -366,7 +369,7 @@ const Order: NextPage = () => {
 
                     <Box>
                         <InputGroup>
-                            <InputLeftAddon>1st choice</InputLeftAddon>
+                            <InputLeftAddon>Timetable</InputLeftAddon>
                             <Input readOnly value={timetableLink} />
                             <InputRightElement width="4.5rem">
                                 <Button h="1.75rem" size="sm" onClick={onCopy}>

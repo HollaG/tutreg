@@ -54,6 +54,10 @@ const Explanation: React.FC = () => {
                     {" "}
                     Click on Computed Ranking to see the final priority ranking.
                 </Text>
+                <Text>
+                    {" "}
+                    You can also manually rank your classes and modules if you wish.
+                </Text>
             </Box>
            
             <Alert status="warning">

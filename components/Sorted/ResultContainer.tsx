@@ -21,11 +21,11 @@ import Entry from "../Sortables/Entry";
 
 const options = [
     {
-        label: "Rank on selected module order",
+        label: "Rank using selected module order",
         value: "selected",
     },
     {
-        label: "Rank on lowest vacancy first",
+        label: "Rank using lowest vacancy first",
         value: "vacancy",
     },
 ];
