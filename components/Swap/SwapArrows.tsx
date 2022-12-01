@@ -1,11 +1,13 @@
 import { ArrowUpIcon, ArrowDownIcon } from "@chakra-ui/icons";
 import { Center, Text } from "@chakra-ui/react";
-
+import { TbArrowNarrowDown, TbArrowNarrowUp } from 'react-icons/tb'
 const SwapArrows = () => (
     <Center>
-        <ArrowUpIcon mr={1} fontSize="3xl" />
+        {/* <ArrowUpIcon mr={1} fontSize="3xl" /> */}
+        <TbArrowNarrowUp fontSize="2em" />
         <Text fontSize={"sm"}>wants to swap the above for</Text>
-        <ArrowDownIcon ml={1} fontSize="3xl" />
+        {/* <ArrowDownIcon ml={1} fontSize="3xl" /> */}
+        <TbArrowNarrowDown fontSize="2em"/>
     </Center>
 );
 

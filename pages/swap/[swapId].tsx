@@ -1,4 +1,5 @@
 import { ArrowDownIcon, ExternalLinkIcon, TimeIcon } from "@chakra-ui/icons";
+import { TbArrowsDownUp } from 'react-icons/tb'
 import {
     Alert,
     AlertIcon,
@@ -34,6 +35,7 @@ import UserDisplay from "../../components/User/UserDisplay";
 import { sendDELETE, sendPATCH, sendPOST } from "../../lib/fetcher";
 import {
     cleanArrayString,
+    formatDate,
     formatTimeElapsed,
     keepAndCapFirstThree,
 } from "../../lib/functions";
@@ -229,7 +231,7 @@ const SpecificSwap: NextPage = () => {
                         <TimeIcon />
                         <Text>
                             Created{" "}
-                            {formatTimeElapsed(swap.createdAt.toString())}
+                            {formatTimeElapsed(swap.createdAt.toString())}, on {formatDate(new Date(swap.createdAt))}
                         </Text>
                     </HStack>{" "}
                     <Flex>
@@ -239,7 +241,8 @@ const SpecificSwap: NextPage = () => {
                             {user?.id === swap.from_t_id &&
                                 cleanArrayString(swap.requestors).length && (
                                     <>
-                                        <ArrowDownIcon w={8} h={8} />
+                                      
+                                        <TbArrowsDownUp fontSize={"1.75em"}/>
                                         <Wrap>
                                             {swap.requestors
                                                 .trim()
@@ -287,7 +290,7 @@ const SpecificSwap: NextPage = () => {
                             {user?.id !== swap.from_t_id &&
                                 cleanArrayString(swap.requestors).length && (
                                     <>
-                                        <ArrowDownIcon w={8} h={8} />
+                                        <TbArrowsDownUp fontSize={"1.75em"}/>
                                         <Tooltip
                                             placement="bottom-start"
                                             label={`${

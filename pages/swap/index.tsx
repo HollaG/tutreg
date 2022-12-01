@@ -538,7 +538,6 @@ const Swap: NextPage = () => {
                                                     >
                                                         <TimeIcon />
                                                         <Text>
-                                                            Created{" "}
                                                             {formatTimeElapsed(
                                                                 swap.createdAt.toString()
                                                             )}
@@ -668,7 +667,6 @@ const Swap: NextPage = () => {
                                                 <HStack alignItems="center">
                                                     <TimeIcon />
                                                     <Text>
-                                                        Created{" "}
                                                         {formatTimeElapsed(
                                                             swap.createdAt.toString()
                                                         )}
