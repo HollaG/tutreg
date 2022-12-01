@@ -1,5 +1,6 @@
 import { HStack, Avatar, Text, ChakraProps } from "@chakra-ui/react";
 import { TelegramUser } from "telegram-login-button";
+import { formatTimeElapsed } from "../../lib/functions";
 
 interface Props extends ChakraProps {
     children?: React.ReactNode|React.ReactNode[];
@@ -11,6 +12,7 @@ const UserDisplay: React.FC<Props> = ({ user, children }) => {
         <HStack>
             <Avatar size={"sm"} src={user.photo_url} name={user.first_name} />
             <Text>{user.first_name} {children}</Text>
+            
         </HStack>
     );
 };

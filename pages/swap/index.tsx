@@ -1,4 +1,4 @@
-import { ArrowDownIcon } from "@chakra-ui/icons";
+import { ArrowDownIcon, TimeIcon } from "@chakra-ui/icons";
 import {
     Avatar,
     Badge,
@@ -40,7 +40,11 @@ import SwapEntry from "../../components/Swap/SwapEntry";
 import LoginButton from "../../components/User/LoginButton";
 import UserDisplay from "../../components/User/UserDisplay";
 import { sendDELETE, sendPOST } from "../../lib/fetcher";
-import { cleanArrayString, keepAndCapFirstThree } from "../../lib/functions";
+import {
+    cleanArrayString,
+    formatTimeElapsed,
+    keepAndCapFirstThree,
+} from "../../lib/functions";
 import { requestSwapHelper } from "../../lib/helpers";
 import { requestComm } from "../../lib/requestor";
 import { miscActions } from "../../store/misc";
@@ -279,7 +283,7 @@ const Swap: NextPage = () => {
         if (!user) {
             setTabIndex(0);
         }
-        dispatch(miscActions.setHighlightedClassNos([]))
+        dispatch(miscActions.setHighlightedClassNos([]));
     }, [user, dispatch]);
 
     return (
@@ -521,6 +525,11 @@ const Swap: NextPage = () => {
                                                         </Button>
                                                     )}
                                                 </Flex>
+                                                <Text>
+                                                    {formatTimeElapsed(
+                                                        swap.createdAt.toString()
+                                                    )}
+                                                </Text>
                                             </Stack>
                                         </Card>
                                     )
@@ -635,6 +644,15 @@ const Swap: NextPage = () => {
                                                     Delete{" "}
                                                 </Button>
                                             </Flex>
+                                            <HStack alignItems="center">
+                                                <TimeIcon />
+                                                <Text>
+                                                    Created{" "}
+                                                    {formatTimeElapsed(
+                                                        swap.createdAt.toString()
+                                                    )}
+                                                </Text>
+                                            </HStack>
                                         </Stack>
                                     </Card>
                                 ))}

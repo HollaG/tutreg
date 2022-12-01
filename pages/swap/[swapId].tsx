@@ -1,4 +1,4 @@
-import { ArrowDownIcon, ExternalLinkIcon } from "@chakra-ui/icons";
+import { ArrowDownIcon, ExternalLinkIcon, TimeIcon } from "@chakra-ui/icons";
 import {
     Alert,
     AlertIcon,
@@ -31,7 +31,11 @@ import Entry from "../../components/Sortables/Entry";
 import SwapEntry from "../../components/Swap/SwapEntry";
 import UserDisplay from "../../components/User/UserDisplay";
 import { sendDELETE, sendPATCH, sendPOST } from "../../lib/fetcher";
-import { cleanArrayString, keepAndCapFirstThree } from "../../lib/functions";
+import {
+    cleanArrayString,
+    formatTimeElapsed,
+    keepAndCapFirstThree,
+} from "../../lib/functions";
 import { requestSwapHelper } from "../../lib/helpers";
 import { miscActions } from "../../store/misc";
 import { ModuleWithClassDB } from "../../types/db";
@@ -49,9 +53,9 @@ const SpecificSwap: NextPage = () => {
     const [swapData, setSwapData] = useState<SpecificSwapData>();
     const [users, setUsers] = useState<TelegramUser[]>([]);
     const { swap, groupedByClassNo, requestedClassNos } = swapData || {};
-   
+
     const user = useSelector((state: RootState) => state.user);
-    const misc = useSelector((state: RootState) => state.misc)
+    const misc = useSelector((state: RootState) => state.misc);
 
     useEffect(() => {
         if (swapId) {
@@ -211,12 +215,22 @@ const SpecificSwap: NextPage = () => {
 
     if (swap && groupedByClassNo && requestedClassNos && swapId)
         return (
-            <Stack spacing={5} alignItems="center" h="100%">                
-                {user && user.id === swap.from_t_id && !misc.notify && <Alert status='info'>
-                    <AlertIcon/>
-                    To receive notifications on Telegram, click the bell in the top-right corner.
-                </Alert>}
+            <Stack spacing={5} alignItems="center" h="100%">
+                {user && user.id === swap.from_t_id && !misc.notify && (
+                    <Alert status="info">
+                        <AlertIcon />
+                        To receive notifications on Telegram when someone requests your swap, click the bell in
+                        the top-right corner.
+                    </Alert>
+                )}
                 <Card>
+                    <HStack alignItems="center" justifyContent='center'>
+                        <TimeIcon />
+                        <Text>
+                            Created{" "}
+                            {formatTimeElapsed(swap.createdAt.toString())}
+                        </Text>
+                    </HStack>{" "}
                     <Flex>
                         <Stack flex={1}>
                             <UserDisplay user={swap} />

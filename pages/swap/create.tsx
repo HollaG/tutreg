@@ -140,6 +140,7 @@ const Step1: React.FC<{
             classNo: option.value,
         }));
     };
+    console.log({currentClassInfo})
     return (
         <Stack spacing={3} width="100%">
             <Center>
@@ -149,7 +150,7 @@ const Step1: React.FC<{
                     disabled={
                         !(
                             currentClassInfo.moduleCode &&
-                            currentClassInfo.lessonType
+                            currentClassInfo.classNo
                         )
                     }
                 >
@@ -192,7 +193,7 @@ const Step1: React.FC<{
                     disabled={
                         !(
                             currentClassInfo.moduleCode &&
-                            currentClassInfo.lessonType
+                            currentClassInfo.classNo
                         )
                     }
                 >
