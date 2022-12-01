@@ -28,6 +28,7 @@ import Card from "../../components/Card/Card";
 import ConfirmComplete from "../../components/Dialogs/ConfirmComplete";
 import ConfirmDelete from "../../components/Dialogs/ConfirmDelete";
 import Entry from "../../components/Sortables/Entry";
+import SwapArrows from "../../components/Swap/SwapArrows";
 import SwapEntry from "../../components/Swap/SwapEntry";
 import UserDisplay from "../../components/User/UserDisplay";
 import { sendDELETE, sendPATCH, sendPOST } from "../../lib/fetcher";
@@ -380,17 +381,17 @@ const SpecificSwap: NextPage = () => {
                 </Card>
 
                 <SwapEntry
+                    badge={swap.moduleCode}
                     classNo={swap.classNo}
                     classes={groupedByClassNo[swap.classNo]}
                     title={`${swap.moduleCode}
                                 ${keepAndCapFirstThree(swap.lessonType)} [${
                         swap.classNo
                     }]`}
+                    link={`https://nusmods.com/modules/${swap.moduleCode}`}
                 />
 
-                <Center>
-                    <ArrowDownIcon w={12} h={12} />
-                </Center>
+                <SwapArrows />
                 {requestedClassNos.map((classNo, index) => (
                     <SwapEntry
                         key={index}

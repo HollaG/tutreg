@@ -1,4 +1,9 @@
-import { ArrowDownIcon, TimeIcon } from "@chakra-ui/icons";
+import {
+    ArrowDownIcon,
+    ArrowUpDownIcon,
+    ArrowUpIcon,
+    TimeIcon,
+} from "@chakra-ui/icons";
 import {
     Avatar,
     Badge,
@@ -36,6 +41,7 @@ import Card from "../../components/Card/Card";
 import ConfirmDelete from "../../components/Dialogs/ConfirmDelete";
 import ModuleSelect from "../../components/Select/ModuleSelect";
 import Entry from "../../components/Sortables/Entry";
+import SwapArrows from "../../components/Swap/SwapArrows";
 import SwapEntry from "../../components/Swap/SwapEntry";
 import LoginButton from "../../components/User/LoginButton";
 import UserDisplay from "../../components/User/UserDisplay";
@@ -377,7 +383,78 @@ const Swap: NextPage = () => {
                                             }
                                         >
                                             <Stack spacing={3}>
+                                                <Flex
+                                                    alignItems="center"
+                                                    justifyContent="space-between"
+                                                >
+                                                    <HStack>
+                                                        <HStack flex={1}>
+                                                            <UserDisplay
+                                                                user={swap}
+                                                            />
+                                                        </HStack>
+                                                    </HStack>
+
+                                                    {cleanArrayString(
+                                                        swap.requestors
+                                                    ).includes(
+                                                        user?.id.toString() ||
+                                                            ""
+                                                    ) ? (
+                                                        <Button
+                                                            size="sm"
+                                                            colorScheme="blue"
+                                                            onClick={requestSwap(
+                                                                swap.swapId,
+                                                                user || null,
+                                                                "remove"
+                                                            )}
+                                                            disabled={
+                                                                hasRequestedSwap ===
+                                                                "Unrequested!"
+                                                            }
+                                                        >
+                                                            {hasRequestedSwap ||
+                                                                "Unrequest"}
+                                                        </Button>
+                                                    ) : (
+                                                        <Button
+                                                            size="sm"
+                                                            colorScheme="blue"
+                                                            onClick={requestSwap(
+                                                                swap.swapId,
+                                                                user || null,
+                                                                "request"
+                                                            )}
+                                                            disabled={
+                                                                hasRequestedSwap ===
+                                                                "Requested!"
+                                                            }
+                                                        >
+                                                            {hasRequestedSwap ||
+                                                                "Request"}
+                                                        </Button>
+                                                    )}
+                                                </Flex>
+                                                <Center>
+                                                    {cleanArrayString(
+                                                        swap.requestors
+                                                    ).includes(
+                                                        user?.id.toString() ||
+                                                            ""
+                                                    ) && (
+                                                        <Tag
+                                                            colorScheme="green"
+                                                            variant="solid"
+                                                        >
+                                                            {" "}
+                                                            Requested{" "}
+                                                        </Tag>
+                                                    )}
+                                                </Center>
+                                                <Divider />
                                                 <SwapEntry
+                                                    // badge="PS1101E"
                                                     bgColor={
                                                         state.misc.highlightedClassNos.includes(
                                                             swap.classNo
@@ -403,13 +480,7 @@ const Swap: NextPage = () => {
                                                         ) || []
                                                     }
                                                 />
-
-                                                <Center>
-                                                    <ArrowDownIcon
-                                                        w={12}
-                                                        h={12}
-                                                    />
-                                                </Center>
+                                                <SwapArrows />
                                                 <SimpleGrid
                                                     columns={{
                                                         base: 2,
@@ -460,76 +531,26 @@ const Swap: NextPage = () => {
                                                     )}
                                                 </SimpleGrid>
                                                 <Divider />
-                                                <Center>
-                                                    {cleanArrayString(
-                                                        swap.requestors
-                                                    ).includes(
-                                                        user?.id.toString() ||
-                                                            ""
-                                                    ) && (
-                                                        <Tag
-                                                            colorScheme="green"
-                                                            variant="solid"
-                                                        >
-                                                            {" "}
-                                                            Requested{" "}
-                                                        </Tag>
-                                                    )}
-                                                </Center>
-                                                <Flex alignItems="center">
-                                                    <HStack flex={1}>
-                                                        <HStack flex={1}>
-                                                            <UserDisplay
-                                                                user={swap}
-                                                            />
-                                                        </HStack>
-                                                    </HStack>
-                                                    {cleanArrayString(
-                                                        swap.requestors
-                                                    ).includes(
-                                                        user?.id.toString() ||
-                                                            ""
-                                                    ) ? (
-                                                        <Button
-                                                            size="sm"
-                                                            colorScheme="blue"
-                                                            onClick={requestSwap(
-                                                                swap.swapId,
-                                                                user || null,
-                                                                "remove"
+                                                <Flex justifyContent="space-between">
+                                                    <HStack
+                                                        alignItems="center"
+                                                        // justifyContent="center"
+                                                    >
+                                                        <TimeIcon />
+                                                        <Text>
+                                                            Created{" "}
+                                                            {formatTimeElapsed(
+                                                                swap.createdAt.toString()
                                                             )}
-                                                            disabled={
-                                                                hasRequestedSwap ===
-                                                                "Unrequested!"
-                                                            }
-                                                        >
-                                                            {hasRequestedSwap ||
-                                                                "Unrequest"}
-                                                        </Button>
-                                                    ) : (
-                                                        <Button
-                                                            size="sm"
-                                                            colorScheme="blue"
-                                                            onClick={requestSwap(
-                                                                swap.swapId,
-                                                                user || null,
-                                                                "request"
-                                                            )}
-                                                            disabled={
-                                                                hasRequestedSwap ===
-                                                                "Requested!"
-                                                            }
-                                                        >
-                                                            {hasRequestedSwap ||
-                                                                "Request"}
-                                                        </Button>
-                                                    )}
+                                                        </Text>
+                                                    </HStack>{" "}
+                                                    <Badge
+                                                        colorScheme="purple"
+                                                        fontSize="1em"
+                                                    >
+                                                        {swap.moduleCode}
+                                                    </Badge>
                                                 </Flex>
-                                                <Text>
-                                                    {formatTimeElapsed(
-                                                        swap.createdAt.toString()
-                                                    )}
-                                                </Text>
                                             </Stack>
                                         </Card>
                                     )
@@ -551,6 +572,40 @@ const Swap: NextPage = () => {
                                         }
                                     >
                                         <Stack spacing={3}>
+                                            <Flex alignItems="center">
+                                                <HStack flex={1}>
+                                                    <UserDisplay user={swap} />
+                                                </HStack>
+                                                <Button
+                                                    size="sm"
+                                                    colorScheme="red"
+                                                    onClick={promptDelete(
+                                                        swap.swapId
+                                                    )}
+                                                >
+                                                    {" "}
+                                                    Delete{" "}
+                                                </Button>
+                                            </Flex>
+                                            <Center>
+                                                {swap.status === "Completed" ? (
+                                                    <Tag
+                                                        colorScheme="green"
+                                                        variant="solid"
+                                                    >
+                                                        {" "}
+                                                        Completed{" "}
+                                                    </Tag>
+                                                ) : (
+                                                    <Tag
+                                                        colorScheme="blue"
+                                                        variant="solid"
+                                                    >
+                                                        Pending
+                                                    </Tag>
+                                                )}
+                                            </Center>
+                                            <Divider />
                                             <SwapEntry
                                                 title={`${swap.moduleCode}
                                                 ${keepAndCapFirstThree(
@@ -571,9 +626,7 @@ const Swap: NextPage = () => {
                                                 }
                                             />
 
-                                            <Center>
-                                                <ArrowDownIcon w={12} h={12} />
-                                            </Center>
+                                            <SwapArrows />
                                             <SimpleGrid
                                                 columns={{ base: 1, md: 2 }}
                                             >
@@ -611,48 +664,23 @@ const Swap: NextPage = () => {
                                                 )}
                                             </SimpleGrid>
                                             <Divider />
-                                            <Center>
-                                                {swap.status === "Completed" ? (
-                                                    <Tag
-                                                        colorScheme="green"
-                                                        variant="solid"
-                                                    >
-                                                        {" "}
-                                                        Completed{" "}
-                                                    </Tag>
-                                                ) : (
-                                                    <Tag
-                                                        colorScheme="blue"
-                                                        variant="solid"
-                                                    >
-                                                        Pending
-                                                    </Tag>
-                                                )}
-                                            </Center>
-                                            <Flex alignItems="center">
-                                                <HStack flex={1}>
-                                                    <UserDisplay user={swap} />
+                                            <Flex justifyContent="space-between">
+                                                <HStack alignItems="center">
+                                                    <TimeIcon />
+                                                    <Text>
+                                                        Created{" "}
+                                                        {formatTimeElapsed(
+                                                            swap.createdAt.toString()
+                                                        )}
+                                                    </Text>
                                                 </HStack>
-                                                <Button
-                                                    size="sm"
-                                                    colorScheme="red"
-                                                    onClick={promptDelete(
-                                                        swap.swapId
-                                                    )}
+                                                <Badge
+                                                    colorScheme="purple"
+                                                    fontSize="1em"
                                                 >
-                                                    {" "}
-                                                    Delete{" "}
-                                                </Button>
+                                                    {swap.moduleCode}
+                                                </Badge>
                                             </Flex>
-                                            <HStack alignItems="center">
-                                                <TimeIcon />
-                                                <Text>
-                                                    Created{" "}
-                                                    {formatTimeElapsed(
-                                                        swap.createdAt.toString()
-                                                    )}
-                                                </Text>
-                                            </HStack>
                                         </Stack>
                                     </Card>
                                 ))}
