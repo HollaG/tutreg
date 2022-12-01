@@ -102,6 +102,8 @@ export default function Nav() {
         router.back();
     };
 
+    
+
     return (
         <>
             <Box bg={useColorModeValue("gray.100", "gray.900")} px={4}>
@@ -111,7 +113,7 @@ export default function Nav() {
                     justifyContent={"space-between"}
                 >
                     <Flex alignItems="center">
-                        <IconButton
+                        {router.pathname !== "/" && <IconButton
                             onClick={goBack}
                             variant="ghost"
                             // w={4}
@@ -120,7 +122,7 @@ export default function Nav() {
                             minW={8}
                             icon={<ChevronLeftIcon p={0} />}
                             aria-label="Go back"
-                        />
+                        />}
 
                         <NextLink passHref href={"/"}>
                             {/* <Link>ModRank 🔢</Link> */}

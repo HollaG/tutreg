@@ -30,7 +30,7 @@ export default function CallToActionWithVideo() {
                     <Heading
                         lineHeight={1.1}
                         fontWeight={600}
-                        fontSize={{ base: "3xl", sm: "4xl", lg: "6xl" }}
+                        
                     >
                         <Text
                             as={"span"}
@@ -46,11 +46,12 @@ export default function CallToActionWithVideo() {
                                 bg: "blue.400",
                                 zIndex: -1,
                             }}
+                            fontSize={{ base: "3xl", sm: "4xl", lg: "6xl" }}
                         >
                             Rank / swap your slots,
                         </Text>
                         <br />
-                        <Text as={"span"} color={"blue.400"}>
+                        <Text as={"span"} color={"blue.400"} fontSize={{ base: "2xl", sm: "3xl", lg: "5xl" }}>
                             easily and painlessly
                         </Text>
                     </Heading>
@@ -77,14 +78,15 @@ export default function CallToActionWithVideo() {
                                 size={"lg"}
                                 fontWeight={"normal"}
                                 px={6}
-                                colorScheme={"red"}
-                                bg={"blue.400"}
+                                colorScheme={"blue"}
+                                // bg={"blue.400"}
+                                
                                 _hover={{ bg: "blue.500" }}
                                 leftIcon={
                                     <DragHandleIcon
                                         h={4}
                                         w={4}
-                                        color={"gray.300"}
+                                        color={useColorModeValue("gray.300", "gray.800")}
                                     />
                                 }
                             >
@@ -102,9 +104,10 @@ export default function CallToActionWithVideo() {
                                     <RepeatIcon
                                         h={4}
                                         w={4}
-                                        color={"gray.300"}
+                                        color={useColorModeValue("gray.300", "gray.800")}
                                     />
                                 }
+                                colorScheme="teal"
                             >
                                 Swap slots
                             </Button>

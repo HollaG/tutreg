@@ -96,7 +96,7 @@ const SwapEntry: React.FC<SwapEntryProps> = ({
                     />
                 )}
                 {badge && (
-                    <Badge colorScheme="purple" fontSize="1.25em">
+                    <Badge colorScheme="orange" fontSize="1.25em">
                         {badge}
                     </Badge>
                 )}

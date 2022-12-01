@@ -5,7 +5,7 @@ const SwapArrows = () => (
     <Center>
         {/* <ArrowUpIcon mr={1} fontSize="3xl" /> */}
         <TbArrowNarrowUp fontSize="2em" />
-        <Text fontSize={"sm"}>wants to swap the above for</Text>
+        <Text fontSize={"sm"} textAlign="center">wants to swap the above for one of</Text>
         {/* <ArrowDownIcon ml={1} fontSize="3xl" /> */}
         <TbArrowNarrowDown fontSize="2em"/>
     </Center>

@@ -544,7 +544,7 @@ const Swap: NextPage = () => {
                                                         </Text>
                                                     </HStack>{" "}
                                                     <Badge
-                                                        colorScheme="purple"
+                                                        colorScheme="orange"
                                                         fontSize="1em"
                                                     >
                                                         {swap.moduleCode}
@@ -673,7 +673,7 @@ const Swap: NextPage = () => {
                                                     </Text>
                                                 </HStack>
                                                 <Badge
-                                                    colorScheme="purple"
+                                                    colorScheme="orange"
                                                     fontSize="1em"
                                                 >
                                                     {swap.moduleCode}
