@@ -1,10 +1,11 @@
 import { ArrowDownIcon, ExternalLinkIcon, TimeIcon } from "@chakra-ui/icons";
-import { TbArrowsDownUp } from 'react-icons/tb'
+import { TbArrowsDownUp } from "react-icons/tb";
 import {
     Alert,
     AlertIcon,
     Avatar,
     AvatarGroup,
+    Badge,
     Box,
     Button,
     Center,
@@ -222,16 +223,18 @@ const SpecificSwap: NextPage = () => {
                 {user && user.id === swap.from_t_id && !misc.notify && (
                     <Alert status="info">
                         <AlertIcon />
-                        To receive notifications on Telegram when someone requests your swap, click the bell in
-                        the top-right corner.
+                        To receive notifications on Telegram when someone
+                        requests your swap, click the bell in the top-right
+                        corner.
                     </Alert>
                 )}
                 <Card>
-                    <HStack alignItems="center" justifyContent='center'>
+                    <HStack alignItems="center" justifyContent="center">
                         <TimeIcon />
                         <Text>
                             Created{" "}
-                            {formatTimeElapsed(swap.createdAt.toString())}, on {formatDate(new Date(swap.createdAt))}
+                            {formatTimeElapsed(swap.createdAt.toString())}, on{" "}
+                            {formatDate(new Date(swap.createdAt))}
                         </Text>
                     </HStack>{" "}
                     <Flex>
@@ -241,8 +244,7 @@ const SpecificSwap: NextPage = () => {
                             {user?.id === swap.from_t_id &&
                                 cleanArrayString(swap.requestors).length && (
                                     <>
-                                      
-                                        <TbArrowsDownUp fontSize={"1.75em"}/>
+                                        <TbArrowsDownUp fontSize={"1.75em"} />
                                         <Wrap>
                                             {swap.requestors
                                                 .trim()
@@ -290,7 +292,7 @@ const SpecificSwap: NextPage = () => {
                             {user?.id !== swap.from_t_id &&
                                 cleanArrayString(swap.requestors).length && (
                                     <>
-                                        <TbArrowsDownUp fontSize={"1.75em"}/>
+                                        <TbArrowsDownUp fontSize={"1.75em"} />
                                         <Tooltip
                                             placement="bottom-start"
                                             label={`${
@@ -333,16 +335,32 @@ const SpecificSwap: NextPage = () => {
                                     </>
                                 )}
                         </Stack>
-                        {user?.id === swap.from_t_id ? (
+
+                        {!user ? (
+                            <Button
+                                size="sm"
+                                colorScheme="blue"
+                                onClick={requestSwap(
+                                    swap.swapId,
+                                    user,
+                                    "request"
+                                )}
+                                disabled={hasRequestedSwap === "Requested!"}
+                            >
+                                {hasRequestedSwap || "Request"}
+                            </Button>
+                        ) : user.id === swap.from_t_id ? (
                             <>
-                                <Button
-                                    size="sm"
-                                    colorScheme="blue"
-                                    mr={2}
-                                    onClick={promptComplete}
-                                >
-                                    Complete
-                                </Button>
+                                {swap.status !== "Completed" && (
+                                    <Button
+                                        size="sm"
+                                        colorScheme="blue"
+                                        mr={2}
+                                        onClick={promptComplete}
+                                    >
+                                        Complete
+                                    </Button>
+                                )}
                                 <Button
                                     size="sm"
                                     colorScheme="red"
