@@ -13,6 +13,7 @@ import {
     useBoolean,
     useCheckbox,
     useColorModeValue,
+    useToast,
 } from "@chakra-ui/react";
 import { Select } from "chakra-react-select";
 import { Step, Steps, useSteps } from "chakra-ui-steps";
@@ -428,6 +429,7 @@ const CreateSwap: NextPage = () => {
     const user = useSelector((state: RootState) => state.user);
     const router = useRouter();
     const dispatch = useDispatch()
+    const toast = useToast()
     const submitHandler = async () => {
         console.log(desiredClasses);
         console.log(currentClassInfo);
@@ -438,14 +440,29 @@ const CreateSwap: NextPage = () => {
             user,
         });
         if (!response.success || !response.data) {
-            alert(response.error);
+            
+            toast({
+                title: "Error",
+                description: response.error,
+                status: "error",
+            })
+            
+
         } else {
             router.push(`/swap/${response.data}`); 
+            
+            toast({
+                title: "Swap created",
+                status: "success",
+                description: "Swap created! If you have enabled notifications, you will be notified on Telegram if someone requests to swap with you.\nYou can toggle this function by clicking the notification bell in the top right corner of the page.",
+                duration: 10000,
+                isClosable: true,
+            })
         }
     };
 
 
-    // Redirect back to homepage if no user
+    
     useEffect(() => {
         if (!user) {
             // router.push("/swap");

@@ -66,7 +66,7 @@ export default async function handler(
                 // insert
                 const updatedUser = {
                     ...user,
-                    can_notify: false,
+                    can_notify: true, // default to true? 
                 };
                 const results = await executeQuery({
                     query: `INSERT INTO users SET ?`,

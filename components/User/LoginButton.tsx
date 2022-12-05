@@ -23,7 +23,8 @@ const LoginButton = () => {
             dispatch(miscActions.setNeedsLogIn(false));
         } else {
             toast({
-                colorScheme: "red",
+               
+                status: "error",
                 title: "Error",
                 description: response.error,
             })
