@@ -33,6 +33,7 @@ import { sendPOST } from "../lib/fetcher";
 import { miscActions } from "../store/misc";
 import NextLink from "next/link";
 import { useRouter } from "next/router";
+import UserAvatar from "./User/UserAvatar";
 const NavLink = ({ children }: { children: ReactNode }) => (
     <Link
         px={2}
@@ -159,26 +160,24 @@ export default function Nav() {
                                     cursor={"pointer"}
                                     minW={0}
                                 >
-                                    <Avatar
+                                    {/* <Avatar
                                         size={"sm"}
                                         src={
                                             user
-                                                ? user.photo_url
+                                                // ? user.photo_url
+                                                ? undefined
                                                 : "/Telegram.svg"
                                         }
                                         name={user?.first_name}
-                                    />
+                                    /> */}
+                                    <UserAvatar user={user} />
                                 </MenuButton>
                                 <MenuList alignItems={"center"}>
                                     {user ? (
                                         <>
                                             <br />
-                                            <Center>
-                                                <Avatar
-                                                    size={"2xl"}
-                                                    src={user.photo_url}
-                                                    name={user.first_name}
-                                                />
+                                            <Center>                                                
+                                                <UserAvatar user={user} size="2xl"/>
                                             </Center>
                                             <br />
                                             <Center>

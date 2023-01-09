@@ -45,6 +45,7 @@ import { miscActions } from "../../store/misc";
 import { ModuleWithClassDB } from "../../types/db";
 import { ClassSwapRequest, RootState } from "../../types/types";
 import { SpecificSwapData } from "../api/swap/[swapId]";
+import UserAvatar from "../../components/User/UserAvatar";
 
 const SpecificSwap: NextPage = () => {
     const router = useRouter();
@@ -319,15 +320,16 @@ const SpecificSwap: NextPage = () => {
                                                         );
                                                         if (user)
                                                             return (
-                                                                <Avatar
-                                                                    key={index}
-                                                                    name={
-                                                                        user.first_name
-                                                                    }
-                                                                    src={
-                                                                        user.photo_url
-                                                                    }
-                                                                />
+                                                                // <Avatar
+                                                                //     key={index}
+                                                                //     name={
+                                                                //         user.first_name
+                                                                //     }
+                                                                //     src={
+                                                                //         user.photo_url
+                                                                //     }
+                                                                // />
+                                                                <UserAvatar user={user} key={index}/>
                                                             );
                                                     })}
                                             </AvatarGroup>
