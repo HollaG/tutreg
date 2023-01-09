@@ -53,7 +53,11 @@ export default async function handler(
                 values: [user.id],
             });
             if (!user.username) user.username = "";
-            if (!user.photo_url) user.photo_url = "";
+
+            // if (!user.photo_url) user.photo_url = "";
+            // Disable photo_url for now
+            user.photo_url = "";
+
 
             if (userDB.length) {
                 // update
