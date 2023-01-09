@@ -9,7 +9,15 @@ import { ClassOverview, ModuleCodeLessonType } from "../types/types";
 
 //     SEC
 export const keepAndCapFirstThree = (string: string) => {
-    return string.substring(0, 3).toUpperCase();
+    // fix HSI1000 doing 'workshop' as 'ws'
+    // TUT2: Tutorial Type 2
+    // PLEC: Packaged Lecture
+    // PTUT: Packaged Tutorial
+    if (string === "Workshop") return "WS";
+    else if (string === "Tutorial Type 2") return "TUT2";
+    else if (string === "Packaged Lecture") return "PLEC";
+    else if (string === "Packaged Tutorial") return "PTUT";
+    else return string.substring(0, 3).toUpperCase();
 };
 
 // Function to sort by day of week, with Monday being the first day.
@@ -107,8 +115,8 @@ export const generateLink = (
     } = {};
     for (const moduleCodeLessonType in classesSelected) {
         const classes = classesSelected[moduleCodeLessonType];
-        const moduleCode = moduleCodeLessonType.split(": ")[0]
-        const lessonType = moduleCodeLessonType.split(": ")[1]
+        const moduleCode = moduleCodeLessonType.split(": ")[0];
+        const lessonType = moduleCodeLessonType.split(": ")[1];
         // const moduleCode = classes[0].moduleCode;
         // const lessonType = classes[0].lessonType;
 

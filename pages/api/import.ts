@@ -39,12 +39,14 @@ export default async function handler(
                 !url.startsWith("https://nusmods.com/timetable/sem-1/share?") &&
                 !url.startsWith("https://nusmods.com/timetable/sem-2/share?")
             ) {
-                console.log("Invalid url!")
-                res.status(400).json({ success: false, error: "Invalid URL! Please check the URL and try again." });
+                console.log("Invalid url!");
+                res.status(400).json({
+                    success: false,
+                    error: "Invalid URL! Please check the URL and try again.",
+                });
                 return;
             }
 
-            
             // get the semester from the link
             const semester = url.includes("sem-1") ? "1" : "2";
 
@@ -64,6 +66,7 @@ export default async function handler(
             }[] = [];
 
             for (const p of params) {
+                // p: [moduleCode, selectedLessons]
                 const moduleCode = p[0];
                 const selectedLessons = p[1];
 
@@ -72,7 +75,17 @@ export default async function handler(
                 const timetable: { [key: string]: string } = {};
                 lessons.forEach((lesson) => {
                     if (lesson.includes(":")) {
-                        const lessonType = lesson.split(":")[0];
+                        let lessonType = lesson.split(":")[0];
+
+                        // fix HSI1000 doing 'workshop' as 'ws'
+                        // TUT2: Tutorial Type 2 
+                        // PLEC: Packaged Lecture
+                        // PTUT: Packaged Tutorial
+                        // TODO find a better way to do this
+                        if (lessonType === "WS") lessonType = "WOR";
+                        if (lessonType === "TUT2") lessonType = "Tutorial Type 2"
+                        if (lessonType === "PLEC") lessonType = "Packaged Lecture"
+                        if (lessonType === "PTUT") lessonType = "Packaged Tutorial"
                         const classNo = lesson.split(":")[1];
 
                         timetable[lessonType] = classNo;
@@ -85,8 +98,6 @@ export default async function handler(
                 });
             }
 
-           
-
             // console.log({classesSelected})
             const moduleCodes = classesSelected.map(
                 (classselected) => classselected.moduleCode
@@ -94,7 +105,6 @@ export default async function handler(
 
             // check if the system has up to date (1 day old or less) data for the semester and module codes for this AY
             let ay = process.env.NEXT_PUBLIC_AY;
-            
 
             for (const { moduleCode } of classesSelected) {
                 console.log(`Running loop for ${moduleCode}`);
@@ -138,7 +148,6 @@ export default async function handler(
                             {
                                 moduleCode,
                                 moduleName: data.title,
-
                             },
                         ],
                     });
@@ -150,7 +159,6 @@ export default async function handler(
                     });
 
                     let classDataSem1: any[] = []; // TODO
-                 
 
                     if (data.semesterData?.[0]?.timetable) {
                         classDataSem1 =
@@ -164,7 +172,9 @@ export default async function handler(
                                     classItem.endTime,
                                     classItem.venue || "No venue",
                                     classItem.size,
-                                    JSON.stringify(formatWeeks(classItem.weeks)),
+                                    JSON.stringify(
+                                        formatWeeks(classItem.weeks)
+                                    ),
                                     process.env.NEXT_PUBLIC_AY,
                                     data.semesterData[0].semester,
                                 ];
@@ -184,7 +194,9 @@ export default async function handler(
                                     classItem.endTime,
                                     classItem.venue || "No venue",
                                     classItem.size,
-                                    JSON.stringify(formatWeeks(classItem.weeks)),
+                                    JSON.stringify(
+                                        formatWeeks(classItem.weeks)
+                                    ),
                                     process.env.NEXT_PUBLIC_AY,
                                     data.semesterData[1].semester,
                                 ];
@@ -196,12 +208,10 @@ export default async function handler(
                         `${classData.length} classes for ${moduleCode}`
                     );
                     if (classData.length) {
-                       
                         const result = await executeQuery({
                             query: `INSERT INTO classlist (moduleCode, lessonType, classNo, day, startTime, endTime, venue, size, weeks, ay, semester) VALUES ?`,
                             values: [classData],
                         });
-                        
                     }
                 }
             }
@@ -249,7 +259,6 @@ export default async function handler(
             // Manipulate the classes selected to the correct data format
             const moduleCodeLessonTypeMap: ModuleCodeLessonType = {};
 
-
             classesSelected.forEach(({ moduleCode, timetable }) => {
                 Object.keys(timetable).forEach((lessonType) => {
                     const classNo = timetable[lessonType];
@@ -261,7 +270,7 @@ export default async function handler(
                                 .includes(lessonType.toLowerCase()) &&
                             classData.moduleCode === moduleCode
                     ); // use filter bc there might be 2 of the same classNo / lessonType / moduleCode, aka when you have 2 tuts per wk
-                  
+
                     if (classData.length) {
                         const moduleCodeLessonType = `${moduleCode}: ${classData[0].lessonType}`;
 
