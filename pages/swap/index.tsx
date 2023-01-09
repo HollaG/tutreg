@@ -421,7 +421,7 @@ const Swap: NextPage = () => {
                                                                         "Unrequested!"
                                                                     }
                                                                 >
-                                                                    {hasRequestedSwap ||
+                                                                    {!user ? "Request" : hasRequestedSwap ||
                                                                         "Unrequest"}
                                                                 </Button>
                                                             ) : (
