@@ -107,8 +107,10 @@ export const generateLink = (
     } = {};
     for (const moduleCodeLessonType in classesSelected) {
         const classes = classesSelected[moduleCodeLessonType];
-        const moduleCode = classes[0].moduleCode;
-        const lessonType = classes[0].lessonType;
+        const moduleCode = moduleCodeLessonType.split(": ")[0]
+        const lessonType = moduleCodeLessonType.split(": ")[1]
+        // const moduleCode = classes[0].moduleCode;
+        // const lessonType = classes[0].lessonType;
 
         if (!holder[moduleCode]) holder[moduleCode] = [];
         holder[moduleCode].push(classes[0]); // only add the first class selected. TODO: Change this to be user selectable

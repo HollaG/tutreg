@@ -168,16 +168,25 @@ const classesSlice = createSlice({
             }>
         ) {
             const { moduleCodeLessonType, classNo } = action.payload;
+            const remainingClasses = state.selectedClasses[moduleCodeLessonType].filter((class_) => class_.classNo !== classNo)
 
-            return {
-                ...state,
-                selectedClasses: {
-                    ...state.selectedClasses,
-                    [moduleCodeLessonType]: state.selectedClasses[
-                        moduleCodeLessonType
-                    ].filter((class_) => class_.classNo !== classNo),
-                },
-            };
+            if (remainingClasses.length) {
+                return {
+                    ...state,
+                    selectedClasses: {
+                        ...state.selectedClasses,
+                        [moduleCodeLessonType]: remainingClasses,
+                    },
+                };
+            } else {
+                const newState = { ...state.selectedClasses }
+                delete newState[moduleCodeLessonType]
+                return {
+                    ...state,
+                    selectedClasses: newState,
+                };
+            }
+            
         },
         changeClassOrder(
             state,
