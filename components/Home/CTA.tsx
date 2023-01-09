@@ -48,7 +48,7 @@ export default function CallToActionWithVideo() {
                             }}
                             fontSize={{ base: "3xl", sm: "4xl", lg: "6xl" }}
                         >
-                            Rank / swap your slots,
+                            Order / swap your slots,
                         </Text>
                         <br />
                         <Text as={"span"} color={"blue.400"} fontSize={{ base: "2xl", sm: "3xl", lg: "5xl" }}>
@@ -57,7 +57,7 @@ export default function CallToActionWithVideo() {
                     </Heading>
                     <Box>
                         <Text color={"gray.500"}>
-                            This website helps you easily rank the tutorial /
+                            This website helps you easily rank & order the tutorial /
                             lab slots of each module, giving you an ordered list
                             that you can copy into ModReg.
                         </Text>

@@ -126,7 +126,7 @@ export default function Nav() {
 
                         <NextLink passHref href={"/"}>
                             {/* <Link>ModRank 🔢</Link> */}
-                            <Link>ModRank</Link>
+                            <Link>TutReg</Link>
 
                         </NextLink>
                     </Flex>

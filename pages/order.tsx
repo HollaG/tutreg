@@ -30,6 +30,7 @@ import {
     InputLeftAddon,
     InputRightElement,
     useClipboard,
+    Tag,
 } from "@chakra-ui/react";
 import { AnyARecord } from "dns";
 import { NextPage } from "next";
@@ -61,9 +62,9 @@ const Order: NextPage = () => {
         !link.startsWith("https://nusmods.com/timetable/sem") && link !== "";
 
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const handleSubmit = async () => {        
+    const handleSubmit = async () => {
         setIsSubmitting(true);
-        
+
         const result: ImportResponseData = await sendPOST("/api/import", {
             url: link,
         });
@@ -242,6 +243,21 @@ const Order: NextPage = () => {
                 {" "}
                 To get started, import your NUSMods Timetable.{" "}
             </Heading>
+            <Center textAlign='center'>
+                <Stack spacing={1} alignItems='center'>
+                    <Text>
+                        {" "}
+                        You can rank your modules according to the priority in
+                        the <Tag> Rank Modules </Tag> tab.
+                    </Text>
+                    <Text>
+                        {" "}
+                        Then, add and rank the other classes that you want in the{" "}
+                        <Tag>Rank Classes</Tag> tab, and see the
+                        results in <Tag>Computed Ranking</Tag>.
+                    </Text>
+                </Stack>
+            </Center>
             <Flex>
                 <Box flex={1} mr={3}>
                     <FormControl isInvalid={isError}>
@@ -251,7 +267,8 @@ const Order: NextPage = () => {
                             onChange={(e) => setLink(e.target.value)}
                         />
                         <FormHelperText>
-                            Paste the link you get when clicking the [Share/Sync] button on NUSMods above.
+                            Paste the link you get when clicking the
+                            [Share/Sync] button on <Link  href="https://nusmods.com" isExternal>NUSMods</Link> above.
                         </FormHelperText>
 
                         {isError && (
