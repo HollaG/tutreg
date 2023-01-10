@@ -6,15 +6,25 @@ import {
     Container,
     Flex,
     Heading,
+    Input,
+    InputGroup,
+    InputLeftAddon,
+    InputRightElement,
     Stack,
     Text,
     Tooltip,
+    useClipboard,
 } from "@chakra-ui/react";
 import { Select } from "chakra-react-select";
 import { useEffect, useMemo, useState } from "react";
 import { arrayMove, List } from "react-movable";
 import { useSelector } from "react-redux";
-import { combineNumbers, getAlphabet, keepAndCapFirstThree } from "../../lib/functions";
+import {
+    combineNumbers,
+    encodeRank,
+    getAlphabet,
+    keepAndCapFirstThree,
+} from "../../lib/functions";
 import { ClassOverview, Option, RootState } from "../../types/types";
 import Card from "../Card/Card";
 import Entry from "../Sortables/Entry";
@@ -44,11 +54,11 @@ const ResultContainer: React.FC<{ showAdd: boolean }> = ({ showAdd }) => {
     useEffect(() => {
         if (!copiedModuleOrder || !selectedClasses) return;
         if (decouple) return;
-
+        let tempHolderArray: ClassOverview[] = [];
         if (value.value === "selected") {
             // rank according to selection
 
-            let tempHolderArray: ClassOverview[] = [];
+            
             // find the highest number of selected classes in each selected module
 
             // highest number is the number of rows of the 2d matrix
@@ -84,17 +94,15 @@ const ResultContainer: React.FC<{ showAdd: boolean }> = ({ showAdd }) => {
                         tempHolderArray.push(selectedClasses[module_][reverse]);
                 }
             }
-
-            setHolderArray(tempHolderArray);
+     
         } else if (value.value === "vacancy") {
-            let tempHolderArray: ClassOverview[] = [];
-           
+            
+
             const vacancyModuleOrder = copiedModuleOrder.sort(
                 (a, b) =>
                     selectedClasses?.[a]?.[0]?.size -
                     selectedClasses?.[b]?.[0]?.size
             );
-            
 
             // highest number is the number of rows of the 2d matrix
             const highestNumber = Object.keys(selectedClasses).reduce(
@@ -130,8 +138,12 @@ const ResultContainer: React.FC<{ showAdd: boolean }> = ({ showAdd }) => {
                 }
             }
 
-            setHolderArray(tempHolderArray);
+         
         }
+        setHolderArray(tempHolderArray);
+        console.log(encodeRank(tempHolderArray))
+        setShareLink(encodeRank(tempHolderArray))
+
     }, [copiedModuleOrder, selectedClasses, decouple, value]);
 
     const toggleDecouple = () => setDecouple(!decouple);
@@ -169,20 +181,16 @@ const ResultContainer: React.FC<{ showAdd: boolean }> = ({ showAdd }) => {
         }
     };
 
+    const { hasCopied, onCopy } = useClipboard("");
+
+
+    // Generate a sharable link
+    const [shareLink, setShareLink] = useState("")
    
-    
 
     return (
         <Stack spacing={3}>
-            <Flex alignItems="center">
-                {/* <Heading size="md" flex={1}>
-                    Priority (using Sam Chan&apos;s algorithm)
-                </Heading> */}
-                {/* <Select  size="sm" flex={1} placeholder="Select option">
-                    <option value="option1">Sam Chan</option>
-                    <option value="option2">Lowest Vacancy First</option>
-                    <option value="option3">Unlocked</option>
-                </Select> */}
+            <Flex alignItems="center">                
                 <Box flex={1}>
                     <Select
                         size="sm"
@@ -246,9 +254,12 @@ const ResultContainer: React.FC<{ showAdd: boolean }> = ({ showAdd }) => {
                                         <Text mb={2}>
                                             {" "}
                                             Weeks{" "}
-                                            {combineNumbers((value.classes[0].weeks)
-                                                .toString()
-                                                .replace(/\[|\]/g, "").split(","))}
+                                            {combineNumbers(
+                                                value.classes[0].weeks
+                                                    .toString()
+                                                    .replace(/\[|\]/g, "")
+                                                    .split(",")
+                                            )}
                                         </Text>
                                         {(value?.classes || []).map(
                                             (classSel, index) => (
@@ -269,6 +280,17 @@ const ResultContainer: React.FC<{ showAdd: boolean }> = ({ showAdd }) => {
                     </Entry>
                 )}
             />
+            <Box>
+                <InputGroup>
+                    <InputLeftAddon>Export link</InputLeftAddon>
+                    <Input readOnly value={shareLink} />
+                    <InputRightElement width="4.5rem">
+                        <Button h="1.75rem" size="sm" onClick={onCopy}>
+                            {hasCopied ? "Copied!" : "Copy"}
+                        </Button>
+                    </InputRightElement>
+                </InputGroup>
+            </Box>
         </Stack>
     );
 };

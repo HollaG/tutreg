@@ -4,6 +4,7 @@
 // Output:
 
 import { ClassDB } from "../types/db";
+import { Option } from '../types/types'
 import { WeekRange, Weeks } from "../types/modules";
 import { ClassOverview, ModuleCodeLessonType } from "../types/types";
 
@@ -146,6 +147,9 @@ export const generateLink = (
     return link;
 };
 
+// Function to generate the tutreg.com share link based on the computed ranking
+export const generateShareLink = (classesSelected: ModuleCodeLessonType) => {};
+
 // Function to clean the mysql stringified array
 export const cleanArrayString = (arrayString: string) =>
     !arrayString
@@ -278,3 +282,13 @@ export const formatDate = (date: Date) => {
 
     return [day, month, year].join("/");
 };
+
+// Function to convert holderArray into a url string that can be shared
+export const encodeRank = (rank: ClassOverview[]) => {
+    let begin = `https://tutreg.com/?share=`
+    let ranked = []
+    ranked = rank.map(class_ => 
+      `${class_.moduleCode}:${keepAndCapFirstThree(class_.lessonType)}:${class_.classNo}`
+    )
+    return `${begin}${ranked.join(",")}`
+}
