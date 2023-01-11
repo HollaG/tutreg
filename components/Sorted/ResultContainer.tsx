@@ -23,7 +23,7 @@ import {
     combineNumbers,
     encodeRank,
     getAlphabet,
-    keepAndCapFirstThree,
+    encodeLessonTypeToShorthand,
 } from "../../lib/functions";
 import { classesActions } from "../../store/classesReducer";
 import { LessonTypeAbbrevMap } from "../../types/modules";
@@ -143,7 +143,7 @@ const ResultContainer: React.FC<{ showAdd: boolean }> = ({ showAdd }) => {
          
         }
         setHolderArray(tempHolderArray);
-        console.log(encodeRank(tempHolderArray))
+    
         
 
     }, [copiedModuleOrder, selectedClasses, decouple, value]);
@@ -193,7 +193,7 @@ const ResultContainer: React.FC<{ showAdd: boolean }> = ({ showAdd }) => {
     const { hasCopied, onCopy } = useClipboard(shareLink);
     // update the link whenever holderarray changes
     useEffect(() => {
-        setShareLink(encodeRank(holderArray))
+        setShareLink(encodeRank(holderArray, moduleOrder, selectedClasses))
     }, [holderArray])
 
     return (
@@ -248,7 +248,7 @@ const ResultContainer: React.FC<{ showAdd: boolean }> = ({ showAdd }) => {
                             <Box flex={1} mx={3}>
                                 <Text fontWeight={"semibold"}>
                                     {(index || 0) + 1}. {value.moduleCode}{" "}
-                                    {keepAndCapFirstThree(
+                                    {encodeLessonTypeToShorthand(
                                         value.lessonType as keyof LessonTypeAbbrevMap || ""
                                     )}{" "}
                                     [{value.classNo}]

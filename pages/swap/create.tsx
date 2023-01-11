@@ -29,7 +29,7 @@ import {
 } from "react";
 import ModuleSelect from "../../components/Select/ModuleSelect";
 import { sendPOST } from "../../lib/fetcher";
-import { keepAndCapFirstThree } from "../../lib/functions";
+import { encodeLessonTypeToShorthand } from "../../lib/functions";
 import { ClassDB } from "../../types/db";
 import { GetClassesResponse, GroupedByClassNo } from "../api/swap/getClasses";
 
@@ -55,7 +55,7 @@ const steps = [
 ];
 
 const generateLessonText = (classes: ClassDB[]) => {
-    return `${keepAndCapFirstThree(classes[0].lessonType)} [${
+    return `${encodeLessonTypeToShorthand(classes[0].lessonType)} [${
         classes[0].classNo
     }]\n${classes
         .map((class_) => `${class_.day} ${class_.startTime}-${class_.endTime}`)
@@ -259,7 +259,7 @@ const Step2: React.FC<{
             <SwapEntry
                 classNo={currentClassInfo.classNo}
                 classes={classes[currentClassInfo.classNo]}
-                title={`${currentClassInfo.moduleCode} ${keepAndCapFirstThree(
+                title={`${currentClassInfo.moduleCode} ${encodeLessonTypeToShorthand(
                     currentClassInfo.lessonType
                 )} [${currentClassInfo.classNo}]`}
             />
@@ -376,7 +376,7 @@ const Step3: React.FC<{
             <SwapEntry
                 classNo={currentClassInfo.classNo}
                 classes={classes[currentClassInfo.classNo]}
-                title={`${currentClassInfo.moduleCode} ${keepAndCapFirstThree(
+                title={`${currentClassInfo.moduleCode} ${encodeLessonTypeToShorthand(
                     currentClassInfo.lessonType
                 )} [${currentClassInfo.classNo}]`}
             />
@@ -390,7 +390,7 @@ const Step3: React.FC<{
                     key={index}
                     classNo={currentClassInfo.classNo}
                     classes={classes[desiredClassNo]}
-                    title={`${(index || 0) + 1}. ${keepAndCapFirstThree(
+                    title={`${(index || 0) + 1}. ${encodeLessonTypeToShorthand(
                         currentClassInfo.lessonType
                     )} [${desiredClassNo}]`}
                     canDelete

@@ -38,7 +38,7 @@ import {
     cleanArrayString,
     formatDate,
     formatTimeElapsed,
-    keepAndCapFirstThree,
+    encodeLessonTypeToShorthand,
 } from "../../lib/functions";
 import { requestSwapHelper } from "../../lib/helpers";
 import { miscActions } from "../../store/misc";
@@ -408,7 +408,7 @@ const SpecificSwap: NextPage = () => {
                     classNo={swap.classNo}
                     classes={groupedByClassNo[swap.classNo]}
                     title={`${swap.moduleCode}
-                                ${keepAndCapFirstThree(swap.lessonType)} [${
+                                ${encodeLessonTypeToShorthand(swap.lessonType)} [${
                         swap.classNo
                     }]`}
                     link={`https://nusmods.com/modules/${swap.moduleCode}`}
@@ -420,7 +420,7 @@ const SpecificSwap: NextPage = () => {
                         key={index}
                         classNo={classNo}
                         classes={groupedByClassNo[classNo]}
-                        title={`${keepAndCapFirstThree(
+                        title={`${encodeLessonTypeToShorthand(
                             swap.lessonType
                         )} [${classNo}]`}
                     />

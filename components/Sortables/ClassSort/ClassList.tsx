@@ -3,7 +3,7 @@ import { Box, Flex, Text, useColorModeValue } from "@chakra-ui/react";
 import { useCallback, useEffect } from "react";
 import { arrayMove, arrayRemove, List } from "react-movable";
 import { useDispatch, useSelector } from "react-redux";
-import { getAlphabet, keepAndCapFirstThree } from "../../../lib/functions";
+import { getAlphabet, encodeLessonTypeToShorthand } from "../../../lib/functions";
 import { classesActions } from "../../../store/classesReducer";
 import { ClassOverview, RootState } from "../../../types/types";
 import Entry from "../Entry";
@@ -132,7 +132,7 @@ const ClassList: React.FC<{
                             <Text fontWeight={"semibold"}>
                                 {/* {getAlphabet(index || 0)}.{" "} */}
                                 {(index||0)+1}.{" "}
-                                {keepAndCapFirstThree(moduleData?.lessonType || "")} [
+                                {encodeLessonTypeToShorthand(moduleData?.lessonType || "")} [
                                 {moduleData?.classNo}]
                             </Text>
                             {(moduleData?.classes || []).map(

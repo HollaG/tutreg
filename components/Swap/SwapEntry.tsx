@@ -10,7 +10,7 @@ import {
     Badge,
 } from "@chakra-ui/react";
 
-import { keepAndCapFirstThree } from "../../lib/functions";
+import { encodeLessonTypeToShorthand } from "../../lib/functions";
 import Entry from "../Sortables/Entry";
 const DAY_MAP: { [key: string]: any } = {
     Monday: "Mon",

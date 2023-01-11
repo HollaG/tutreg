@@ -54,7 +54,7 @@ export default async function handler(
             const stripped = url.replace(
                 /^https:\/\/nusmods\.com\/timetable\/.*\/share\?/gm,
                 ""
-            ); // CFG1002=&CS1101S=TUT:07B,REC:11E,LEC:1&CS1231S=TUT:08B,LEC:1&IS1108=TUT:03,LEC:1&MA2001=TUT:1,LAB:2,LEC:1&RVX1000=SEC:1&RVX1002=SEC:2
+            ).trim(); // CFG1002=&CS1101S=TUT:07B,REC:11E,LEC:1&CS1231S=TUT:08B,LEC:1&IS1108=TUT:03,LEC:1&MA2001=TUT:1,LAB:2,LEC:1&RVX1000=SEC:1&RVX1002=SEC:2
             // get the url params
             const params = new URLSearchParams(stripped);
             console.log(params)

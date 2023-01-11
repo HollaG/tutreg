@@ -2,7 +2,7 @@ import { DragHandleIcon, DeleteIcon } from "@chakra-ui/icons";
 import { Box, Flex, useColorModeValue, Text } from "@chakra-ui/react";
 import { Dispatch, SetStateAction } from "react";
 import { arrayMove, arrayRemove, List } from "react-movable";
-import { keepAndCapFirstThree } from "../../lib/functions";
+import { encodeLessonTypeToShorthand } from "../../lib/functions";
 import { GroupedByClassNo } from "../../pages/api/swap/getClasses";
 import { classesActions } from "../../store/classesReducer";
 import { ClassOverview } from "../../types/types";
@@ -79,7 +79,7 @@ const OrderSwapPriorityList: React.FC<{
                             <Text fontWeight={"semibold"}>
                                 {/* {getAlphabet(index || 0)}.{" "} */}
                                 {enabled && `${(index || 0) + 1}.`}{" "}
-                                {keepAndCapFirstThree(
+                                {encodeLessonTypeToShorthand(
                                     classes[desiredClassNo][0]?.lessonType || ""
                                 )}{" "}
                                 [{desiredClassNo}]

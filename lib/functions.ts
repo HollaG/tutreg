@@ -5,9 +5,15 @@
 
 import { ClassDB } from "../types/db";
 import { Option } from "../types/types";
-import { LessonTypeAbbrevMap, LessonTypeFullMap, WeekRange, Weeks } from "../types/modules";
+import {
+    LessonType,
+    LessonTypeAbbrev,
+    LessonTypeAbbrevMap,
+    LessonTypeFullMap,
+    WeekRange,
+    Weeks,
+} from "../types/modules";
 import { ClassOverview, ModuleCodeLessonType } from "../types/types";
-
 
 export const LESSON_TYPE_ABBREV = {
     "Design Lecture": "DLEC",
@@ -22,7 +28,6 @@ export const LESSON_TYPE_ABBREV = {
     "Tutorial Type 2": "TUT2",
     "Tutorial Type 3": "TUT3",
     Workshop: "WS",
-    
 };
 
 export const LESSON_TYPE_FULL = {
@@ -40,17 +45,15 @@ export const LESSON_TYPE_FULL = {
     WS: "Workshop",
 };
 
-
 //     SEC
-export const keepAndCapFirstThree = (string: keyof LessonTypeAbbrevMap) => {
-
+export const encodeLessonTypeToShorthand = (
+    string: keyof LessonTypeAbbrevMap
+) => {
     if (LESSON_TYPE_ABBREV[string]) return LESSON_TYPE_ABBREV[string];
     else return string.substring(0, 3).toUpperCase();
-
 };
 
 export const decodeLessonTypeShorthand = (string: keyof LessonTypeFullMap) => {
-
     if (LESSON_TYPE_FULL[string]) return LESSON_TYPE_FULL[string];
     else return string;
 
@@ -194,7 +197,7 @@ export const generateLink = (
         holder2[moduleCode] = holder[moduleCode]
             .map(
                 (classes) =>
-                    `${keepAndCapFirstThree(classes.lessonType)}:${
+                    `${encodeLessonTypeToShorthand(classes.lessonType)}:${
                         classes.classNo
                     }`
             )
@@ -345,16 +348,93 @@ export const formatDate = (date: Date) => {
 };
 
 // Function to convert holderArray into a url string that can be shared
-export const encodeRank = (rank: ClassOverview[]) => {
-    let begin = `https://tutreg.com/order?share=`;
+export const encodeRank = (rank: ClassOverview[], moduleOrder: string[], selectedClasses: ModuleCodeLessonType) => {
+    let begin = `https://tutreg.com/?share=`;
     let ranked = [];
     ranked = rank.map(
         (class_) =>
-            `${class_.moduleCode}:${keepAndCapFirstThree(class_.lessonType)}:${
-                class_.classNo
-            }`
+            `${class_.moduleCode}:${encodeLessonTypeToShorthand(
+                class_.lessonType
+            )}:${class_.classNo}`
     );
-    return `${begin}${ranked.join(",")}`;
+    begin += ranked.join(",")
+
+    return begin;
+    // let begin = `https://tutreg.com/order?share=`;
+    // let ranked = [];
+    // ranked = rank.map(
+    //     (class_) =>
+    //         `${class_.moduleCode}:${encodeLessonTypeToShorthand(
+    //             class_.lessonType
+    //         )}:${class_.classNo}`
+    // );
+    // begin += ranked.join(",")
+
+    // // encode the order of mods in each module
+    // let indivSelects = moduleOrder.map(moduleCodeLessonType => {
+    //     if (!selectedClasses[moduleCodeLessonType]) return ""
+    //     const temp = moduleCodeLessonType.split(": ")
+    //     const moduleCode = temp[0]
+    //     const lessonType = temp[1] as LessonType
+    //     const lessonTypeAbbr = encodeLessonTypeToShorthand(lessonType)
+
+        
+    //     let selString = selectedClasses[moduleCodeLessonType].map(class_ => class_.classNo).join(",")
+    //     console.log({selString})
+    //     return `${moduleCode}-${lessonTypeAbbr}:${selString}`
+    // })
+
+
+    // console.log({indivSelects})
+
+    // return `${begin}${ranked.join(",")}&classes=${indivSelects.join("__")}`;
 };
 
 // Function to convert tutreg.com's share URL into NUSMods format
+export const tutregToNUSMods = (url: string) => {
+    const moduleString = url.split("?share=")[1];
+    const selectedClasses = moduleString.split(",");
+    const holder: {
+        [moduleCode: string]: { [lessonType: string]: string }; // todo: type lessonType
+    } = {};
+
+    console.log({ selectedClasses })
+    for (let class_ of selectedClasses) {
+        const moduleCode: string = class_.split(":")[0];
+        const abbreLessonType: LessonTypeAbbrev = class_.split(
+            ":"
+        )[1] as LessonTypeAbbrev;
+        const classNo: string = class_.split(":")[2];
+
+        if (!holder[moduleCode]) {
+            holder[moduleCode] = {};
+        }
+
+        holder[moduleCode] = {
+            [abbreLessonType]: classNo,
+            ...holder[moduleCode],
+        };
+    }
+
+    // convert holder into holder2
+    const holder2: {
+        [moduleCode: string]: string;
+    } = {};
+
+    for (let moduleCode in holder) {
+        const moduleString = Object.keys(holder[moduleCode])
+            .map(
+                (lessonType) =>
+                    `${lessonType}:${holder[moduleCode][lessonType]}`
+            )
+            .join(",");
+        holder2[moduleCode] = moduleString;
+    }
+
+    let urlBegin = `https://nusmods.com/timetable/sem-${process.env.NEXT_PUBLIC_SEM}/share?`;
+    const searchParams = new URLSearchParams(holder2);
+
+
+
+    return urlBegin + searchParams.toString();
+};

@@ -49,7 +49,7 @@ import { sendDELETE, sendPOST } from "../../lib/fetcher";
 import {
     cleanArrayString,
     formatTimeElapsed,
-    keepAndCapFirstThree,
+    encodeLessonTypeToShorthand,
 } from "../../lib/functions";
 import { requestSwapHelper } from "../../lib/helpers";
 import { requestComm } from "../../lib/requestor";
@@ -473,7 +473,7 @@ const Swap: NextPage = () => {
                                                             title={`${
                                                                 swap.moduleCode
                                                             }
-                                            ${keepAndCapFirstThree(
+                                            ${encodeLessonTypeToShorthand(
                                                 swap.lessonType
                                             )}
                                             [${swap.classNo}]`}
@@ -535,7 +535,7 @@ const Swap: NextPage = () => {
                                                                             ) ||
                                                                             []
                                                                         }
-                                                                        title={`${keepAndCapFirstThree(
+                                                                        title={`${encodeLessonTypeToShorthand(
                                                                             swap.lessonType
                                                                         )}
                                                         [${
@@ -633,7 +633,7 @@ const Swap: NextPage = () => {
                                                         title={`${
                                                             swap.moduleCode
                                                         }
-                                                ${keepAndCapFirstThree(
+                                                ${encodeLessonTypeToShorthand(
                                                     swap.lessonType
                                                 )}
                                                 [${swap.classNo}]`}
@@ -683,7 +683,7 @@ const Swap: NextPage = () => {
                                                                                     swap.lessonType
                                                                         ) || []
                                                                     }
-                                                                    title={`${keepAndCapFirstThree(
+                                                                    title={`${encodeLessonTypeToShorthand(
                                                                         swap.lessonType
                                                                     )}
                                                         [${

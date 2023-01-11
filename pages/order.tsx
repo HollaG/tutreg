@@ -52,7 +52,7 @@ import NextLink from "next/link";
 import { useRouter } from "next/router";
 import Explanation from "../components/Description/Explanation";
 import { ImportResponseData } from "./api/import";
-import { generateLink } from "../lib/functions";
+import { generateLink, tutregToNUSMods } from "../lib/functions";
 
 const ay = process.env.NEXT_PUBLIC_AY;
 const Order: NextPage = () => {
@@ -95,16 +95,25 @@ const Order: NextPage = () => {
     console.log(router.query, 'router query')
 
     const [isImportingShareURL, setIsImportingShareURL] = useState(false)
-    if (router.query.share) {
-        // do this other thing
-        setIsImportingShareURL(true)
-
-        // convert this url into a nusmods url
-        // import it
-        // set the share url in redux
-    }
+   
 
 
+    useEffect(() => {
+        if (router.query.share) {
+            const link = tutregToNUSMods(`https://tutreg.com/order?share=${router.query.share}`) as string
+            sendPOST("/api/import", {
+                url: link,
+            }).then((result: ImportResponseData) => {
+                const data = result.data;
+                console.log({data})
+            }).catch((err) => console.log(err));
+            
+            // console.log(router.query)
+
+            // TODO: Continue work on importing URLs
+
+        }
+    }, [router.query])
 
 
 

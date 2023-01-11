@@ -22,7 +22,7 @@ import {
     checkMultipleDifferentWeeks,
     combineNumbers,
     getVacanciesForAllLessons,
-    keepAndCapFirstThree,
+    encodeLessonTypeToShorthand,
 } from "../../../lib/functions";
 import { Data } from "../../../pages/api/import";
 
@@ -59,7 +59,7 @@ const ClassSortContainer: React.FC<{ showAdd: boolean }> = ({ showAdd }) => {
 
                 return {
                     value: classOpt.classNo,
-                    label: `${keepAndCapFirstThree(
+                    label: `${encodeLessonTypeToShorthand(
                         moduleCodeLessonType.split(": ")[1]
                     )} [${classOpt.classNo}]\n${lessonText}`,
                 };
