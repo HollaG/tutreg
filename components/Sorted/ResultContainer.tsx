@@ -25,6 +25,8 @@ import {
     getAlphabet,
     keepAndCapFirstThree,
 } from "../../lib/functions";
+import { classesActions } from "../../store/classesReducer";
+import { LessonTypeAbbrevMap } from "../../types/modules";
 import { ClassOverview, Option, RootState } from "../../types/types";
 import Card from "../Card/Card";
 import Entry from "../Sortables/Entry";
@@ -142,9 +144,11 @@ const ResultContainer: React.FC<{ showAdd: boolean }> = ({ showAdd }) => {
         }
         setHolderArray(tempHolderArray);
         console.log(encodeRank(tempHolderArray))
-        setShareLink(encodeRank(tempHolderArray))
+        
 
     }, [copiedModuleOrder, selectedClasses, decouple, value]);
+
+
 
     const toggleDecouple = () => setDecouple(!decouple);
 
@@ -181,12 +185,16 @@ const ResultContainer: React.FC<{ showAdd: boolean }> = ({ showAdd }) => {
         }
     };
 
-    const { hasCopied, onCopy } = useClipboard("");
-
-
+    
+    
     // Generate a sharable link
     const [shareLink, setShareLink] = useState("")
-   
+    
+    const { hasCopied, onCopy } = useClipboard(shareLink);
+    // update the link whenever holderarray changes
+    useEffect(() => {
+        setShareLink(encodeRank(holderArray))
+    }, [holderArray])
 
     return (
         <Stack spacing={3}>
@@ -241,7 +249,7 @@ const ResultContainer: React.FC<{ showAdd: boolean }> = ({ showAdd }) => {
                                 <Text fontWeight={"semibold"}>
                                     {(index || 0) + 1}. {value.moduleCode}{" "}
                                     {keepAndCapFirstThree(
-                                        value.lessonType || ""
+                                        value.lessonType as keyof LessonTypeAbbrevMap || ""
                                     )}{" "}
                                     [{value.classNo}]
                                 </Text>
@@ -296,3 +304,7 @@ const ResultContainer: React.FC<{ showAdd: boolean }> = ({ showAdd }) => {
 };
 
 export default ResultContainer;
+function dispatch(arg0: any) {
+    throw new Error("Function not implemented.");
+}
+

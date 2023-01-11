@@ -5,12 +5,13 @@ import {
 } from "@chakra-ui/react";
 import type { NextPage } from "next";
 import NextLink from "next/link";
-import CallToActionWithVideo from "../components/Home/CTA";
+import CallToAction from "../components/Home/CTA";
+import CallToActionWithVideo from "../components/Home/CTA_ext";
 
 
 
 const Home: NextPage = () => {
-    return <CallToActionWithVideo/>
+    return <><CallToAction/><CallToActionWithVideo/></>
     // return (
     //     <Stack spacing={5} alignItems="center" h="100%">
     //         <NextLink href="/order">

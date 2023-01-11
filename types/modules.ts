@@ -1,5 +1,7 @@
 // https://github.com/nusmodifications/nusmods/blob/master/scrapers/nus-v2/src/types/modules.ts
 
+import { LESSON_TYPE_ABBREV, LESSON_TYPE_FULL } from "../lib/functions";
+
 export type CovidZone = {
     color: string;
     positions: [number, number][];
@@ -14,7 +16,8 @@ export type Department = string;
 export type StartTime = string; // E.g. "1400"
 export type EndTime = string; // E.g. "1500"
 export type Faculty = string;
-export type LessonType = string; // E.g. "Lecture", "Tutorial"
+export type LessonType = keyof LessonTypeAbbrevMap; // E.g. "Lecture", "Tutorial"
+export type LessonTypeAbbrev = keyof LessonTypeFullMap
 export type LessonTime = StartTime | EndTime;
 export type ModuleCode = string; // E.g. "CS3216"
 export type ModuleTitle = string;
@@ -184,3 +187,14 @@ export type ModuleInformation = Readonly<{
 export type Aliases = {
     [moduleCode: string]: ModuleCode[];
 };
+
+// lessonType shorthands
+
+
+export type LessonTypeAbbrevMap = {
+    [key in keyof typeof LESSON_TYPE_ABBREV]: string;
+}
+
+export type LessonTypeFullMap = {
+    [key in keyof typeof LESSON_TYPE_FULL]: string;
+}

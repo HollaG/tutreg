@@ -1,9 +1,9 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from "next";
 import executeQuery from "../../lib/db";
-import { formatWeeks } from "../../lib/functions";
+import { decodeLessonTypeShorthand, formatWeeks } from "../../lib/functions";
 import { ModuleDB, ModuleWithClassDB } from "../../types/db";
-import { Module } from "../../types/modules";
+import { LessonType, LessonTypeAbbrev, Module } from "../../types/modules";
 import { ModuleCodeLessonType } from "../../types/types";
 
 export interface Data {
@@ -57,7 +57,7 @@ export default async function handler(
             ); // CFG1002=&CS1101S=TUT:07B,REC:11E,LEC:1&CS1231S=TUT:08B,LEC:1&IS1108=TUT:03,LEC:1&MA2001=TUT:1,LAB:2,LEC:1&RVX1000=SEC:1&RVX1002=SEC:2
             // get the url params
             const params = new URLSearchParams(stripped);
-
+            console.log(params)
             const classesSelected: {
                 moduleCode: string;
                 timetable: {
@@ -75,20 +75,12 @@ export default async function handler(
                 const timetable: { [key: string]: string } = {};
                 lessons.forEach((lesson) => {
                     if (lesson.includes(":")) {
-                        let lessonType = lesson.split(":")[0];
+                        let lessonType = lesson.split(":")[0] as LessonTypeAbbrev;
 
-                        // fix HSI1000 doing 'workshop' as 'ws'
-                        // TUT2: Tutorial Type 2 
-                        // PLEC: Packaged Lecture
-                        // PTUT: Packaged Tutorial
-                        // TODO find a better way to do this
-                        if (lessonType === "WS") lessonType = "WOR";
-                        if (lessonType === "TUT2") lessonType = "Tutorial Type 2"
-                        if (lessonType === "PLEC") lessonType = "Packaged Lecture"
-                        if (lessonType === "PTUT") lessonType = "Packaged Tutorial"
                         const classNo = lesson.split(":")[1];
 
-                        timetable[lessonType] = classNo;
+                        const decodedLessonType = decodeLessonTypeShorthand(lessonType);
+                        timetable[decodedLessonType] = classNo;
                     }
                 });
 
@@ -267,6 +259,7 @@ export default async function handler(
                             classData.classNo === classNo &&
                             classData.lessonType
                                 .toLowerCase()
+                                // todo - upodate this part to exact match
                                 .includes(lessonType.toLowerCase()) &&
                             classData.moduleCode === moduleCode
                     ); // use filter bc there might be 2 of the same classNo / lessonType / moduleCode, aka when you have 2 tuts per wk

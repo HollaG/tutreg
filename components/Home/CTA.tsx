@@ -17,7 +17,7 @@ import {
 
 import NextLink from "next/link";
 
-export default function CallToActionWithVideo() {
+export default function CallToAction() {
     return (
         <Container maxW={"7xl"}>
             <Stack

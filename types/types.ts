@@ -3,6 +3,7 @@ import { Data } from "../pages/api/import";
 import { ClassState } from "../store/classesReducer";
 import { MiscState } from "../store/misc";
 import { ModuleWithClassDB } from "./db";
+import { LessonType } from "./modules";
 
 export type RootState = {
     classesInfo: ClassState;
@@ -13,7 +14,7 @@ export type RootState = {
 export type ClassOverview = {
     classNo: string;
     moduleCode: string;
-    lessonType: string;
+    lessonType: LessonType;
     moduleName: string;
     size: number;
     classes: ModuleWithClassDB[];

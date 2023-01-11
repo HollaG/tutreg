@@ -90,6 +90,26 @@ const Order: NextPage = () => {
         setIsSubmitting(false);
     };
 
+    // Check if the user is importing something
+    const router = useRouter()
+    console.log(router.query, 'router query')
+
+    const [isImportingShareURL, setIsImportingShareURL] = useState(false)
+    if (router.query.share) {
+        // do this other thing
+        setIsImportingShareURL(true)
+
+        // convert this url into a nusmods url
+        // import it
+        // set the share url in redux
+    }
+
+
+
+
+
+
+
     const [value, setValue] = useState("");
     const [selectedModules, setSelectedModules] = useState<Option[]>([]);
 
@@ -387,7 +407,7 @@ const Order: NextPage = () => {
                         </TabPanels>
                     </Tabs>
 
-                    <Box>
+                    {/* <Box>
                         <InputGroup>
                             <InputLeftAddon>Timetable</InputLeftAddon>
                             <Input readOnly value={timetableLink} />
@@ -403,7 +423,7 @@ const Order: NextPage = () => {
                                 Open in new tab{" "}
                             </Link>
                         </Center>
-                    </Box>
+                    </Box> */}
                     
                     {/* <Box id="divContainer">
                         <Box id="frameContainer">

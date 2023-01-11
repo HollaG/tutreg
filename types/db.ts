@@ -1,3 +1,5 @@
+import { LessonType } from "./modules";
+
 export type ModuleDB = {
     moduleCode: string;
     moduleName: string;
@@ -7,7 +9,7 @@ export type ClassDB = {
     // uniqueClassId: number;
     moduleCode: string;
     venue: string;
-    lessonType: "Tutorial" | "Lecture" | "Sectional" | "Lab";
+    lessonType: LessonType;
     classNo: string;
     startTime: string;
     endTime: string;

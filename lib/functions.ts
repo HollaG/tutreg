@@ -4,21 +4,82 @@
 // Output:
 
 import { ClassDB } from "../types/db";
-import { Option } from '../types/types'
-import { WeekRange, Weeks } from "../types/modules";
+import { Option } from "../types/types";
+import { LessonTypeAbbrevMap, LessonTypeFullMap, WeekRange, Weeks } from "../types/modules";
 import { ClassOverview, ModuleCodeLessonType } from "../types/types";
 
+
+export const LESSON_TYPE_ABBREV = {
+    "Design Lecture": "DLEC",
+    Laboratory: "LAB",
+    Lecture: "LEC",
+    "Packaged Lecture": "PLEC",
+    "Packaged Tutorial": "PTUT",
+    Recitation: "REC",
+    "Sectional Teaching": "SEC",
+    "Seminar-Style Module Class": "SEM",
+    Tutorial: "TUT",
+    "Tutorial Type 2": "TUT2",
+    "Tutorial Type 3": "TUT3",
+    Workshop: "WS",
+    
+};
+
+export const LESSON_TYPE_FULL = {
+    DLEC: "Design Lecture",
+    LAB: "Laboratory",
+    LEC: "Lecture",
+    PLEC: "Packaged Lecture",
+    PTUT: "Packaged Tutorial",
+    REC: "Recitation",
+    SEC: "Sectional Teaching",
+    SEM: "Seminar-Style Module Class",
+    TUT: "Tutorial",
+    TUT2: "Tutorial Type 2",
+    TUT3: "Tutorial Type 3",
+    WS: "Workshop",
+};
+
+
 //     SEC
-export const keepAndCapFirstThree = (string: string) => {
-    // fix HSI1000 doing 'workshop' as 'ws'
-    // TUT2: Tutorial Type 2
-    // PLEC: Packaged Lecture
-    // PTUT: Packaged Tutorial
-    if (string === "Workshop") return "WS";
-    else if (string === "Tutorial Type 2") return "TUT2";
-    else if (string === "Packaged Lecture") return "PLEC";
-    else if (string === "Packaged Tutorial") return "PTUT";
+export const keepAndCapFirstThree = (string: keyof LessonTypeAbbrevMap) => {
+
+    if (LESSON_TYPE_ABBREV[string]) return LESSON_TYPE_ABBREV[string];
     else return string.substring(0, 3).toUpperCase();
+
+};
+
+export const decodeLessonTypeShorthand = (string: keyof LessonTypeFullMap) => {
+
+    if (LESSON_TYPE_FULL[string]) return LESSON_TYPE_FULL[string];
+    else return string;
+
+    // switch (string) {
+    //     case "LEC":
+    //         return "Lecture";
+    //     case "TUT":
+    //         return "Tutorial";
+    //     case "TUT2":
+    //         return "Tutorial Type 2";
+    //     case "SEC":
+    //         return "Sectional Teaching";
+    //     case "DLEC":
+    //         return "Design Lecture";
+    //     case "LAB":
+    //         return "Laboratory";
+    //     case "SEM":
+    //         return "Seminar-Style Module";
+    //     case "REC":
+    //         return "Recitation";
+    //     case "WS":
+    //         return "Workshop";
+    //     case "PLEC":
+    //         return "Packaged Lecture";
+    //     case "PTUT":
+    //         return "Packaged Tutorial";
+    //     default:
+    //         return string.toLocaleLowerCase();
+    // }
 };
 
 // Function to sort by day of week, with Monday being the first day.
@@ -285,10 +346,15 @@ export const formatDate = (date: Date) => {
 
 // Function to convert holderArray into a url string that can be shared
 export const encodeRank = (rank: ClassOverview[]) => {
-    let begin = `https://tutreg.com/?share=`
-    let ranked = []
-    ranked = rank.map(class_ => 
-      `${class_.moduleCode}:${keepAndCapFirstThree(class_.lessonType)}:${class_.classNo}`
-    )
-    return `${begin}${ranked.join(",")}`
-}
+    let begin = `https://tutreg.com/order?share=`;
+    let ranked = [];
+    ranked = rank.map(
+        (class_) =>
+            `${class_.moduleCode}:${keepAndCapFirstThree(class_.lessonType)}:${
+                class_.classNo
+            }`
+    );
+    return `${begin}${ranked.join(",")}`;
+};
+
+// Function to convert tutreg.com's share URL into NUSMods format
