@@ -31,7 +31,7 @@ export type Option = {
 export interface ClassSwapRequest extends TelegramUser {
     swapId: number;
     moduleCode: string;
-    lessonType: string;
+    lessonType: LessonType;
     classNo: string;
     from_t_id: number;
     status: "Open" | "Completed" | "Reserved";

@@ -41,6 +41,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
 import SwapEntry from "../../components/Swap/SwapEntry";
 import { miscActions } from "../../store/misc";
+import { LessonType } from "../../types/modules";
 
 const steps = [
     {
@@ -79,13 +80,13 @@ const Step1: React.FC<{
 
     currentClassInfo: {
         moduleCode: string;
-        lessonType: string;
+        lessonType: LessonType;
         classNo: string;
     };
     setCurrentClassInfo: Dispatch<
         SetStateAction<{
             moduleCode: string;
-            lessonType: string;
+            lessonType: LessonType;
             classNo: string;
         }>
     >;
@@ -112,7 +113,7 @@ const Step1: React.FC<{
         // Send request to find the classes available for this moduleCodeLessonType
         const moduleCodeLessonType = option[0].value;
         const moduleCode = moduleCodeLessonType.split(": ")[0];
-        const lessonType = moduleCodeLessonType.split(": ")[1];
+        const lessonType = moduleCodeLessonType.split(": ")[1] as LessonType;
 
         // todo change to fetch
         const response: GetClassesResponse = await sendPOST(
@@ -216,13 +217,13 @@ const Step2: React.FC<{
 
     currentClassInfo: {
         moduleCode: string;
-        lessonType: string;
+        lessonType: LessonType;
         classNo: string;
     };
     setCurrentClassInfo: Dispatch<
         SetStateAction<{
             moduleCode: string;
-            lessonType: string;
+            lessonType: LessonType;
             classNo: string;
         }>
     >;
@@ -315,7 +316,7 @@ const Step3: React.FC<{
 
     currentClassInfo: {
         moduleCode: string;
-        lessonType: string;
+        lessonType: LessonType;
         classNo: string;
     };
 
@@ -408,11 +409,11 @@ const CreateSwap: NextPage = () => {
 
     const [currentClassInfo, setCurrentClassInfo] = useState<{
         moduleCode: string;
-        lessonType: string;
+        lessonType: LessonType;
         classNo: string;
     }>({
         moduleCode: "",
-        lessonType: "",
+        lessonType: "Lecture",
         classNo: "",
     });
 

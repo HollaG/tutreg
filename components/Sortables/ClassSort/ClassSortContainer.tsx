@@ -25,6 +25,7 @@ import {
     encodeLessonTypeToShorthand,
 } from "../../../lib/functions";
 import { Data } from "../../../pages/api/import";
+import { LessonType } from "../../../types/modules";
 
 const ClassSortContainer: React.FC<{ showAdd: boolean }> = ({ showAdd }) => {
     const data = useSelector((state: RootState) => state.classesInfo);
@@ -60,7 +61,7 @@ const ClassSortContainer: React.FC<{ showAdd: boolean }> = ({ showAdd }) => {
                 return {
                     value: classOpt.classNo,
                     label: `${encodeLessonTypeToShorthand(
-                        moduleCodeLessonType.split(": ")[1]
+                        moduleCodeLessonType.split(": ")[1] as LessonType
                     )} [${classOpt.classNo}]\n${lessonText}`,
                 };
             });
