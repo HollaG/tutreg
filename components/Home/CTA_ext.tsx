@@ -12,6 +12,7 @@ import {
     createIcon,
     IconProps,
     useColorModeValue,
+    Link,
 } from "@chakra-ui/react";
 import NextLink from "next/link";
 
@@ -121,7 +122,12 @@ export default function CallToActionWithVideo() {
                             bg={"red.400"}
                             _hover={{ bg: "red.500" }}
                         >
-                            Download
+                            <Link
+                                isExternal
+                                href="https://chrome.google.com/webstore/detail/tutreg-companion-extensio/alklihigfndbjjihbglpfpadlmkcgdja?hl=en&authuser=0"
+                            >
+                                Download
+                            </Link>
                         </Button>
                         <Button
                             rounded={"full"}
