@@ -349,18 +349,7 @@ export const formatDate = (date: Date) => {
 
 // Function to convert holderArray into a url string that can be shared
 export const encodeRank = (rank: ClassOverview[], moduleOrder: string[], selectedClasses: ModuleCodeLessonType) => {
-    let begin = `https://tutreg.com/?share=`;
-    let ranked = [];
-    ranked = rank.map(
-        (class_) =>
-            `${class_.moduleCode}:${encodeLessonTypeToShorthand(
-                class_.lessonType
-            )}:${class_.classNo}`
-    );
-    begin += ranked.join(",")
-
-    return begin;
-    // let begin = `https://tutreg.com/order?share=`;
+    // let begin = `https://tutreg.com/?share=`;
     // let ranked = [];
     // ranked = rank.map(
     //     (class_) =>
@@ -370,24 +359,35 @@ export const encodeRank = (rank: ClassOverview[], moduleOrder: string[], selecte
     // );
     // begin += ranked.join(",")
 
-    // // encode the order of mods in each module
-    // let indivSelects = moduleOrder.map(moduleCodeLessonType => {
-    //     if (!selectedClasses[moduleCodeLessonType]) return ""
-    //     const temp = moduleCodeLessonType.split(": ")
-    //     const moduleCode = temp[0]
-    //     const lessonType = temp[1] as LessonType
-    //     const lessonTypeAbbr = encodeLessonTypeToShorthand(lessonType)
+    // return begin;
+    let begin = `https://tutreg.com/order?share=`;
+    let ranked = [];
+    ranked = rank.map(
+        (class_) =>
+            `${class_.moduleCode}:${encodeLessonTypeToShorthand(
+                class_.lessonType
+            )}:${class_.classNo}`
+    );
+    begin += ranked.join(",")
+
+    // encode the order of mods in each module
+    let indivSelects = moduleOrder.map(moduleCodeLessonType => {
+        if (!selectedClasses[moduleCodeLessonType]) return ""
+        const temp = moduleCodeLessonType.split(": ")
+        const moduleCode = temp[0]
+        const lessonType = temp[1] as LessonType
+        const lessonTypeAbbr = encodeLessonTypeToShorthand(lessonType)
 
         
-    //     let selString = selectedClasses[moduleCodeLessonType].map(class_ => class_.classNo).join(",")
-    //     console.log({selString})
-    //     return `${moduleCode}-${lessonTypeAbbr}:${selString}`
-    // })
+        let selString = selectedClasses[moduleCodeLessonType].map(class_ => class_.classNo).join(",")
+        console.log({selString})
+        return `${moduleCode}-${lessonTypeAbbr}:${selString}`
+    })
 
 
-    // console.log({indivSelects})
+    console.log({indivSelects})
 
-    // return `${begin}${ranked.join(",")}&classes=${indivSelects.join("__")}`;
+    return `${begin}&classes=${indivSelects.join("__")}`;
 };
 
 // Function to convert tutreg.com's share URL into NUSMods format

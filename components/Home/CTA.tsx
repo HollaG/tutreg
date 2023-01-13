@@ -90,7 +90,7 @@ export default function CallToAction() {
                                     />
                                 }
                             >
-                                Order slots
+                                Order Classes
                             </Button>
                         </NextLink>
 
@@ -109,7 +109,7 @@ export default function CallToAction() {
                                 }
                                 colorScheme="teal"
                             >
-                                Swap slots
+                                Swap Classes
                             </Button>
                         </NextLink>
                     </Stack>
