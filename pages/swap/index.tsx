@@ -313,7 +313,9 @@ const Swap: NextPage = () => {
             >
                 <TabList>
                     <Tab>All swaps ({swapData?.openSwaps.length})</Tab>
-                    {user && <Tab>Your swaps ({swapData?.selfSwaps.length})</Tab>}
+                    {user && (
+                        <Tab>Your swaps ({swapData?.selfSwaps.length})</Tab>
+                    )}
                 </TabList>
 
                 <TabPanels
@@ -421,8 +423,10 @@ const Swap: NextPage = () => {
                                                                         "Unrequested!"
                                                                     }
                                                                 >
-                                                                    {!user ? "Request" : hasRequestedSwap ||
-                                                                        "Unrequest"}
+                                                                    {!user
+                                                                        ? "Request"
+                                                                        : hasRequestedSwap ||
+                                                                          "Unrequest"}
                                                                 </Button>
                                                             ) : (
                                                                 <Button
@@ -445,20 +449,21 @@ const Swap: NextPage = () => {
                                                             )}
                                                         </Flex>
                                                         <Center>
-                                                            {cleanArrayString(
-                                                                swap.requestors
-                                                            ).includes(
-                                                                user?.id.toString() ||
-                                                                    ""
-                                                            ) && (
-                                                                <Tag
-                                                                    colorScheme="green"
-                                                                    variant="solid"
-                                                                >
-                                                                    {" "}
-                                                                    Requested{" "}
-                                                                </Tag>
-                                                            )}
+                                                            {user &&
+                                                                cleanArrayString(
+                                                                    swap.requestors
+                                                                ).includes(
+                                                                    user?.id.toString() ||
+                                                                        ""
+                                                                ) && (
+                                                                    <Tag
+                                                                        colorScheme="green"
+                                                                        variant="solid"
+                                                                    >
+                                                                        {" "}
+                                                                        Requested{" "}
+                                                                    </Tag>
+                                                                )}
                                                         </Center>
                                                         <Divider />
                                                         <SwapEntry
