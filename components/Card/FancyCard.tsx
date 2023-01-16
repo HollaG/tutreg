@@ -23,6 +23,10 @@ export default function FancyCard({
     content?: string;
     children?: ReactNode;
 }) {
+    const color = useColorModeValue(
+        "gray.700",
+        "gray.400"
+    )
     return (
         <Center py={6}>
             <Stack
@@ -61,10 +65,7 @@ export default function FancyCard({
 
                             <Text
                                 textAlign={"center"}
-                                color={useColorModeValue(
-                                    "gray.700",
-                                    "gray.400"
-                                )}
+                                color={color}
                                 px={3}
                             >
                                 {content}

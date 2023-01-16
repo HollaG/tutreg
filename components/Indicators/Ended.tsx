@@ -25,7 +25,7 @@ const Ended: React.FC<{ scrollTo: RefObject<HTMLDivElement> }> = ({
         >
             <AlertIcon boxSize="40px" mr={0} />
             <AlertTitle mt={4} mb={1} fontSize="lg">
-                You've reached the end!
+                You&apos;ve reached the end!
             </AlertTitle>
             <AlertDescription maxWidth="sm">
                 <Stack>There are no more requests to show.

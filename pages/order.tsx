@@ -384,13 +384,44 @@ const Order: NextPage = () => {
                             </Button>
                         </HStack>
                     </Center>
-
-                    <Steps labelOrientation="vertical"  activeStep={activeStep} onClickStep={(step) => setStep(step)}>
-                        <Step label="Rank modules" description="Rank your modules, highest priority first"><ModuleSortContainer showAdd={showAdd} /> </Step>
-                        <Step label="Rank classes" description="asdf"><ClassSortContainer showAdd={showAdd} /> </Step>
-                        <Step label="Export result" description="asdas"><ResultContainer showAdd={showAdd} /> </Step>
+                    <Flex width="100%" justify="flex-end">
+                        <Button
+                            isDisabled={activeStep === 0}
+                            mr={4}
+                            onClick={prevStep}
+                            size="sm"
+                            variant="ghost"
+                        >
+                            Prev
+                        </Button>
+                        <Button size="sm" onClick={nextStep} disabled={activeStep === 3 - 1}>
+                            Next
+                        </Button>
+                    </Flex>
+                    <Steps
+                        activeStep={activeStep}
+                        onClickStep={(step) => setStep(step)}
+                    >
+                        <Step
+                            label="Rank modules"
+                            description="Rank your modules, highest priority first"
+                        >
+                            <ModuleSortContainer showAdd={showAdd} />{" "}
+                        </Step>
+                        <Step
+                            label="Rank classes"
+                            description="Rank your classes per module"
+                        >
+                            <ClassSortContainer showAdd={showAdd} />{" "}
+                        </Step>
+                        <Step
+                            label="Computed ranking"
+                            description="Export to browser extension"
+                        >
+                            <ResultContainer showAdd={showAdd} />{" "}
+                        </Step>
                     </Steps>
-
+                    
                     {/* <Tabs
                         variant="enclosed"
                         colorScheme="blue"
