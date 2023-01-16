@@ -34,7 +34,7 @@ import { Select } from "chakra-react-select";
 import type { NextPage } from "next";
 import { useRouter } from "next/router";
 import { title } from "process";
-import { MouseEvent, useEffect, useState } from "react";
+import { MouseEvent, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import TelegramLoginButton, { TelegramUser } from "telegram-login-button";
 import Card from "../../components/Card/Card";
@@ -61,7 +61,11 @@ import { GetSwapDataResponse, SwapData } from "../api/swap";
 import { GetClassesResponse, GroupedByClassNo } from "../api/swap/getClasses";
 import { RequestSwapResponseData } from "../api/swap/request";
 import NextLink from "next/link";
-
+import InfiniteScroll from "react-infinite-scroll-component";
+import SwapCard from "../../components/Swap/SwapCard";
+import Loading from "../../components/Indicators/Loading";
+import Ended from "../../components/Indicators/Ended";
+const SWAP_VISIBLE_AMOUNT = 5;
 const CustomCardProps = {
     _hover: {
         boxShadow: "lg",
@@ -87,6 +91,9 @@ const Swap: NextPage = () => {
     // Get current swap requests
     const [swapData, setSwapData] = useState<SwapData>();
 
+    // Control the swap data visible to the user
+    const [visibleSwaps, setVisibleSwaps] = useState<ClassSwapRequest[]>();
+
     const [counter, setCounter] = useState(0);
     useEffect(() => {
         fetch("/api/swap")
@@ -107,6 +114,8 @@ const Swap: NextPage = () => {
                         selfSwaps: selfSwaps,
                         requestedClasses: data.data.requestedClasses,
                     });
+
+                    setVisibleSwaps(othersSwaps.slice(0, SWAP_VISIBLE_AMOUNT));
                 } else {
                     alert(data.error);
                 }
@@ -160,24 +169,6 @@ const Swap: NextPage = () => {
                         status: "success",
                         duration: 3000,
                     });
-
-                    // setSwapData((prevState) => {
-                    //     if (!prevState) return undefined;
-                    //     const prevOpenSwaps = [...prevState.openSwaps];
-                    //     const updatedOpenSwaps = prevOpenSwaps.map((swap) => {
-                    //         if (swap.swapId === swapId) {
-                    //             return {
-                    //                 ...swap,
-                    //                 requestors: response.data,
-                    //             };
-                    //         } else return swap;
-                    //     });
-
-                    //     return {
-                    //         ...prevState,
-                    //         openSwaps: updatedOpenSwaps,
-                    //     };
-                    // });
                 }
             } catch (e) {}
         };
@@ -293,6 +284,16 @@ const Swap: NextPage = () => {
         dispatch(miscActions.setHighlightedClassNos([]));
     }, [user, dispatch]);
 
+    const [visibleAmount, setVisibleAmount] = useState(SWAP_VISIBLE_AMOUNT);
+
+    const handleLoadMore = () => {
+        const newVisibleAmount = visibleAmount + SWAP_VISIBLE_AMOUNT;
+        setVisibleAmount(newVisibleAmount);
+        setVisibleSwaps(swapData?.openSwaps.slice(0, newVisibleAmount));
+    };
+
+    const infiniteScrollRef = useRef<HTMLDivElement>(null)
+
     return (
         <Stack spacing={5} h="100%">
             <Center>
@@ -310,10 +311,13 @@ const Swap: NextPage = () => {
                 isFitted
                 index={tabIndex}
                 onChange={handleTabsChange}
+                ref={infiniteScrollRef}
             >
                 <TabList>
                     <Tab>All swaps ({swapData?.openSwaps.length})</Tab>
-                    {user && <Tab>Your swaps ({swapData?.selfSwaps.length})</Tab>}
+                    {user && (
+                        <Tab>Your swaps ({swapData?.selfSwaps.length})</Tab>
+                    )}
                 </TabList>
 
                 <TabPanels
@@ -370,210 +374,67 @@ const Swap: NextPage = () => {
                             />
                         </SimpleGrid>
 
-                        <SimpleGrid columns={{ base: 1, md: 2 }} spacing={3}>
+                        {/* The below section should be visible when the user is NOT filtering anything */}
+                        {!selectedModuleCodeLessonType && <InfiniteScroll
+                            dataLength={visibleSwaps?.length || 0}
+                            next={handleLoadMore}
+                            hasMore={
+                                (swapData?.openSwaps.length || 0) >
+                                visibleAmount
+                            }
+                            loader={<Loading />}
+                            endMessage={<Ended scrollTo={infiniteScrollRef}/>}
+                        >
+                            <SimpleGrid
+                                columns={{ base: 1, md: 2 }}
+                                spacing={3}
+                               
+                            >
+                                {/* {swapData?.openSwaps.map((swap, index) => (
+                                    <SwapCard
+                                        hasRequestedSwap={hasRequestedSwap}
+                                        requestSwap={requestSwap}
+                                        swap={swap}
+                                        swapData={swapData}
+                                        user={user}
+                                    />
+                                ))} */}
+                                {visibleSwaps?.map(
+                                    (swap, index) =>
+                                        checkIfShouldDisplay(swap) && (
+                                            <SwapCard
+                                                key={index}
+                                                hasRequestedSwap={
+                                                    hasRequestedSwap
+                                                }
+                                                requestSwap={requestSwap}
+                                                swap={swap}
+                                                swapData={swapData}
+                                                user={user}
+                                            />
+                                        )
+                                )}
+                            </SimpleGrid>
+                        </InfiniteScroll>}
+
+                        {/* The below section should be visible when filtering. We do not infinite-scroll when filtering. */}
+                        {selectedModuleCodeLessonType && <SimpleGrid columns={{ base: 1, md: 2 }} spacing={3}>
                             {swapData?.openSwaps.map(
                                 (swap, index) =>
                                     checkIfShouldDisplay(swap) && (
-                                        <NextLink
-                                            href={`/swap/${swap.swapId}`}
-                                            key={index}
-                                        >
-                                            <Link
-                                                style={{
-                                                    textDecoration: "none",
-                                                }}
-                                            >
-                                                <Card {...CustomCardProps}>
-                                                    <Stack spacing={3}>
-                                                        <Flex
-                                                            alignItems="center"
-                                                            justifyContent="space-between"
-                                                        >
-                                                            <HStack>
-                                                                <HStack
-                                                                    flex={1}
-                                                                >
-                                                                    <UserDisplay
-                                                                        user={
-                                                                            swap
-                                                                        }
-                                                                    />
-                                                                </HStack>
-                                                            </HStack>
-
-                                                            {cleanArrayString(
-                                                                swap.requestors
-                                                            ).includes(
-                                                                user?.id.toString() ||
-                                                                    ""
-                                                            ) ? (
-                                                                <Button
-                                                                    size="sm"
-                                                                    colorScheme="blue"
-                                                                    onClick={requestSwap(
-                                                                        swap.swapId,
-                                                                        user ||
-                                                                            null,
-                                                                        "remove"
-                                                                    )}
-                                                                    disabled={
-                                                                        hasRequestedSwap ===
-                                                                        "Unrequested!"
-                                                                    }
-                                                                >
-                                                                    {!user ? "Request" : hasRequestedSwap ||
-                                                                        "Unrequest"}
-                                                                </Button>
-                                                            ) : (
-                                                                <Button
-                                                                    size="sm"
-                                                                    colorScheme="blue"
-                                                                    onClick={requestSwap(
-                                                                        swap.swapId,
-                                                                        user ||
-                                                                            null,
-                                                                        "request"
-                                                                    )}
-                                                                    disabled={
-                                                                        hasRequestedSwap ===
-                                                                        "Requested!"
-                                                                    }
-                                                                >
-                                                                    {hasRequestedSwap ||
-                                                                        "Request"}
-                                                                </Button>
-                                                            )}
-                                                        </Flex>
-                                                        <Center>
-                                                            {cleanArrayString(
-                                                                swap.requestors
-                                                            ).includes(
-                                                                user?.id.toString() ||
-                                                                    ""
-                                                            ) && (
-                                                                <Tag
-                                                                    colorScheme="green"
-                                                                    variant="solid"
-                                                                >
-                                                                    {" "}
-                                                                    Requested{" "}
-                                                                </Tag>
-                                                            )}
-                                                        </Center>
-                                                        <Divider />
-                                                        <SwapEntry
-                                                            // badge="PS1101E"
-                                                            bgColor={
-                                                                state.misc.highlightedClassNos.includes(
-                                                                    swap.classNo
-                                                                )
-                                                                    ? highlightedColor
-                                                                    : undefined
-                                                            }
-                                                            title={`${
-                                                                swap.moduleCode
-                                                            }
-                                            ${encodeLessonTypeToShorthand(
-                                                swap.lessonType
-                                            )}
-                                            [${swap.classNo}]`}
-                                                            classNo={
-                                                                swap.classNo
-                                                            }
-                                                            classes={
-                                                                swapData.classData.filter(
-                                                                    (class_) =>
-                                                                        class_.classNo ===
-                                                                            swap.classNo &&
-                                                                        class_.moduleCode ===
-                                                                            swap.moduleCode &&
-                                                                        class_.lessonType ===
-                                                                            swap.lessonType
-                                                                ) || []
-                                                            }
-                                                        />
-                                                        <SwapArrows />
-                                                        <SimpleGrid
-                                                            columns={{
-                                                                base: 2,
-                                                                // sm: 3,
-                                                                // lg: 4,
-                                                            }}
-                                                        >
-                                                            {swapData.requestedClasses[
-                                                                swap.swapId
-                                                            ].map(
-                                                                (
-                                                                    requestedClass,
-                                                                    index3
-                                                                ) => (
-                                                                    <SwapEntry
-                                                                        bgColor={
-                                                                            state.misc.highlightedClassNos.includes(
-                                                                                requestedClass.wantedClassNo
-                                                                            )
-                                                                                ? highlightedColor
-                                                                                : undefined
-                                                                        }
-                                                                        key={
-                                                                            index3
-                                                                        }
-                                                                        classNo={
-                                                                            requestedClass.wantedClassNo
-                                                                        }
-                                                                        classes={
-                                                                            swapData.classData.filter(
-                                                                                (
-                                                                                    class_
-                                                                                ) =>
-                                                                                    class_.classNo ===
-                                                                                        requestedClass.wantedClassNo &&
-                                                                                    class_.moduleCode ===
-                                                                                        swap.moduleCode &&
-                                                                                    class_.lessonType ===
-                                                                                        swap.lessonType
-                                                                            ) ||
-                                                                            []
-                                                                        }
-                                                                        title={`${encodeLessonTypeToShorthand(
-                                                                            swap.lessonType
-                                                                        )}
-                                                        [${
-                                                            requestedClass.wantedClassNo
-                                                        }]`}
-                                                                    />
-                                                                )
-                                                            )}
-                                                        </SimpleGrid>
-                                                        <Divider />
-                                                        <Flex justifyContent="space-between">
-                                                            <HStack
-                                                                alignItems="center"
-                                                                // justifyContent="center"
-                                                            >
-                                                                <TimeIcon />
-                                                                <Text>
-                                                                    {formatTimeElapsed(
-                                                                        swap.createdAt.toString()
-                                                                    )}
-                                                                </Text>
-                                                            </HStack>{" "}
-                                                            <Badge
-                                                                colorScheme="orange"
-                                                                fontSize="1em"
-                                                            >
-                                                                {
-                                                                    swap.moduleCode
-                                                                }
-                                                            </Badge>
-                                                        </Flex>
-                                                    </Stack>
-                                                </Card>
-                                            </Link>
-                                        </NextLink>
+                                        <SwapCard
+                                                key={index}
+                                                hasRequestedSwap={
+                                                    hasRequestedSwap
+                                                }
+                                                requestSwap={requestSwap}
+                                                swap={swap}
+                                                swapData={swapData}
+                                                user={user}
+                                            />
                                     )
                             )}
-                        </SimpleGrid>
+                        </SimpleGrid>}
                     </TabPanel>
                     {user && (
                         <TabPanel>

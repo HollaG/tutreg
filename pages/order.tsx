@@ -248,6 +248,7 @@ const Order: NextPage = () => {
         setSelectedModules([]);
     };
 
+
     const removeAll = () => {
         dispatch(classesActions.removeAll());
     };
