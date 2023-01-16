@@ -53,6 +53,7 @@ import { useRouter } from "next/router";
 import Explanation from "../components/Description/Explanation";
 import { ImportResponseData } from "./api/import";
 import { generateLink, tutregToNUSMods } from "../lib/functions";
+import { Step, Steps, useSteps } from "chakra-ui-steps";
 
 const ay = process.env.NEXT_PUBLIC_AY;
 const Order: NextPage = () => {
@@ -91,33 +92,30 @@ const Order: NextPage = () => {
     };
 
     // Check if the user is importing something
-    const router = useRouter()
-    console.log(router.query, 'router query')
+    const router = useRouter();
+    console.log(router.query, "router query");
 
-    const [isImportingShareURL, setIsImportingShareURL] = useState(false)
-   
-
+    const [isImportingShareURL, setIsImportingShareURL] = useState(false);
 
     useEffect(() => {
         if (router.query.share) {
-            const link = tutregToNUSMods(`https://tutreg.com/order?share=${router.query.share}`) as string
+            const link = tutregToNUSMods(
+                `https://tutreg.com/order?share=${router.query.share}`
+            ) as string;
             sendPOST("/api/import", {
                 url: link,
-            }).then((result: ImportResponseData) => {
-                const data = result.data;
-                console.log({data})
-            }).catch((err) => console.log(err));
-            
+            })
+                .then((result: ImportResponseData) => {
+                    const data = result.data;
+                    console.log({ data });
+                })
+                .catch((err) => console.log(err));
+
             // console.log(router.query)
 
             // TODO: Continue work on importing URLs
-
         }
-    }, [router.query])
-
-
-
-
+    }, [router.query]);
 
     const [value, setValue] = useState("");
     const [selectedModules, setSelectedModules] = useState<Option[]>([]);
@@ -248,7 +246,6 @@ const Order: NextPage = () => {
         setSelectedModules([]);
     };
 
-
     const removeAll = () => {
         dispatch(classesActions.removeAll());
     };
@@ -267,8 +264,9 @@ const Order: NextPage = () => {
 
     const { hasCopied, onCopy } = useClipboard(timetableLink);
 
-
-    
+    const { nextStep, prevStep, setStep, reset, activeStep } = useSteps({
+        initialStep: 0,
+    });
 
     return (
         <Stack spacing={5}>
@@ -276,8 +274,8 @@ const Order: NextPage = () => {
                 {" "}
                 To get started, import your NUSMods Timetable.{" "}
             </Heading>
-            <Center textAlign='center'>
-                <Stack spacing={1} alignItems='center'>
+            <Center textAlign="center">
+                <Stack spacing={1} alignItems="center">
                     <Text>
                         {" "}
                         You can rank your modules according to the priority in
@@ -285,9 +283,9 @@ const Order: NextPage = () => {
                     </Text>
                     <Text>
                         {" "}
-                        Then, add and rank the other classes that you want in the{" "}
-                        <Tag>Rank Classes</Tag> tab, and see the
-                        results in <Tag>Computed Ranking</Tag>.
+                        Then, add and rank the other classes that you want in
+                        the <Tag>Rank Classes</Tag> tab, and see the results in{" "}
+                        <Tag>Computed Ranking</Tag>.
                     </Text>
                 </Stack>
             </Center>
@@ -301,7 +299,11 @@ const Order: NextPage = () => {
                         />
                         <FormHelperText>
                             Paste the link you get when clicking the
-                            [Share/Sync] button on <Link  href="https://nusmods.com" isExternal>NUSMods</Link> above.
+                            [Share/Sync] button on{" "}
+                            <Link href="https://nusmods.com" isExternal>
+                                NUSMods
+                            </Link>{" "}
+                            above.
                         </FormHelperText>
 
                         {isError && (
@@ -383,7 +385,13 @@ const Order: NextPage = () => {
                         </HStack>
                     </Center>
 
-                    <Tabs
+                    <Steps labelOrientation="vertical"  activeStep={activeStep} onClickStep={(step) => setStep(step)}>
+                        <Step label="Rank modules" description="Rank your modules, highest priority first"><ModuleSortContainer showAdd={showAdd} /> </Step>
+                        <Step label="Rank classes" description="asdf"><ClassSortContainer showAdd={showAdd} /> </Step>
+                        <Step label="Export result" description="asdas"><ResultContainer showAdd={showAdd} /> </Step>
+                    </Steps>
+
+                    {/* <Tabs
                         variant="enclosed"
                         colorScheme="blue"
                         align="center"
@@ -415,7 +423,7 @@ const Order: NextPage = () => {
                                 <ResultContainer showAdd={showAdd} />
                             </TabPanel>
                         </TabPanels>
-                    </Tabs>
+                    </Tabs> */}
 
                     {/* <Box>
                         <InputGroup>
@@ -434,7 +442,7 @@ const Order: NextPage = () => {
                             </Link>
                         </Center>
                     </Box> */}
-                    
+
                     {/* <Box id="divContainer">
                         <Box id="frameContainer">
                             <iframe src={timetableLink} width="100%" height="1000px" frameBorder="0" allowFullScreen></iframe>
