@@ -9,6 +9,7 @@ export type RootState = {
     classesInfo: ClassState;
     user: TelegramUser | null | null;
     misc: MiscState;
+    timetable: any
 };
 
 export type ClassOverview = {
@@ -70,3 +71,4 @@ export interface BasicResponse {
     error?: any;
     data?: any
 }
+

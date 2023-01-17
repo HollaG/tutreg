@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { TimetableLessonEntry } from "../components/Timetable/Timetable";
 import { canBeBidFor } from "../lib/functions";
 import { Data } from "../pages/api/import";
 import { ModuleCodeLessonType, ClassOverview } from "../types/types";
@@ -13,15 +14,17 @@ const loadState = () => {
     }
 };
 
-export interface ClassState extends Data  {
-    moduleOrder: string[],
-    nonBiddable: ModuleCodeLessonType
+export interface ClassState extends Data {
+    moduleOrder: string[];
+    nonBiddable: ModuleCodeLessonType;
+    changedClasses: string[];
 }
 const initialState: ClassState = loadState() || {
     selectedClasses: {},
     totalModuleCodeLessonTypeMap: {},
     moduleOrder: [],
-    nonBiddable: {}
+    nonBiddable: {},
+    changedClasses: [],
 };
 
 const classesSlice = createSlice({
@@ -58,7 +61,8 @@ const classesSlice = createSlice({
                 totalModuleCodeLessonTypeMap:
                     action.payload.totalModuleCodeLessonTypeMap,
                 moduleOrder: Object.keys(selectedBiddableClasses),
-                nonBiddable: nonBiddableClasses
+                nonBiddable: nonBiddableClasses,
+                changedClasses: [],
             };
 
             state.selectedClasses = selectedBiddableClasses;
@@ -91,17 +95,19 @@ const classesSlice = createSlice({
             //     (moduleCode) => moduleCode !== action.payload
             // );
 
-            const newModuleOrder = state.moduleOrder.filter(
+            const newModuleOrder: string[] = state.moduleOrder.filter(
                 (moduleCode) => moduleCode !== action.payload
             );
 
             // delete the selected classes
-            const newSelectedClasses: ModuleCodeLessonType = { ...state.selectedClasses };
+            const newSelectedClasses: ModuleCodeLessonType = {
+                ...state.selectedClasses,
+            };
             delete newSelectedClasses[action.payload];
             // state.selectedClasses = newSelectedClasses;
 
             // delete the data from the totalModuleCodeLessonTypeMap to prevent memory leaks too
-            const newTotalModuleCodeLessonTypeMap = {
+            const newTotalModuleCodeLessonTypeMap: ModuleCodeLessonType = {
                 ...state.totalModuleCodeLessonTypeMap,
             };
             delete newTotalModuleCodeLessonTypeMap[action.payload];
@@ -112,14 +118,14 @@ const classesSlice = createSlice({
                 moduleOrder: newModuleOrder,
                 selectedClasses: newSelectedClasses,
                 totalModuleCodeLessonTypeMap: newTotalModuleCodeLessonTypeMap,
-                nonBiddable: { ...state.nonBiddable }
+                nonBiddable: { ...state.nonBiddable },
+                changedClasses: [...state.changedClasses],
             };
         },
         addAvailableClasses(
             state,
             action: PayloadAction<ModuleCodeLessonType>
         ) {
-         
             return {
                 ...state,
                 totalModuleCodeLessonTypeMap: {
@@ -168,7 +174,9 @@ const classesSlice = createSlice({
             }>
         ) {
             const { moduleCodeLessonType, classNo } = action.payload;
-            const remainingClasses = state.selectedClasses[moduleCodeLessonType].filter((class_) => class_.classNo !== classNo)
+            const remainingClasses: ClassOverview[] = state.selectedClasses[
+                moduleCodeLessonType
+            ].filter((class_) => class_.classNo !== classNo);
 
             if (remainingClasses.length) {
                 return {
@@ -179,14 +187,15 @@ const classesSlice = createSlice({
                     },
                 };
             } else {
-                const newState = { ...state.selectedClasses }
-                delete newState[moduleCodeLessonType]
+                const newState: ModuleCodeLessonType = {
+                    ...state.selectedClasses,
+                };
+                delete newState[moduleCodeLessonType];
                 return {
                     ...state,
                     selectedClasses: newState,
                 };
             }
-            
         },
         changeClassOrder(
             state,
@@ -209,8 +218,122 @@ const classesSlice = createSlice({
                 moduleOrder: [],
                 selectedClasses: {},
                 totalModuleCodeLessonTypeMap: {},
-                nonBiddable: {}
+                nonBiddable: {},
+                changedClasses: [],
             };
+        },
+        setChangedClasses(state, action: PayloadAction<string[]>) {
+            return {
+                ...state,
+                changedClasses: action.payload,
+            };
+        },
+        updateChangedClasses(
+            state,
+            action: PayloadAction<{
+                class_: TimetableLessonEntry;
+                selected: boolean;
+            }>
+        ) {
+            if (action.payload.selected) {
+                // add
+                return {
+                    ...state,
+                    changedClasses: [
+                        ...state.changedClasses,
+                        action.payload.class_.classNo,
+                    ],
+                };
+            } else {
+                // remove
+                return {
+                    ...state,
+                    changedClasses: state.changedClasses.filter(
+                        (classNo) => classNo !== action.payload.class_.classNo
+                    ),
+                };
+            }
+
+            // let changedClasses = state.changedClasses;
+            // const { class_, selected } = action.payload;
+
+            // if (selected) {
+            //     // this item was just selected
+            // }
+
+            // if (changedClasses) {
+            //     if (changedClasses.find((c) => c.class_.id === class_.id)) {
+            //         const newChangedClasses = changedClasses.map((c) => {
+            //             if (c.class_.id === class_.id) {
+            //                 return {
+            //                     ...c,
+            //                     selected,
+            //                 };
+            //             }
+            //             return c;
+            //         });
+
+            //         return {
+            //             ...state,
+            //             changedClasses: newChangedClasses,
+            //         };
+            //     } else {
+            //         const newChangedClasses = [
+            //             ...changedClasses,
+            //             {
+            //                 class_,
+            //                 selected,
+            //             },
+            //         ];
+
+            //         return {
+            //             ...state,
+            //             changedClasses: newChangedClasses,
+            //         };
+            //     }
+            // } else {
+            //     return {
+            //         ...state,
+            //         changedClasses: [
+            //             {
+            //                 class_,
+            //                 selected,
+            //             },
+            //         ],
+            //     };
+            // }
+        },
+        updateMainList(state, action: PayloadAction<string>) {
+            // moduleCodeLessonType
+            const moduleCodeLessonType = action.payload;
+            const copiedAvailableClasses = {
+                ...state.totalModuleCodeLessonTypeMap,
+            };
+
+            const copiedChangedClasses = [...state.changedClasses];
+
+            const selectedClassesForCode: ClassOverview[] = copiedAvailableClasses[
+                moduleCodeLessonType
+            ].filter((class_) => copiedChangedClasses.includes(class_.classNo));
+
+            console.log({selectedClassesForCode})
+
+            if (selectedClassesForCode[0]) {
+
+                return {
+                    ...state,
+                    selectedClasses: {
+                        ...state.selectedClasses,
+                        [moduleCodeLessonType]: selectedClassesForCode,
+                    },
+                    changedClasses: []
+                }
+            } else {
+                return {
+                    ...state,
+                    changedClasses: []
+                }
+            }
         },
     },
 });

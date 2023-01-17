@@ -134,6 +134,10 @@ export const canBeBidFor = (moduleCode: string, lessonType: string) => {
 //   [1,2,3, 5,6,7, 9]
 // Output:
 //   [1,3, 5,7, 9,9]
+export const combineNumbersDatabase = (str: any) => {
+    return combineNumbers(str.toString().replace(/\[|\]/g, "").split(","));
+};
+
 export const combineNumbers = (numbers: (string | number)[]) => {
     let combined = [];
     let holder: number[] = [];
@@ -194,14 +198,19 @@ export const generateLink = (
     } = {};
 
     for (const moduleCode in holder) {
-        holder2[moduleCode] = holder[moduleCode]
-            .map(
-                (classes) =>
-                    `${encodeLessonTypeToShorthand(classes.lessonType)}:${
-                        classes.classNo
-                    }`
-            )
-            .join(",");
+        if (holder[moduleCode].length) {
+            console.log(holder)
+            holder2[moduleCode] = holder[moduleCode].length
+                ? holder[moduleCode]
+                      .map(
+                          (classes) =>
+                              `${encodeLessonTypeToShorthand(
+                                  classes.lessonType
+                              )}:${classes.classNo}`
+                      )
+                      .join(",")
+                : "";
+        }
     }
 
     // let link = "https://nusmods.com/timetable/sem-1/share?CFG1002=&CS1101S=TUT:09F,REC:11B,LEC:1&CS1231S=TUT:08A,LEC:1&IS1108=TUT:03,LEC:1&MA2001=TUT:31,LAB:5,LEC:1&RVX1002=SEC:2"
@@ -348,7 +357,11 @@ export const formatDate = (date: Date) => {
 };
 
 // Function to convert holderArray into a url string that can be shared
-export const encodeRank = (rank: ClassOverview[], moduleOrder: string[], selectedClasses: ModuleCodeLessonType) => {
+export const encodeRank = (
+    rank: ClassOverview[],
+    moduleOrder: string[],
+    selectedClasses: ModuleCodeLessonType
+) => {
     // let begin = `https://tutreg.com/?share=`;
     // let ranked = [];
     // ranked = rank.map(
@@ -368,24 +381,24 @@ export const encodeRank = (rank: ClassOverview[], moduleOrder: string[], selecte
                 class_.lessonType
             )}:${class_.classNo}`
     );
-    begin += ranked.join(",")
+    begin += ranked.join(",");
 
     // encode the order of mods in each module
-    let indivSelects = moduleOrder.map(moduleCodeLessonType => {
-        if (!selectedClasses[moduleCodeLessonType]) return ""
-        const temp = moduleCodeLessonType.split(": ")
-        const moduleCode = temp[0]
-        const lessonType = temp[1] as LessonType
-        const lessonTypeAbbr = encodeLessonTypeToShorthand(lessonType)
+    let indivSelects = moduleOrder.map((moduleCodeLessonType) => {
+        if (!selectedClasses[moduleCodeLessonType]) return "";
+        const temp = moduleCodeLessonType.split(": ");
+        const moduleCode = temp[0];
+        const lessonType = temp[1] as LessonType;
+        const lessonTypeAbbr = encodeLessonTypeToShorthand(lessonType);
 
-        
-        let selString = selectedClasses[moduleCodeLessonType].map(class_ => class_.classNo).join(",")
-        console.log({selString})
-        return `${moduleCode}-${lessonTypeAbbr}:${selString}`
-    })
+        let selString = selectedClasses[moduleCodeLessonType]
+            .map((class_) => class_.classNo)
+            .join(",");
+        console.log({ selString });
+        return `${moduleCode}-${lessonTypeAbbr}:${selString}`;
+    });
 
-
-    console.log({indivSelects})
+    console.log({ indivSelects });
 
     return `${begin}&classes=${indivSelects.join("__")}`;
 };
@@ -398,7 +411,7 @@ export const tutregToNUSMods = (url: string) => {
         [moduleCode: string]: { [lessonType: string]: string }; // todo: type lessonType
     } = {};
 
-    console.log({ selectedClasses })
+    console.log({ selectedClasses });
     for (let class_ of selectedClasses) {
         const moduleCode: string = class_.split(":")[0];
         const abbreLessonType: LessonTypeAbbrev = class_.split(
@@ -434,7 +447,11 @@ export const tutregToNUSMods = (url: string) => {
     let urlBegin = `https://nusmods.com/timetable/sem-${process.env.NEXT_PUBLIC_SEM}/share?`;
     const searchParams = new URLSearchParams(holder2);
 
-
-
     return urlBegin + searchParams.toString();
+};
+
+export const keepAndCapFirstThree = (str: string) => {
+    const words = str.split("");
+    if (words.length <= 3) return str;
+    else return words.slice(0, 3).join("").toUpperCase();
 };

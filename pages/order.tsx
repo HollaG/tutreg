@@ -257,9 +257,13 @@ const Order: NextPage = () => {
     // Update the displayed link whenever the modules changes
     const [timetableLink, setTimetableLink] = useState("");
     useEffect(() => {
-        setTimetableLink(
-            generateLink({ ...data.selectedClasses, ...data.nonBiddable })
-        );
+        if (Object.keys(data.selectedClasses).length === 0) {
+            setTimetableLink("");
+        } else {
+            setTimetableLink(
+                generateLink({ ...data.selectedClasses, ...data.nonBiddable })
+            );
+        }
     }, [data]);
 
     const { hasCopied, onCopy } = useClipboard(timetableLink);
@@ -394,7 +398,11 @@ const Order: NextPage = () => {
                         >
                             Prev
                         </Button>
-                        <Button size="sm" onClick={nextStep} disabled={activeStep === 3 - 1}>
+                        <Button
+                            size="sm"
+                            onClick={nextStep}
+                            disabled={activeStep === 3 - 1}
+                        >
                             Next
                         </Button>
                     </Flex>
@@ -421,7 +429,7 @@ const Order: NextPage = () => {
                             <ResultContainer showAdd={showAdd} />{" "}
                         </Step>
                     </Steps>
-                    
+
                     {/* <Tabs
                         variant="enclosed"
                         colorScheme="blue"
