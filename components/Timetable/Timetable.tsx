@@ -1,19 +1,28 @@
 import {
     Box,
+    Button,
     Center,
+    Container,
     Flex,
     Grid,
     GridItem,
     Text,
+    useBreakpoint,
+    useBreakpointValue,
     useColorModeValue,
 } from "@chakra-ui/react";
 import React from "react";
 import { useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { keepAndCapFirstThree } from "../../lib/functions";
+import { classesActions } from "../../store/classesReducer";
 import { ClassDB, ModuleWithClassDB } from "../../types/db";
 import { Day, RawLesson } from "../../types/modules";
-import { ClassOverview, ModuleCodeLessonType, RootState } from "../../types/types";
+import {
+    ClassOverview,
+    ModuleCodeLessonType,
+    RootState,
+} from "../../types/types";
 import TimetableSelectable from "./TimetableSelectable";
 
 export interface TimetableLessonEntry extends ModuleWithClassDB {
@@ -29,7 +38,8 @@ export interface TimetableLessonEntry extends ModuleWithClassDB {
 type DayRows = {
     [day in Day]: number;
 };
-const GRID_ITEM_HEIGHT = 50;
+const GRID_ITEM_HEIGHT_BIG = 75;
+const GRID_ITEM_HEIGHT_SMALL = 50;
 
 const order = [
     "Monday",
@@ -44,27 +54,49 @@ const order = [
 const Timetable: React.FC<{
     // listOfLessons: ClassDB[]
     mclt: string;
-
 }> = ({ mclt }) => {
-    console.log("timetable rerendering")
-    const ALTERNATE_EVEN_GRID_COLOR = useColorModeValue("gray.100", "gray.500");
-    const ALTERNATE_ODD_GRID_COLOR = useColorModeValue("white", "gray.700");
-    const BORDER_COLOR = useColorModeValue("gray.300", "gray.600");
-    const HEADER_COLOR = useColorModeValue("gray.200", "gray.500");
-    const TEXT_HEADER_COLOR = useColorModeValue("gray.600", "gray.200")
+    const GRID_ITEM_HEIGHT_RESPONSIVE = useBreakpointValue({
+        base: GRID_ITEM_HEIGHT_SMALL,
+        md: GRID_ITEM_HEIGHT_BIG,
+    });
+
+    console.log("timetable rerendering");
+    const ALTERNATE_EVEN_GRID_COLOR = useColorModeValue("blue.100", "blue.900");
+    const ALTERNATE_ODD_GRID_COLOR = useColorModeValue("blue.50", "blue.800");
+    // const ALTERNATE_EVEN_GRID_COLOR = useColorModeValue("gray.100", "gray.500");
+    // const ALTERNATE_ODD_GRID_COLOR = useColorModeValue("white", "gray.700");
+    const HEADER_COLOR = useColorModeValue("blue.200", "blue.700");
+    const TEXT_HEADER_COLOR = useColorModeValue("gray.700", "gray.200");
+
+    const BORDER_COLOR = useColorModeValue("gray.400", "gray.500");
+    // const HEADER_COLOR = useColorModeValue("gray.200", "gray.500");
+    // const TEXT_HEADER_COLOR = useColorModeValue("gray.600", "gray.200")
+
+    const BORDER_WIDTH = "1px";
+    const BORDER_RADIUS = "3px"
+
     const timetableData = useSelector((state: RootState) => state.timetable);
 
     const classesList = useSelector(
         (state: RootState) => state.classesInfo.totalModuleCodeLessonTypeMap
     );
 
-    const selectedClasses = useSelector((state: RootState) => state.classesInfo.selectedClasses)
+    const selectedClasses = useSelector(
+        (state: RootState) => state.classesInfo.selectedClasses
+    );
 
-    const isSelected = (class_: TimetableLessonEntry, selectedClasses: ModuleCodeLessonType) => {
-        const moduleCodeLessonType = `${class_.moduleCode}: ${class_.lessonType}`
-        return !!selectedClasses[moduleCodeLessonType] && !!selectedClasses[moduleCodeLessonType].find((class_2) => class_2.classNo === class_.classNo)
-    }
-
+    const isSelected = (
+        class_: TimetableLessonEntry,
+        selectedClasses: ModuleCodeLessonType
+    ) => {
+        const moduleCodeLessonType = `${class_.moduleCode}: ${class_.lessonType}`;
+        return (
+            !!selectedClasses[moduleCodeLessonType] &&
+            !!selectedClasses[moduleCodeLessonType].find(
+                (class_2) => class_2.classNo === class_.classNo
+            )
+        );
+    };
 
     const classesForThis = classesList[mclt];
 
@@ -199,14 +231,30 @@ const Timetable: React.FC<{
         ) + 1; // # of hours in timetable + 1
 
     // console.log({ totalRowsToDraw, totalColumnsToDraw });
-
-    
-
+    const dispatch = useDispatch();
+    const deselectAllHandler = () => {
+        dispatch(classesActions.removeChangedClasses());
+    };
     return (
-        <>
+        <Container maxW={"1200px"}>
+            <Flex justifyContent="right">
+                <Box>
+                    <Button
+                        colorScheme="red"
+                        onClick={() => deselectAllHandler()}
+                    >
+                        {" "}
+                        Deselect all{" "}
+                    </Button>
+                </Box>
+                <Box ml={2}>
+                    <Button colorScheme="blue"> Save & close </Button>
+                </Box>
+            </Flex>
             <Grid
-                gridTemplateRows={"50px 1fr"}
-                templateColumns={`repeat(${totalColumnsToDraw}, 1fr)`}
+                margin="auto"
+                gridTemplateRows={"25px 1fr"}
+                templateColumns={`50px repeat(${totalColumnsToDraw - 1}, 1fr)`}
                 // templateAreas={`"header header"
                 //                 "day main"`}
 
@@ -216,7 +264,11 @@ const Timetable: React.FC<{
                 {Array.from({ length: totalColumnsToDraw }).map((_, c) => {
                     return (
                         <GridItem key={c}>
-                            <Flex alignItems={'flex-end'} height="100%" ml="-18px">
+                            <Flex
+                                alignItems={"flex-end"}
+                                height="100%"
+                                ml="-18px"
+                            >
                                 {c !== 0 ? (
                                     <Text textColor={TEXT_HEADER_COLOR}>
                                         {convertColumnToTime(c, earliestTiming)}
@@ -230,7 +282,13 @@ const Timetable: React.FC<{
                 })}
 
                 {/* Create the day headers */}
-                <GridItem>
+                <GridItem
+                    // borderLeft={BORDER_WIDTH}
+                    borderColor={BORDER_COLOR}
+                    // borderTop={BORDER_WIDTH}
+                    // borderBottom={BORDER_WIDTH}
+                    
+                >
                     <Grid
                         gridTemplateRows={`${rowMappingForDays
                             .map(
@@ -239,14 +297,26 @@ const Timetable: React.FC<{
                             )
                             .join(" ")}`}
                         height="100%"
+                        borderRadius="10px"
                     >
                         {rowMappingForDays.map((dayObj, r) => (
                             <GridItem
                                 key={r}
                                 bgColor={HEADER_COLOR}
-                                border="1px solid"
+                                borderTop={r === 0 ? 0 : BORDER_WIDTH}
+                                // borderLeft={BORDER_WIDTH}
+                                borderRight={BORDER_WIDTH}
                                 borderColor={BORDER_COLOR}
-                                minH={GRID_ITEM_HEIGHT}
+                                minH={GRID_ITEM_HEIGHT_RESPONSIVE}
+                                
+                                {...(r === 0 && {
+                                    borderTopLeftRadius: BORDER_RADIUS,
+                                    
+                                })}
+                                {...(r === rowMappingForDays.length - 1 && {
+                                    borderBottomLeftRadius: BORDER_RADIUS,
+                                })
+                                }
                             >
                                 <Center
                                     h={"100%"}
@@ -267,6 +337,7 @@ const Timetable: React.FC<{
                 {/* Create the table for the items */}
                 <GridItem colSpan={totalColumnsToDraw - 1}>
                     <Box position="relative">
+                        {/* Table to hold the TimetableSelectables */}
                         <Grid
                             templateRows={`repeat(${totalRowsToDraw - 1}, 1fr)`}
                             templateColumns={`repeat(${
@@ -283,7 +354,26 @@ const Timetable: React.FC<{
                                         <>
                                             <GridItem
                                                 colSpan={totalColumnsToDraw - 1}
-                                                height={GRID_ITEM_HEIGHT}
+                                                height={
+                                                    GRID_ITEM_HEIGHT_RESPONSIVE
+                                                }
+                                                // {...(doDrawTopBorder(
+                                                //     r,
+                                                //     totalDayRowsToDraw
+                                                // )
+                                                //     ? {
+                                                //           paddingTop: "10px",
+                                                //       }
+                                                //     : {})}
+                                                // {...(doDrawBottomBorder(
+                                                //     r,
+                                                //     totalDayRowsToDraw,
+                                                //     totalRowsToDraw
+                                                // )
+                                                //     ? {
+                                                //           paddingBottom: "10px",
+                                                //       }
+                                                //     : {})}
                                             >
                                                 <Flex h="100%" w="100%">
                                                     {timetableList
@@ -299,7 +389,6 @@ const Timetable: React.FC<{
                                                                 <Box
                                                                     key={i}
                                                                     height="100%"
-                                                                    
                                                                     width={`${calculateWidthPercent(
                                                                         class_.startTime,
                                                                         class_.endTime,
@@ -315,9 +404,16 @@ const Timetable: React.FC<{
                                                                         earliestTiming,
                                                                         latestTiming
                                                                     )}%`}
-                                                                  
                                                                 >
-                                                                    <TimetableSelectable class_={class_} selected={isSelected(class_, selectedClasses)}/>
+                                                                    <TimetableSelectable
+                                                                        class_={
+                                                                            class_
+                                                                        }
+                                                                        selected={isSelected(
+                                                                            class_,
+                                                                            selectedClasses
+                                                                        )}
+                                                                    />
                                                                 </Box>
                                                             );
                                                         })}
@@ -328,6 +424,8 @@ const Timetable: React.FC<{
                                 }
                             )}
                         </Grid>
+
+                        {/* Table to draw the background */}
                         <Grid
                             position="absolute"
                             top={0}
@@ -339,10 +437,10 @@ const Timetable: React.FC<{
                             width="100%"
                             zIndex={-1}
                             // borderLeft="2px"
-                            borderRight="2px"
-                            borderTop="1px"
-                            borderBottom="1px"
-                            borderColor={ALTERNATE_EVEN_GRID_COLOR}
+                            borderRight={BORDER_WIDTH}
+                            // borderTop={BORDER_WIDTH}
+                            // borderBottom={BORDER_WIDTH}
+                            borderColor={BORDER_COLOR}
                         >
                             {Array.from({ length: totalRowsToDraw - 1 }).map(
                                 (_, r) =>
@@ -351,20 +449,29 @@ const Timetable: React.FC<{
                                     }).map((__, c) => (
                                         <GridItem
                                             key={`${r}${c}`}
-                                            height={GRID_ITEM_HEIGHT}
+                                            height={GRID_ITEM_HEIGHT_RESPONSIVE}
                                             bgColor={
-                                                c % 2
+                                                c % 2 === 1
                                                     ? ALTERNATE_EVEN_GRID_COLOR
                                                     : ALTERNATE_ODD_GRID_COLOR
                                             }
-                                            borderBottom={
-                                                r !== totalRowsToDraw - 2
-                                                    ? "1px"
-                                                    : "0px"
-                                            }
-                                            borderColor={
-                                                BORDER_COLOR
-                                            }
+                                            {...(doDrawTopBorder(
+                                                r,
+                                                totalDayRowsToDraw
+                                            )
+                                                ? {
+                                                      borderTop: BORDER_WIDTH,
+                                                      borderColor: BORDER_COLOR,
+                                                  }
+                                                : {})}
+                                            // borderBottom={
+                                            //     r !== totalRowsToDraw - 2
+                                            //         ? "1px"
+                                            //         : "0px"
+                                            // }
+                                            // borderColor={
+                                            //     BORDER_COLOR
+                                            // }
                                         ></GridItem>
                                     ))
                             )}
@@ -372,8 +479,36 @@ const Timetable: React.FC<{
                     </Box>
                 </GridItem>
             </Grid>
-        </>
+        </Container>
     );
+};
+
+// function to determine if we should draw a top border
+// We draw a bottom border when this cell is the last row before the day changes.
+const doDrawTopBorder = (r: number, totalDayRowsToDraw: DayRows) => {
+    if (r === 0) {
+        return false; // never draw border for the first row
+    } else {
+        const rowCurDay = convertRowToDay(r, totalDayRowsToDraw).day;
+        const prevRowDay = convertRowToDay(r - 1, totalDayRowsToDraw).day;
+        console.log({ rowCurDay, prevRowDay });
+        return rowCurDay !== prevRowDay;
+    }
+};
+
+const doDrawBottomBorder = (
+    r: number,
+    totalDayRowsToDraw: DayRows,
+    totalRowsToDraw: number
+) => {
+    if (r === totalRowsToDraw) {
+        return false; // never draw border for the last row
+    } else {
+        const rowCurDay = convertRowToDay(r, totalDayRowsToDraw).day;
+        const nextRowDay = convertRowToDay(r + 1, totalDayRowsToDraw).day;
+        console.log({ rowCurDay, nextRowDay });
+        return rowCurDay !== nextRowDay;
+    }
 };
 
 // function to convert 24 hour timing to minutes since 00:00
@@ -388,9 +523,10 @@ const convertColumnToTime = (column: number, earliestTiming: string) => {
     const earliestMinutes = convertToMinutes(earliestTiming);
     const minutes = earliestMinutes + (column - 1) * 60;
     const hours = Math.floor(minutes / 60);
+    const hoursString = hours < 10 ? `0${hours}` : hours;
     const minutesLeft = minutes % 60;
     const minutesString = minutesLeft < 10 ? `0${minutesLeft}` : minutesLeft;
-    return `${hours}${minutesString}`;
+    return `${hoursString}${minutesString}`;
 };
 
 // convert row number to day, given the number of rows per day
@@ -472,34 +608,6 @@ const calculateMinutesBeforeThePreviousClass = (
         return (
             convertToMinutes(class_.startTime) -
             convertToMinutes(inTheSameRow[index - 1].endTime)
-        );
-    }
-
-    // look for the one that has an earlier, or equal to endTime to our startTime
-    const startTime = class_.startTime;
-
-    let currentlyLatestClass = null;
-    for (let class_2 of inTheSameRow) {
-        if (Number(class_2.endTime) <= Number(startTime)) {
-            if (!currentlyLatestClass) {
-                currentlyLatestClass = class_2;
-            } else {
-                if (
-                    Number(class_2.endTime) >
-                    Number(currentlyLatestClass.endTime)
-                ) {
-                    currentlyLatestClass = class_2;
-                }
-            }
-        }
-    }
-
-    if (!currentlyLatestClass) {
-        return convertToMinutes(startTime) - convertToMinutes(earliestTiming);
-    } else {
-        return (
-            convertToMinutes(startTime) -
-            convertToMinutes(currentlyLatestClass.startTime)
         );
     }
 };

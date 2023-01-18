@@ -144,7 +144,7 @@ const classesSlice = createSlice({
         ) {
             const { moduleCodeLessonType, classNo } = action.payload;
 
-            const copiedAvailableClasses = {
+            const copiedAvailableClasses:ModuleCodeLessonType = {
                 ...state.totalModuleCodeLessonTypeMap,
             };
 
@@ -303,6 +303,12 @@ const classesSlice = createSlice({
             //     };
             // }
         },
+        removeChangedClasses(state) {
+            return {
+                ...state,
+                changedClasses: [],
+            };
+        },
         updateMainList(state, action: PayloadAction<string>) {
             // moduleCodeLessonType
             const moduleCodeLessonType = action.payload;
@@ -329,10 +335,16 @@ const classesSlice = createSlice({
                     changedClasses: []
                 }
             } else {
-                return {
+                const newState = {
                     ...state,
+                    selectedClasses: {
+                        ...state.selectedClasses,
+                        
+                    },
                     changedClasses: []
                 }
+                delete newState.selectedClasses[moduleCodeLessonType]
+                return newState
             }
         },
     },
