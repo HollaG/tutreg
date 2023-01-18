@@ -138,11 +138,18 @@ const Order: NextPage = () => {
 
     // Workaround: Chakra Collapse does not show when showCollapse is initially true.
     // Ref: https://github.com/chakra-ui/chakra-ui/issues/2534
-    const [showCollapse, setShowCollapse] = useState(false);
+    const [hasNoModulesSelected, setHasNoModulesSelected] = useState(false);
     useEffect(
-        () => setShowCollapse(!!data.moduleOrder.length),
+        () => setHasNoModulesSelected(!data.moduleOrder.length),
         [data.moduleOrder.length]
     );
+
+    const [hasNoClassesSelected, setHasNoClassesSelected] = useState(false);
+    useEffect(
+        () => setHasNoClassesSelected(!Object.keys(data.selectedClasses).length),
+        [data.selectedClasses]
+    );
+
 
     // fetch the list of modules from nusmods
     const [moduleList, setModuleList] = useState<ModuleCondensed[]>();
@@ -247,6 +254,7 @@ const Order: NextPage = () => {
     };
 
     const removeAll = () => {
+        setStep(0)
         dispatch(classesActions.removeAll());
     };
 
@@ -272,6 +280,18 @@ const Order: NextPage = () => {
         initialStep: 0,
     });
 
+    const clickedStepHandler = (step: number) => {
+        if (step === 0) {
+            setStep(0);
+        }
+        if (step === 1 && !hasNoModulesSelected) {
+            setStep(1);
+        }
+        if (step === 2 && !hasNoClassesSelected) {
+            setStep(2);
+        }
+    }
+
     return (
         <Stack spacing={5}>
             <Heading size="lg" textAlign="center">
@@ -283,12 +303,12 @@ const Order: NextPage = () => {
                     <Text>
                         {" "}
                         You can rank your modules according to the priority in
-                        the <Tag> Rank Modules </Tag> tab.
+                        the <Tag> Rank Modules </Tag> step.
                     </Text>
                     <Text>
                         {" "}
                         Then, add and rank the other classes that you want in
-                        the <Tag>Rank Classes</Tag> tab, and see the results in{" "}
+                        the <Tag>Rank Classes</Tag> step, and see the results in{" "}
                         <Tag>Computed Ranking</Tag>.
                     </Text>
                 </Stack>
@@ -366,9 +386,10 @@ const Order: NextPage = () => {
                     Add{" "}
                 </Button>
             </Flex>
-            <Collapse in={showCollapse}>
+            {/* <Collapse in={showCollapse}> */}
                 <Stack spacing={5}>
                     <Center>
+                       
                         <HStack>
                             <Button
                                 size="sm"
@@ -401,68 +422,44 @@ const Order: NextPage = () => {
                         <Button
                             size="sm"
                             onClick={nextStep}
-                            disabled={activeStep === 3 - 1}
+                            disabled={activeStep === 3 - 1 || (activeStep === 0 && hasNoModulesSelected) || (activeStep === 1 && hasNoClassesSelected)}
                         >
                             Next
                         </Button>
                     </Flex>
                     <Steps
                         activeStep={activeStep}
-                        onClickStep={(step) => setStep(step)}
+                        onClickStep={clickedStepHandler}
                     >
                         <Step
                             label="Rank modules"
                             description="Rank your modules, highest priority first"
+                            
                         >
+                            {hasNoModulesSelected && <Text> Add a module to get started! </Text>}
                             <ModuleSortContainer showAdd={showAdd} />{" "}
                         </Step>
                         <Step
                             label="Rank classes"
                             description="Rank your classes per module"
+                            _hover={{
+                                cursor: hasNoModulesSelected ? "not-allowed" : "pointer",
+                            }}
                         >
                             <ClassSortContainer showAdd={showAdd} />{" "}
                         </Step>
                         <Step
                             label="Computed ranking"
                             description="Export to browser extension"
+                            _hover={{
+                                cursor: hasNoClassesSelected ? "not-allowed" : "pointer",
+                            }}
                         >
                             <ResultContainer showAdd={showAdd} />{" "}
                         </Step>
                     </Steps>
 
-                    {/* <Tabs
-                        variant="enclosed"
-                        colorScheme="blue"
-                        align="center"
-                        isFitted
-                    >
-                        <TabList>
-                            <Tab>Rank Modules</Tab>
-                            <Tab>Rank Classes</Tab>
-                            <Tab>Computed Ranking</Tab>
-                        </TabList>
-
-                        <TabPanels
-                            textAlign="left"
-                            borderLeft={"1px solid"}
-                            borderRight={"1px solid"}
-                            borderBottom={"1px solid"}
-                            borderColor={useColorModeValue(
-                                "gray.200",
-                                "gray.700"
-                            )}
-                        >
-                            <TabPanel>
-                                <ModuleSortContainer showAdd={showAdd} />
-                            </TabPanel>
-                            <TabPanel>
-                                <ClassSortContainer showAdd={showAdd} />
-                            </TabPanel>
-                            <TabPanel>
-                                <ResultContainer showAdd={showAdd} />
-                            </TabPanel>
-                        </TabPanels>
-                    </Tabs> */}
+                    
 
                     {/* <Box>
                         <InputGroup>
@@ -488,7 +485,7 @@ const Order: NextPage = () => {
                         </Box>
                     </Box> */}
                 </Stack>
-            </Collapse>
+            {/* </Collapse> */}
             <Divider />
 
             <Explanation />

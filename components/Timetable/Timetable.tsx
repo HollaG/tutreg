@@ -190,6 +190,20 @@ const Timetable: React.FC<{
         });
     });
 
+    // we need to ensure that the end_time and the start time differ by a whole number of hours.
+    // start: 1000, end: 1800 --> OK
+    // start: 0930, end: 1800 --> NOT ok (add 30)
+    // start: 0945, end: 1715 --> NOT ok (add 30)
+    // start: 1000, end: 1715 --> NOT ok (add 45)
+    // in this case we need to add 30 minutes to the end time
+    const minutesDifference = (convertToMinutes(latestTiming) - convertToMinutes(earliestTiming))
+    if (minutesDifference % 60 !== 0) {
+        const minutesToAdd = 60 - (minutesDifference % 60)
+        // TODO
+        latestTiming = convertToHours(convertToMinutes(latestTiming) + minutesToAdd)
+    }
+
+
     // sort the timetableList
     timetableList = timetableList.sort(
         (c1, c2) => Number(c1.startTime) - Number(c2.startTime)
@@ -483,6 +497,8 @@ const Timetable: React.FC<{
     );
 };
 
+
+
 // function to determine if we should draw a top border
 // We draw a bottom border when this cell is the last row before the day changes.
 const doDrawTopBorder = (r: number, totalDayRowsToDraw: DayRows) => {
@@ -510,6 +526,15 @@ const doDrawBottomBorder = (
         return rowCurDay !== nextRowDay;
     }
 };
+
+// function to convert # of minutes to 24hour timing
+const convertToHours = (minutes: number) => {
+    const hours = Math.floor(minutes / 60);
+    const hoursString = hours < 10 ? `0${hours}` : hours;
+    const minutesLeft = minutes % 60;
+    const minutesString = minutesLeft < 10 ? `0${minutesLeft}` : minutesLeft;
+    return `${hoursString}${minutesString}`;
+}
 
 // function to convert 24 hour timing to minutes since 00:00
 const convertToMinutes = (time: string) => {

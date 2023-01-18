@@ -29,7 +29,12 @@ const Explanation: React.FC = () => {
     const { isOpen, onOpen, onClose } = useDisclosure();
     return (
         <Stack spacing={3}>
-            <Text>
+            <Alert status="warning">
+                <AlertIcon />
+                Important: ModReg only allows you to select up to 20 tutorial
+                slots! Be mindful of this when selecting your slots.
+            </Alert>
+            {/* <Text>
                 This page helps you to rank your tutorials during ModReg (SELECT
                 TUTORIALS/LABS) Rounds 1 and 2.
             </Text>
@@ -37,14 +42,13 @@ const Explanation: React.FC = () => {
             <Text alignItems="center">
                 The ranking algorithm is based on that in the message by Sam
                 Chan, which is routinely forwarded during ModReg rounds.
-            </Text>
+            </Text> */}
             <Center>
                 <Button size="xs" onClick={onOpen}>
                     {" "}
-                    View message
-                </Button>
+                    View ranking algorithm</Button>
             </Center>
-            <Box>
+            {/* <Box>
                 <Text>
                     {" "}
                     First, select or import some modules, then rank the modules
@@ -58,13 +62,9 @@ const Explanation: React.FC = () => {
                     {" "}
                     You can also manually rank your classes and modules if you wish.
                 </Text>
-            </Box>
+            </Box> */}
            
-            <Alert status="warning">
-                <AlertIcon />
-                Important: ModReg only allows you to select up to 20 tutorial
-                slots! Be mindful of this when selecting your slots.
-            </Alert>
+            
             <Modal isOpen={isOpen} onClose={onClose} size="full">
                 <ModalOverlay />
                 <ModalContent>
