@@ -146,10 +146,10 @@ const Order: NextPage = () => {
 
     const [hasNoClassesSelected, setHasNoClassesSelected] = useState(false);
     useEffect(
-        () => setHasNoClassesSelected(!Object.keys(data.selectedClasses).length),
+        () =>
+            setHasNoClassesSelected(!Object.keys(data.selectedClasses).length),
         [data.selectedClasses]
     );
-
 
     // fetch the list of modules from nusmods
     const [moduleList, setModuleList] = useState<ModuleCondensed[]>();
@@ -254,7 +254,7 @@ const Order: NextPage = () => {
     };
 
     const removeAll = () => {
-        setStep(0)
+        setStep(0);
         dispatch(classesActions.removeAll());
     };
 
@@ -290,7 +290,7 @@ const Order: NextPage = () => {
         if (step === 2 && !hasNoClassesSelected) {
             setStep(2);
         }
-    }
+    };
 
     return (
         <Stack spacing={5}>
@@ -313,155 +313,170 @@ const Order: NextPage = () => {
                     </Text>
                 </Stack>
             </Center>
-            <Flex>
-                <Box flex={1} mr={3}>
+            <form>
+                <Flex>
                     <FormControl isInvalid={isError}>
-                        <Input
-                            placeholder="https://nusmods.com/timetable/sem-1/share?..."
-                            value={link}
-                            onChange={(e) => setLink(e.target.value)}
-                        />
-                        <FormHelperText>
-                            Paste the link you get when clicking the
-                            [Share/Sync] button on{" "}
-                            <Link href="https://nusmods.com" isExternal>
-                                NUSMods
-                            </Link>{" "}
-                            above.
-                        </FormHelperText>
+                        <Flex>
+                            <Box flexGrow={1} mr={3}>
+                                <Input
+                                    placeholder="https://nusmods.com/timetable/sem-1/share?..."
+                                    value={link}
+                                    onChange={(e) => setLink(e.target.value)}
+                                />
+                                <FormHelperText>
+                                    Paste the link you get when clicking the
+                                    [Share/Sync] button on{" "}
+                                    <Link href="https://nusmods.com" isExternal>
+                                        NUSMods
+                                    </Link>{" "}
+                                    above.
+                                </FormHelperText>
 
-                        {isError && (
-                            <FormErrorMessage>
-                                Invalid share link!
-                            </FormErrorMessage>
-                        )}
+                                {isError && (
+                                    <FormErrorMessage>
+                                        Invalid share link!
+                                    </FormErrorMessage>
+                                )}
+                            </Box>
+                            <Tooltip
+                                hasArrow
+                                label="Importing a new timetable will clear your previously selected modules, if any!"
+                                textAlign="center"
+                            >
+                                <Button
+                                    type="submit"
+                                    colorScheme="blue"
+                                    onClick={() => handleSubmit()}
+                                    disabled={isSubmitting || !link}
+                                >
+                                    {" "}
+                                    {isSubmitting
+                                        ? "Importing..."
+                                        : "Import"}{" "}
+                                </Button>
+                            </Tooltip>
+                        </Flex>
                     </FormControl>
-                </Box>
-                <Tooltip
-                    hasArrow
-                    label="Importing a new timetable will clear your previously selected modules, if any!"
-                    textAlign="center"
-                >
-                    <Button
-                        type="submit"
-                        colorScheme="blue"
-                        onClick={() => handleSubmit()}
-                        disabled={isSubmitting || !link}
-                    >
-                        {" "}
-                        {isSubmitting ? "Importing..." : "Import"}{" "}
-                    </Button>
-                </Tooltip>
-            </Flex>
+                </Flex>
+            </form>
 
             <Text textAlign="center">or, add modules manually</Text>
-            <Flex>
-                <Box flex={1} mr={3}>
-                    <FormControl>
-                        <AsyncSelect
-                            instanceId={`${ay}-select`}
-                            closeMenuOnSelect={false}
-                            placeholder="Search..."
-                            value={selectedModules}
-                            isMulti
-                            // cacheOptions
-                            loadOptions={loadOptions}
-                            // inputValue={value}
-                            onInputChange={handleInputChange}
-                            onChange={(newValue: any) =>
-                                handleSelectChange(newValue)
-                            }
-                        />
-                        <FormHelperText>
-                            Search for a module (min. 3 chars)
-                        </FormHelperText>
-                        <FormHelperText>
-                            Modules unavailable for bidding in tutorial rounds
-                            are not shown.
-                        </FormHelperText>
-                    </FormControl>
-                </Box>
-                <Button onClick={() => addModules()} colorScheme="blue">
-                    {" "}
-                    Add{" "}
-                </Button>
-            </Flex>
-            {/* <Collapse in={showCollapse}> */}
-                <Stack spacing={5}>
-                    <Center>
-                       
-                        <HStack>
-                            <Button
-                                size="sm"
-                                colorScheme="red"
-                                onClick={() => removeAll()}
-                            >
-                                {" "}
-                                Remove all mods{" "}
-                            </Button>
-                            <Button
-                                size="sm"
-                                colorScheme="blue"
-                                onClick={setShowAdd.toggle}
-                            >
-                                {" "}
-                                {showAdd ? `Hide` : `Show`} details{" "}
-                            </Button>
-                        </HStack>
-                    </Center>
-                    <Flex width="100%" justify="flex-end">
-                        <Button
-                            isDisabled={activeStep === 0}
-                            mr={4}
-                            onClick={prevStep}
-                            size="sm"
-                            variant="ghost"
-                        >
-                            Prev
-                        </Button>
-                        <Button
-                            size="sm"
-                            onClick={nextStep}
-                            disabled={activeStep === 3 - 1 || (activeStep === 0 && hasNoModulesSelected) || (activeStep === 1 && hasNoClassesSelected)}
-                        >
-                            Next
-                        </Button>
-                    </Flex>
-                    <Steps
-                        activeStep={activeStep}
-                        onClickStep={clickedStepHandler}
+            <form onSubmit={e => e.preventDefault()}>
+                <Flex>
+                    <Box flex={1} mr={3}>
+                        <FormControl>
+                            <AsyncSelect
+                                instanceId={`${ay}-select`}
+                                closeMenuOnSelect={false}
+                                placeholder="Search..."
+                                value={selectedModules}
+                                isMulti
+                                // cacheOptions
+                                loadOptions={loadOptions}
+                                // inputValue={value}
+                                onInputChange={handleInputChange}
+                                onChange={(newValue: any) =>
+                                    handleSelectChange(newValue)
+                                }
+                            />
+                            <FormHelperText>
+                                Search for a module (min. 3 chars)
+                            </FormHelperText>
+                            <FormHelperText>
+                                Modules unavailable for bidding in tutorial
+                                rounds are not shown.
+                            </FormHelperText>
+                        </FormControl>
+                    </Box>
+                    <Button
+                        onClick={() => addModules()}
+                        type="submit"
+                        colorScheme="blue"
                     >
-                        <Step
-                            label="Rank modules"
-                            description="Rank your modules, highest priority first"
-                            
+                        {" "}
+                        Add{" "}
+                    </Button>
+                </Flex>
+            </form>
+            {/* <Collapse in={showCollapse}> */}
+            <Stack spacing={5}>
+                <Center>
+                    <HStack>
+                        <Button
+                            size="sm"
+                            colorScheme="red"
+                            onClick={() => removeAll()}
                         >
-                            {hasNoModulesSelected && <Text> Add a module to get started! </Text>}
-                            <ModuleSortContainer showAdd={showAdd} />{" "}
-                        </Step>
-                        <Step
-                            label="Rank classes"
-                            description="Rank your classes per module"
-                            _hover={{
-                                cursor: hasNoModulesSelected ? "not-allowed" : "pointer",
-                            }}
+                            {" "}
+                            Remove all mods{" "}
+                        </Button>
+                        <Button
+                            size="sm"
+                            colorScheme="blue"
+                            onClick={setShowAdd.toggle}
                         >
-                            <ClassSortContainer showAdd={showAdd} />{" "}
-                        </Step>
-                        <Step
-                            label="Computed ranking"
-                            description="Export to browser extension"
-                            _hover={{
-                                cursor: hasNoClassesSelected ? "not-allowed" : "pointer",
-                            }}
-                        >
-                            <ResultContainer showAdd={showAdd} />{" "}
-                        </Step>
-                    </Steps>
+                            {" "}
+                            {showAdd ? `Hide` : `Show`} details{" "}
+                        </Button>
+                    </HStack>
+                </Center>
+                <Flex width="100%" justify="flex-end">
+                    <Button
+                        isDisabled={activeStep === 0}
+                        mr={4}
+                        onClick={prevStep}
+                        size="sm"
+                        variant="ghost"
+                    >
+                        Prev
+                    </Button>
+                    <Button
+                        size="sm"
+                        onClick={nextStep}
+                        disabled={
+                            activeStep === 3 - 1 ||
+                            (activeStep === 0 && hasNoModulesSelected) ||
+                            (activeStep === 1 && hasNoClassesSelected)
+                        }
+                    >
+                        Next
+                    </Button>
+                </Flex>
+                <Steps activeStep={activeStep} onClickStep={clickedStepHandler}>
+                    <Step
+                        label="Rank modules"
+                        description="Rank your modules, highest priority first"
+                    >
+                        {hasNoModulesSelected && (
+                            <Text> Add a module to get started! </Text>
+                        )}
+                        <ModuleSortContainer showAdd={showAdd} />{" "}
+                    </Step>
+                    <Step
+                        label="Rank classes"
+                        description="Rank your classes per module"
+                        _hover={{
+                            cursor: hasNoModulesSelected
+                                ? "not-allowed"
+                                : "pointer",
+                        }}
+                    >
+                        <ClassSortContainer showAdd={showAdd} />{" "}
+                    </Step>
+                    <Step
+                        label="Computed ranking"
+                        description="Export to browser extension"
+                        _hover={{
+                            cursor: hasNoClassesSelected
+                                ? "not-allowed"
+                                : "pointer",
+                        }}
+                    >
+                        <ResultContainer showAdd={showAdd} />{" "}
+                    </Step>
+                </Steps>
 
-                    
-
-                    {/* <Box>
+                {/* <Box>
                         <InputGroup>
                             <InputLeftAddon>Timetable</InputLeftAddon>
                             <Input readOnly value={timetableLink} />
@@ -479,12 +494,12 @@ const Order: NextPage = () => {
                         </Center>
                     </Box> */}
 
-                    {/* <Box id="divContainer">
+                {/* <Box id="divContainer">
                         <Box id="frameContainer">
                             <iframe src={timetableLink} width="100%" height="1000px" frameBorder="0" allowFullScreen></iframe>
                         </Box>
                     </Box> */}
-                </Stack>
+            </Stack>
             {/* </Collapse> */}
             <Divider />
 
