@@ -1,19 +1,20 @@
-import { Button, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, ModalProps, useDisclosure } from "@chakra-ui/react"
+import { Button, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, ModalProps, useColorModeValue, useDisclosure } from "@chakra-ui/react"
 import React, { memo } from "react"
 
 const BasicModal:React.FC<{
     props: ModalProps
     title: string,
+    closeButton?: string,
     children: React.ReactNode
-}> = ({props, title, children}) => {
- 
+}> = ({props, title, children, closeButton = "Close"}) => {
+    const bgColor = useColorModeValue("gray.50", 'gray.700')
     return (
       <>
         
   
         <Modal {...props}>
           <ModalOverlay />
-          <ModalContent>
+          <ModalContent bgColor={bgColor}>
             <ModalHeader>{title}</ModalHeader>
             <ModalCloseButton />
             <ModalBody>
@@ -22,7 +23,7 @@ const BasicModal:React.FC<{
   
             <ModalFooter>
               <Button colorScheme='blue' mr={3} onClick={props.onClose}>
-                Close
+                {closeButton}
               </Button>
               {/* <Button variant='ghost'>Secondary Action</Button> */}
             </ModalFooter>

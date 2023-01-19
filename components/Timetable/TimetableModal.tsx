@@ -44,9 +44,11 @@ const TimetableModal: React.FC<{
                     size: "full",
                     isOpen: props.isOpen,
                     onClose: closeHandler,
+                    
                 } as ModalProps
             }
             title={props.selectedModuleCodeLessonType}
+            closeButton="Save & close"
         >
             <Timetable mclt={mclt} />
         </BasicModal>

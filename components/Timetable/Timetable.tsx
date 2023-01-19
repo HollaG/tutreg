@@ -73,7 +73,7 @@ const Timetable: React.FC<{
     // const TEXT_HEADER_COLOR = useColorModeValue("gray.600", "gray.200")
 
     const BORDER_WIDTH = "1px";
-    const BORDER_RADIUS = "3px"
+    const BORDER_RADIUS = "5px";
 
     const timetableData = useSelector((state: RootState) => state.timetable);
 
@@ -196,13 +196,15 @@ const Timetable: React.FC<{
     // start: 0945, end: 1715 --> NOT ok (add 30)
     // start: 1000, end: 1715 --> NOT ok (add 45)
     // in this case we need to add 30 minutes to the end time
-    const minutesDifference = (convertToMinutes(latestTiming) - convertToMinutes(earliestTiming))
+    const minutesDifference =
+        convertToMinutes(latestTiming) - convertToMinutes(earliestTiming);
     if (minutesDifference % 60 !== 0) {
-        const minutesToAdd = 60 - (minutesDifference % 60)
+        const minutesToAdd = 60 - (minutesDifference % 60);
         // TODO
-        latestTiming = convertToHours(convertToMinutes(latestTiming) + minutesToAdd)
+        latestTiming = convertToHours(
+            convertToMinutes(latestTiming) + minutesToAdd
+        );
     }
-
 
     // sort the timetableList
     timetableList = timetableList.sort(
@@ -301,7 +303,6 @@ const Timetable: React.FC<{
                     borderColor={BORDER_COLOR}
                     // borderTop={BORDER_WIDTH}
                     // borderBottom={BORDER_WIDTH}
-                    
                 >
                     <Grid
                         gridTemplateRows={`${rowMappingForDays
@@ -322,15 +323,12 @@ const Timetable: React.FC<{
                                 borderRight={BORDER_WIDTH}
                                 borderColor={BORDER_COLOR}
                                 minH={GRID_ITEM_HEIGHT_RESPONSIVE}
-                                
                                 {...(r === 0 && {
                                     borderTopLeftRadius: BORDER_RADIUS,
-                                    
                                 })}
                                 {...(r === rowMappingForDays.length - 1 && {
                                     borderBottomLeftRadius: BORDER_RADIUS,
-                                })
-                                }
+                                })}
                             >
                                 <Center
                                     h={"100%"}
@@ -371,23 +369,6 @@ const Timetable: React.FC<{
                                                 height={
                                                     GRID_ITEM_HEIGHT_RESPONSIVE
                                                 }
-                                                // {...(doDrawTopBorder(
-                                                //     r,
-                                                //     totalDayRowsToDraw
-                                                // )
-                                                //     ? {
-                                                //           paddingTop: "10px",
-                                                //       }
-                                                //     : {})}
-                                                // {...(doDrawBottomBorder(
-                                                //     r,
-                                                //     totalDayRowsToDraw,
-                                                //     totalRowsToDraw
-                                                // )
-                                                //     ? {
-                                                //           paddingBottom: "10px",
-                                                //       }
-                                                //     : {})}
                                             >
                                                 <Flex h="100%" w="100%">
                                                     {timetableList
@@ -451,9 +432,10 @@ const Timetable: React.FC<{
                             width="100%"
                             zIndex={-1}
                             // borderLeft="2px"
-                            borderRight={BORDER_WIDTH}
+                            // borderRight={BORDER_WIDTH}
                             // borderTop={BORDER_WIDTH}
                             // borderBottom={BORDER_WIDTH}
+                            borderRightRadius={BORDER_RADIUS}
                             borderColor={BORDER_COLOR}
                         >
                             {Array.from({ length: totalRowsToDraw - 1 }).map(
@@ -478,14 +460,14 @@ const Timetable: React.FC<{
                                                       borderColor: BORDER_COLOR,
                                                   }
                                                 : {})}
-                                            // borderBottom={
-                                            //     r !== totalRowsToDraw - 2
-                                            //         ? "1px"
-                                            //         : "0px"
-                                            // }
-                                            // borderColor={
-                                            //     BORDER_COLOR
-                                            // }
+                                            
+                                            {...(c === totalColumnsToDraw - 2 && r === 0 && {
+                                                borderTopRightRadius: BORDER_RADIUS,
+
+                                            })}
+                                            {...(c === totalColumnsToDraw - 2 && r === totalRowsToDraw - 2 && {
+                                                borderBottomRightRadius: BORDER_RADIUS,
+                                            })}
                                         ></GridItem>
                                     ))
                             )}
@@ -496,8 +478,6 @@ const Timetable: React.FC<{
         </Container>
     );
 };
-
-
 
 // function to determine if we should draw a top border
 // We draw a bottom border when this cell is the last row before the day changes.
@@ -534,7 +514,7 @@ const convertToHours = (minutes: number) => {
     const minutesLeft = minutes % 60;
     const minutesString = minutesLeft < 10 ? `0${minutesLeft}` : minutesLeft;
     return `${hoursString}${minutesString}`;
-}
+};
 
 // function to convert 24 hour timing to minutes since 00:00
 const convertToMinutes = (time: string) => {

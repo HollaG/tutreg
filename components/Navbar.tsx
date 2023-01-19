@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode, useEffect, useRef, useState } from "react";
 import {
     Box,
     Flex,
@@ -34,6 +34,9 @@ import { miscActions } from "../store/misc";
 import NextLink from "next/link";
 import { useRouter } from "next/router";
 import UserAvatar from "./User/UserAvatar";
+import useKeyPress from "../hooks/useKeyPress";
+import Mousetrap from "mousetrap";
+import { StringifyOptions } from "querystring";
 const NavLink = ({ children }: { children: ReactNode }) => (
     <Link
         px={2}
@@ -49,8 +52,61 @@ const NavLink = ({ children }: { children: ReactNode }) => (
     </Link>
 );
 
+type Shortcut = string | string[];
+type Keybind = {
+    key: string;
+    description: string;
+};
+const shortcuts = [
+    {
+        key: "x",
+        description: "Toggle night mode",
+    },
+    {
+        key: "r",
+        description: "Go to rank page",
+    },
+    { key: "c", description: "Go to swap classes page" },
+    { key: "e", description: "Go to extension page" },
+    { key: "s", description: "Go to settings page" },
+    { key: "n", description: "Toggle notifications" },
+];
 export default function Nav() {
     const { colorMode, toggleColorMode } = useColorMode();
+
+    // I appreciate NUSMods for giving the code for this section.
+    // Code located in: src/views/components/KeyboardShortcuts.tsx
+    const shortcuts = useRef<Keybind[]>([]);
+    useEffect(() => {
+        function bind(
+            key: string,
+            description: string,
+            action: (e: Event) => void
+        ) {
+            shortcuts.current.push({ key, description });
+            Mousetrap.bind(key, action);
+        }
+
+        bind("x", "Toggle night mode", () => toggleColorMode());
+        bind("o", "Go to order page", () => router.push("/order"));
+        bind("r", "Go to order page", () => router.push("/order"));
+        bind("s", "Go to swap classes page", () => router.push("/swap"));
+        bind("e", "Go to extension page", () => router.push("/extension"));
+        bind("q", "Go to settings page", () => router.push("/settings"));
+        bind("n", "Toggle notifications", () => {
+            toggleNotification();
+        });
+        return () => {
+            shortcuts.current.forEach(({ key }) => Mousetrap.unbind(key));
+            shortcuts.current = [];
+        };
+    });
+
+    // const xPressed = useKeyPress("x");
+    // useEffect(() => {
+    //     if (xPressed) toggleColorMode();
+    // }, [xPressed, toggleColorMode]);
+
     const { isOpen, onOpen, onClose } = useDisclosure();
     const router = useRouter();
     const toast = useToast();
@@ -103,8 +159,6 @@ export default function Nav() {
         router.back();
     };
 
-    
-
     return (
         <>
             <Box bg={useColorModeValue("gray.100", "gray.900")} px={4}>
@@ -114,21 +168,22 @@ export default function Nav() {
                     justifyContent={"space-between"}
                 >
                     <Flex alignItems="center">
-                        {router.pathname !== "/" && <IconButton
-                            onClick={goBack}
-                            variant="ghost"
-                            // w={4}
-                            // h={4}
-                            p={0}
-                            minW={8}
-                            icon={<ChevronLeftIcon p={0} />}
-                            aria-label="Go back"
-                        />}
+                        {router.pathname !== "/" && (
+                            <IconButton
+                                onClick={goBack}
+                                variant="ghost"
+                                // w={4}
+                                // h={4}
+                                p={0}
+                                minW={8}
+                                icon={<ChevronLeftIcon p={0} />}
+                                aria-label="Go back"
+                            />
+                        )}
 
                         <NextLink passHref href={"/"}>
                             {/* <Link>ModRank 🔢</Link> */}
                             <Link>TutReg</Link>
-
                         </NextLink>
                     </Flex>
 
@@ -176,8 +231,11 @@ export default function Nav() {
                                     {user ? (
                                         <>
                                             <br />
-                                            <Center>                                                
-                                                <UserAvatar user={user} size="2xl"/>
+                                            <Center>
+                                                <UserAvatar
+                                                    user={user}
+                                                    size="2xl"
+                                                />
                                             </Center>
                                             <br />
                                             <Center>
