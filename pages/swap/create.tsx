@@ -447,6 +447,8 @@ const Step3: React.FC<{
     //     toggle: () => void;
     // };
     submitHandler: () => void;
+    comments: string;
+    setComments: Dispatch<SetStateAction<string>>
 }> = ({
     classes,
     prevStep,
@@ -456,6 +458,8 @@ const Step3: React.FC<{
     currentClassInfo,
     // isEqualRank,
     // setIsEqualRank,
+    comments,
+    setComments
 }) => {
     const deleteIconColor = useColorModeValue("red.500", "red.500");
 
@@ -552,15 +556,15 @@ const Step3: React.FC<{
                 <Stack>
                     <InputGroup>
                         <InputLeftAddon>Comments (opt.)</InputLeftAddon>
-                        <Input />
+                        <Input value={comments} onChange={(e) => setComments(e.target.value)} />
                     </InputGroup>
-                    <Checkbox defaultChecked>
+                    {/* <Checkbox defaultChecked>
                         Show Telegram username publicly
                     </Checkbox>
                     <FormHelperText ml={2}>
                         If unchecked, you will be notified when someone requests
                         a swap through the website's Telegram bot.
-                    </FormHelperText>
+                    </FormHelperText> */}
                 </Stack>
             </FormControl>
             <Center>
@@ -607,6 +611,9 @@ const CreateSwap: NextPage = () => {
     const router = useRouter();
     const dispatch = useDispatch();
     const toast = useToast();
+
+    const [comments, setComments] = useState("");
+
     const submitHandler = async () => {
         console.log(desiredClasses);
         console.log(currentClassInfo);
@@ -615,6 +622,7 @@ const CreateSwap: NextPage = () => {
             desiredClasses,
             currentClassInfo,
             user,
+            comments
         });
         if (!response.success || !response.data) {
             toast({
@@ -683,6 +691,8 @@ const CreateSwap: NextPage = () => {
                         // isEqualRank={isEqualRank}
                         // setIsEqualRank={setIsEqualRank}
                         submitHandler={submitHandler}
+                        comments={comments}
+                        setComments={setComments}
                     />
                 )}
             </Stack>

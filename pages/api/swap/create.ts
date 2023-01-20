@@ -19,6 +19,7 @@ export default async function handler(
             user,
             currentClassInfo: { moduleCode, lessonType, classNo },
             desiredClasses,
+            comments,
         } = req.body;
 
         if (!user || !moduleCode || !lessonType || !classNo || !desiredClasses) {
@@ -50,7 +51,8 @@ export default async function handler(
             to_t_id: "",
             ay: process.env.NEXT_PUBLIC_AY,
             semester: process.env.NEXT_PUBLIC_SEM,
-            notified: true
+            notified: true,
+            comments: comments || ""
         }
 
         const inserted = await executeQuery({
