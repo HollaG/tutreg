@@ -9,13 +9,17 @@ import {
 } from "@chakra-ui/react";
 import Nav from "../components/Navbar";
 import store from "../store";
-import { Provider } from "react-redux";
+import { Provider, useDispatch } from "react-redux";
 import { DndContext } from "@dnd-kit/core";
 import Footer from "../components/Footer";
 import { StepsStyleConfig as Steps } from "chakra-ui-steps";
 import LogInModal from "../components/Modal/LogInModal";
 import path from "path";
 import Head from "next/head";
+import { useRouter } from "next/router";
+import { useEffect } from "react";
+import { classesActions } from "../store/classesReducer";
+import Helper from "../components/Helper";
 const theme = extendTheme({
     components: {
         Steps,
@@ -23,6 +27,9 @@ const theme = extendTheme({
 });
 
 function MyApp({ Component, pageProps }: AppProps) {
+
+   
+
     return (
         <ChakraProvider theme={theme}>
             <Head>
@@ -164,6 +171,7 @@ function MyApp({ Component, pageProps }: AppProps) {
                         <Box>
                             <Footer />
                         </Box>
+                        <Helper />
                     </Flex>
                     <LogInModal />
                 </Provider>

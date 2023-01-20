@@ -2,7 +2,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { Group } from "next/dist/shared/lib/router/utils/route-regex";
 import executeQuery from "../../../lib/db";
-import { ClassDB } from "../../../types/db";
+import { ClassDB, ModuleWithClassDB } from "../../../types/db";
 
 export type GetClassesResponse = {
     success: boolean,
@@ -10,7 +10,7 @@ export type GetClassesResponse = {
     data?: GroupedByClassNo
 };
 export type GroupedByClassNo = {
-    [classNo: string]: ClassDB[]
+    [classNo: string]: ModuleWithClassDB[]
 }
 export default async function handler(
     req: NextApiRequest,
@@ -31,8 +31,8 @@ export default async function handler(
             process.env.NEXT_PUBLIC_AY,
             process.env.NEXT_PUBLIC_SEM,
         ]
-        const classesData: ClassDB[] = await executeQuery({
-            query: "SELECT * FROM classlist WHERE moduleCode = ? AND lessonType = ? AND ay = ? AND semester = ?",
+        const classesData: ModuleWithClassDB[] = await executeQuery({
+            query: "SELECT * FROM classlist LEFT JOIN modulelist ON classlist.moduleCode = modulelist.moduleCode WHERE classlist.moduleCode = ? AND classlist.lessonType = ? AND classlist.ay = ? AND classlist.semester = ?",
             values
         });
 

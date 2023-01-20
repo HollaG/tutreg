@@ -77,7 +77,7 @@ const ModuleSortContainer: React.FC<{ showAdd: boolean }> = ({ showAdd }) => {
                 values={modulesList.map((module) => module.name)}
                 onChange={dragHandler}
                 renderList={({ children, props, isDragged }) => (
-                    <Box {...props} cursor={isDragged ? "grabbing" : "inherit"}>
+                    <Box {...props}>
                         {children}
                     </Box>
                 )}

@@ -1,7 +1,8 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { TimetableLessonEntry } from "../components/Timetable/Timetable";
+
 import { canBeBidFor } from "../lib/functions";
 import { Data } from "../pages/api/import";
+import { TimetableLessonEntry } from "../types/timetable";
 import { ModuleCodeLessonType, ClassOverview } from "../types/types";
 
 const loadState = () => {
@@ -18,6 +19,8 @@ export interface ClassState extends Data {
     moduleOrder: string[];
     nonBiddable: ModuleCodeLessonType;
     changedClasses: string[];
+    disabledClasses: string[];
+    unmodifyableClasses: string[];
 }
 const initialState: ClassState = loadState() || {
     selectedClasses: {},
@@ -25,6 +28,8 @@ const initialState: ClassState = loadState() || {
     moduleOrder: [],
     nonBiddable: {},
     changedClasses: [],
+    disabledClasses: [],
+    unmodifyableClasses: [],
 };
 
 const classesSlice = createSlice({
@@ -63,6 +68,8 @@ const classesSlice = createSlice({
                 moduleOrder: Object.keys(selectedBiddableClasses),
                 nonBiddable: nonBiddableClasses,
                 changedClasses: [],
+                disabledClasses: [],
+                unmodifyableClasses: [],
             };
 
             state.selectedClasses = selectedBiddableClasses;
@@ -120,6 +127,8 @@ const classesSlice = createSlice({
                 totalModuleCodeLessonTypeMap: newTotalModuleCodeLessonTypeMap,
                 nonBiddable: { ...state.nonBiddable },
                 changedClasses: [...state.changedClasses],
+                disabledClasses: [...state.disabledClasses],
+                unmodifyableClasses: [...state.unmodifyableClasses],
             };
         },
         addAvailableClasses(
@@ -144,7 +153,7 @@ const classesSlice = createSlice({
         ) {
             const { moduleCodeLessonType, classNo } = action.payload;
 
-            const copiedAvailableClasses:ModuleCodeLessonType = {
+            const copiedAvailableClasses: ModuleCodeLessonType = {
                 ...state.totalModuleCodeLessonTypeMap,
             };
 
@@ -220,6 +229,8 @@ const classesSlice = createSlice({
                 totalModuleCodeLessonTypeMap: {},
                 nonBiddable: {},
                 changedClasses: [],
+                disabledClasses: [],
+                unmodifyableClasses: [],
             };
         },
         setChangedClasses(state, action: PayloadAction<string[]>) {
@@ -228,6 +239,8 @@ const classesSlice = createSlice({
                 changedClasses: action.payload,
             };
         },
+
+        // This method adds or removes classes based on the selected prop.
         updateChangedClasses(
             state,
             action: PayloadAction<{
@@ -253,56 +266,32 @@ const classesSlice = createSlice({
                     ),
                 };
             }
-
-            // let changedClasses = state.changedClasses;
-            // const { class_, selected } = action.payload;
-
-            // if (selected) {
-            //     // this item was just selected
-            // }
-
-            // if (changedClasses) {
-            //     if (changedClasses.find((c) => c.class_.id === class_.id)) {
-            //         const newChangedClasses = changedClasses.map((c) => {
-            //             if (c.class_.id === class_.id) {
-            //                 return {
-            //                     ...c,
-            //                     selected,
-            //                 };
-            //             }
-            //             return c;
-            //         });
-
-            //         return {
-            //             ...state,
-            //             changedClasses: newChangedClasses,
-            //         };
-            //     } else {
-            //         const newChangedClasses = [
-            //             ...changedClasses,
-            //             {
-            //                 class_,
-            //                 selected,
-            //             },
-            //         ];
-
-            //         return {
-            //             ...state,
-            //             changedClasses: newChangedClasses,
-            //         };
-            //     }
-            // } else {
-            //     return {
-            //         ...state,
-            //         changedClasses: [
-            //             {
-            //                 class_,
-            //                 selected,
-            //             },
-            //         ],
-            //     };
-            // }
         },
+
+        // This method adds, or removes a class from the list, but with the added
+        // restriction that the max size of the array is one.
+        changeChangedClass(
+            state,
+            action: PayloadAction<{
+                class_: TimetableLessonEntry;
+                selected: boolean;
+            }>
+        ) {
+            const { class_, selected } = action.payload;
+            if (selected) {
+                return {
+                    ...state,
+                    changedClasses: [class_.classNo],
+                };
+            } else {
+                return {
+                    ...state,
+                    changedClasses: [],
+                };
+            }
+        },
+
+        // Remove all classes
         removeChangedClasses(state) {
             return {
                 ...state,
@@ -318,33 +307,32 @@ const classesSlice = createSlice({
 
             const copiedChangedClasses = [...state.changedClasses];
 
-            const selectedClassesForCode: ClassOverview[] = copiedAvailableClasses[
-                moduleCodeLessonType
-            ].filter((class_) => copiedChangedClasses.includes(class_.classNo));
+            const selectedClassesForCode: ClassOverview[] =
+                copiedAvailableClasses[moduleCodeLessonType].filter((class_) =>
+                    copiedChangedClasses.includes(class_.classNo)
+                );
 
-            console.log({selectedClassesForCode})
+            console.log({ selectedClassesForCode });
 
             if (selectedClassesForCode[0]) {
-
                 return {
                     ...state,
                     selectedClasses: {
                         ...state.selectedClasses,
                         [moduleCodeLessonType]: selectedClassesForCode,
                     },
-                    changedClasses: []
-                }
+                    changedClasses: [],
+                };
             } else {
                 const newState = {
                     ...state,
                     selectedClasses: {
                         ...state.selectedClasses,
-                        
                     },
-                    changedClasses: []
-                }
-                delete newState.selectedClasses[moduleCodeLessonType]
-                return newState
+                    changedClasses: [],
+                };
+                delete newState.selectedClasses[moduleCodeLessonType];
+                return newState;
             }
         },
     },

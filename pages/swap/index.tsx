@@ -318,9 +318,7 @@ const Swap: NextPage = () => {
                     {user && (
                         <Tab>Your swaps ({swapData?.selfSwaps.length})</Tab>
                     )}
-                    {user && (
-                        <Tab>Your swaps ({swapData?.selfSwaps.length})</Tab>
-                    )}
+                   
                 </TabList>
 
                 <TabPanels

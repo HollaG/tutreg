@@ -10,19 +10,8 @@ interface Props extends ChakraProps {
 
 
 const Entry:React.FC<Props> = React.forwardRef((props, ref: any) => {
-    // const {
-    //     attributes,
-    //     listeners,
-    //     setNodeRef,
-    //     transform,
-    //     transition,
-    //   } = useSortable({id});
-      
-    //   const style = {
-    //     transform: CSS.Transform.toString(transform),
-    //     transition,
-    //   };
-    return <Box  ref={ref} border={"2px"} borderBlock="solid" backgroundColor={useColorModeValue("gray.100", "gray.600")} borderWidth={2} p={3} borderColor={useColorModeValue("gray.200", "gray.700")} borderRadius={'md'} w="100%" {...props}>
+    const bgColor = useColorModeValue("gray.100", "gray.600")
+    return <Box  ref={ref} border={"2px"} borderBlock="solid" backgroundColor={bgColor} borderWidth={2} p={3} borderColor={useColorModeValue("gray.200", "gray.700")} borderRadius={'md'} w="100%" {...props}>
         
         {props.children}
 

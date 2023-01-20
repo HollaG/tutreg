@@ -7,8 +7,13 @@ import {
     Flex,
     FormControl,
     FormHelperText,
+    Input,
+    InputGroup,
+    InputLeftAddon,
+    InputRightElement,
     SimpleGrid,
     Stack,
+    Tag,
     Text,
     useBoolean,
     useCheckbox,
@@ -33,7 +38,7 @@ import { encodeLessonTypeToShorthand } from "../../lib/functions";
 import { ClassDB } from "../../types/db";
 import { GetClassesResponse, GroupedByClassNo } from "../api/swap/getClasses";
 
-import { Option, RootState } from "../../types/types";
+import { ClassOverview, Option, RootState } from "../../types/types";
 import Entry from "../../components/Sortables/Entry";
 import OrderSwapPriorityList from "../../components/Swap/OrderSwapPriorityList";
 import { ArrowDownIcon, DeleteIcon } from "@chakra-ui/icons";
@@ -42,6 +47,11 @@ import { useRouter } from "next/router";
 import SwapEntry from "../../components/Swap/SwapEntry";
 import { miscActions } from "../../store/misc";
 import { LessonType } from "../../types/modules";
+import Timetable from "../../components/ReusableTimetable/Timetable";
+import React from "react";
+
+import { classesActions } from "../../store/classesReducer";
+import { TimetableLessonEntry } from "../../types/timetable";
 
 const steps = [
     {
@@ -93,6 +103,9 @@ const Step1: React.FC<{
 
     classes: GroupedByClassNo;
     setClasses: Dispatch<SetStateAction<GroupedByClassNo>>;
+
+    values: (string | number)[];
+    setValues: Dispatch<SetStateAction<(string | number)[]>>;
 }> = ({
     nextStep,
     prevStep,
@@ -103,12 +116,26 @@ const Step1: React.FC<{
     classes,
     setClasses,
     currentClassInfo,
+    values,
+    setValues,
 }) => {
+    useEffect(() => {
+        setCurrentClassInfo({ moduleCode: "",
+        lessonType: "Lecture",
+        classNo: "",})
+    }, [])
+    useEffect(() => {
+        setValues([]);
+        
+    }, [currentClassInfo.moduleCode]);
     const [moduleCodeLessonTypeValue, setModuleCodeLessonTypeValue] =
         useState("");
 
+    const [availableClassList, setAvailableClassList] = useState<
+        ClassOverview[]
+    >([]);
     const selectHandler = async (option: Option[]) => {
-        console.log(option);
+        console.log(option, "-----------");
 
         // Send request to find the classes available for this moduleCodeLessonType
         const moduleCodeLessonType = option[0].value;
@@ -132,17 +159,58 @@ const Step1: React.FC<{
                 lessonType,
                 classNo: "",
             });
+
+            const lst: ClassOverview[] = Object.keys(response.data).map(
+                (classNo) => {
+                    // @ts-ignore
+                    const classes = response.data[classNo];
+                    return {
+                        classNo,
+                        moduleCode: classes[0].moduleCode,
+                        lessonType: classes[0].lessonType,
+                        moduleName: classes[0].moduleName,
+                        size: classes[0].size,
+                        classes,
+                    };
+                }
+            );
+            setAvailableClassList(lst);
         }
     };
 
     const selectCurrentClassHandler = (option: Option) => {
-        console.log(option);
+        console.log(option, "selectcurclasshandler");
         setCurrentClassInfo((prevState) => ({
             ...prevState,
             classNo: option.value,
         }));
     };
-    console.log({currentClassInfo})
+
+    const selectCurrentClassHandler2 = (
+        class_: TimetableLessonEntry,
+        selected: boolean
+    ) => {
+        if (selected) {
+            setCurrentClassInfo((prevState) => ({
+                ...prevState,
+                classNo: class_.classNo,
+            }));
+        } else {
+            setCurrentClassInfo((prevState) => ({
+                ...prevState,
+                classNo: "",
+            }));
+        }
+    };
+
+    const getProperty = (class_: TimetableLessonEntry) => {
+        if (currentClassInfo.classNo === class_.classNo) return "selected";
+        else return "";
+    };
+
+    const currentlySelectedClass = useSelector(
+        (state: RootState) => state.classesInfo.changedClasses
+    );
     return (
         <Stack spacing={3} width="100%">
             <Center>
@@ -165,7 +233,7 @@ const Step1: React.FC<{
                 moduleCodeLessonTypeValue={moduleCodeLessonTypeValue}
                 setModuleCodeLessonTypeValue={setModuleCodeLessonTypeValue}
             />
-            <FormControl>
+            {/* <FormControl>
                 <Select
                     options={Object.keys(classes)
                         .sort()
@@ -187,7 +255,13 @@ const Step1: React.FC<{
                 <FormHelperText>
                     Select your class that you don&apos;t want
                 </FormHelperText>
-            </FormControl>
+            </FormControl> */}
+
+            <Timetable
+                classesToDraw={availableClassList}
+                onSelected={selectCurrentClassHandler2}
+                property={getProperty}
+            />
             <Center>
                 <Button
                     colorScheme="blue"
@@ -195,7 +269,8 @@ const Step1: React.FC<{
                     disabled={
                         !(
                             currentClassInfo.moduleCode &&
-                            currentClassInfo.classNo
+                            (currentClassInfo.classNo ||
+                                currentlySelectedClass.length !== 0)
                         )
                     }
                 >
@@ -205,6 +280,7 @@ const Step1: React.FC<{
         </Stack>
     );
 };
+const MemoStep1 = React.memo(Step1);
 
 const Step2: React.FC<{
     nextStep: () => void;
@@ -243,6 +319,34 @@ const Step2: React.FC<{
     values,
     setValues,
 }) => {
+    const lst: ClassOverview[] = Object.keys(classes).map((classNo) => {
+        const classes_ = classes[classNo];
+        return {
+            classNo,
+            moduleCode: classes_[0].moduleCode,
+            lessonType: classes_[0].lessonType,
+            moduleName: classes_[0].moduleName,
+            size: classes_[0].size,
+            classes: classes_,
+        };
+    });
+
+    const onSelected = (class_: TimetableLessonEntry, selected: boolean) => {
+        if (selected) {
+            setValues((prevState) => [...prevState, class_.classNo]);
+        } else {
+            setValues((prevState) =>
+                prevState.filter((v) => v !== class_.classNo)
+            );
+        }
+    };
+
+    const getProperty = (class_: TimetableLessonEntry) => {
+        if (values.includes(class_.classNo)) return "selected";
+        else if (class_.classNo === currentClassInfo.classNo) return "readonly";
+        else return "";
+    };
+    console.log({ values });
     return (
         <Stack spacing={3} width="100%">
             <Center>
@@ -257,10 +361,12 @@ const Step2: React.FC<{
                     Next{" "}
                 </Button>
             </Center>
-            <SwapEntry
+            {/* <SwapEntry
                 classNo={currentClassInfo.classNo}
                 classes={classes[currentClassInfo.classNo]}
-                title={`${currentClassInfo.moduleCode} ${encodeLessonTypeToShorthand(
+                title={`${
+                    currentClassInfo.moduleCode
+                } ${encodeLessonTypeToShorthand(
                     currentClassInfo.lessonType
                 )} [${currentClassInfo.classNo}]`}
             />
@@ -289,7 +395,18 @@ const Step2: React.FC<{
                             </Entry>
                         ))}
                 </CheckboxGroup>
-            </SimpleGrid>
+            </SimpleGrid> */}
+            <Flex justifyContent={"right"}>
+                <Stack direction={{ base: "row", sm: "row" }}>
+                    <Tag colorScheme="red">Class you have</Tag>
+                    <Tag colorScheme="teal">Classes you want</Tag>
+                </Stack>
+            </Flex>
+            <Timetable
+                classesToDraw={lst}
+                onSelected={onSelected}
+                property={getProperty}
+            />
             <Center>
                 <Button onClick={() => prevStep()}> Back </Button>
                 <Button
@@ -350,6 +467,31 @@ const Step3: React.FC<{
     useEffect(() => {
         if (!desiredClasses.length) prevStep();
     }, [desiredClasses, prevStep]);
+
+    const lst: ClassOverview[] = Object.keys(classes)
+        .filter(
+            (classNo) =>
+                desiredClasses.includes(classNo) ||
+                currentClassInfo.classNo === classNo
+        )
+        .map((classNo) => {
+            const classes_ = classes[classNo];
+            return {
+                classNo,
+                moduleCode: classes_[0].moduleCode,
+                lessonType: classes_[0].lessonType,
+                moduleName: classes_[0].moduleName,
+                size: classes_[0].size,
+                classes: classes_,
+            };
+        });
+
+    const getProperty = (class_: TimetableLessonEntry) => {
+        if (desiredClasses.includes(class_.classNo)) return "selected";
+        else if (class_.classNo === currentClassInfo.classNo) return "readonly";
+        else return "";
+    };
+
     return (
         <Stack spacing={3} width="100%">
             {/* <Box textAlign="right">
@@ -368,16 +510,13 @@ const Step3: React.FC<{
                     Submit{" "}
                 </Button>
             </Center>
-            {/* <OrderSwapPriorityList
-                enabled={!isEqualRank}
-                classes={classes}
-                desiredClasses={desiredClasses}
-                setDesiredClasses={setDesiredClasses}
-            /> */}
-            <SwapEntry
+
+            {/* <SwapEntry
                 classNo={currentClassInfo.classNo}
                 classes={classes[currentClassInfo.classNo]}
-                title={`${currentClassInfo.moduleCode} ${encodeLessonTypeToShorthand(
+                title={`${
+                    currentClassInfo.moduleCode
+                } ${encodeLessonTypeToShorthand(
                     currentClassInfo.lessonType
                 )} [${currentClassInfo.classNo}]`}
             />
@@ -397,7 +536,44 @@ const Step3: React.FC<{
                     canDelete
                     deleteHandler={() => deleteHandler(desiredClassNo)}
                 />
-            ))}
+            ))} */}
+            <Flex justifyContent={"right"}>
+                <Stack direction={{ base: "row", sm: "row" }}>
+                    <Tag colorScheme="red">Class you have</Tag>
+                    <Tag colorScheme="teal">Classes you want</Tag>
+                </Stack>
+            </Flex>
+            <Timetable
+                classesToDraw={lst}
+                onSelected={(_, __) => null}
+                property={getProperty}
+            />
+            <FormControl>
+                <Stack>
+                    <InputGroup>
+                        <InputLeftAddon>Comments (opt.)</InputLeftAddon>
+                        <Input />
+                    </InputGroup>
+                    <Checkbox defaultChecked>
+                        Show Telegram username publicly
+                    </Checkbox>
+                    <FormHelperText ml={2}>
+                        If unchecked, you will be notified when someone requests
+                        a swap through the website's Telegram bot.
+                    </FormHelperText>
+                </Stack>
+            </FormControl>
+            <Center>
+                <Button onClick={() => prevStep()}> Back </Button>
+                <Button
+                    colorScheme="blue"
+                    onClick={() => submitHandler()}
+                    ml={3}
+                >
+                    {" "}
+                    Submit{" "}
+                </Button>
+            </Center>
         </Stack>
     );
 };
@@ -424,13 +600,13 @@ const CreateSwap: NextPage = () => {
     const [desiredClasses, setDesiredClasses] = useState<(string | number)[]>(
         []
     );
-
+    console.log({ desiredClasses });
     // const [isEqualRank, setIsEqualRank] = useBoolean(false);
 
     const user = useSelector((state: RootState) => state.user);
     const router = useRouter();
-    const dispatch = useDispatch()
-    const toast = useToast()
+    const dispatch = useDispatch();
+    const toast = useToast();
     const submitHandler = async () => {
         console.log(desiredClasses);
         console.log(currentClassInfo);
@@ -441,33 +617,29 @@ const CreateSwap: NextPage = () => {
             user,
         });
         if (!response.success || !response.data) {
-            
             toast({
                 title: "Error",
                 description: response.error,
                 status: "error",
-            })
-            
-
+            });
         } else {
-            router.push(`/swap/${response.data}`); 
-            
+            router.push(`/swap/${response.data}`);
+
             toast({
                 title: "Swap created",
                 status: "success",
-                description: "Swap created! If you have enabled notifications, you will be notified on Telegram if someone requests to swap with you.\nYou can toggle this function by clicking the notification bell in the top right corner of the page.",
+                description:
+                    "Swap created! If you have enabled notifications, you will be notified on Telegram if someone requests to swap with you.\nYou can toggle this function by clicking the notification bell in the top right corner of the page.",
                 duration: 10000,
                 isClosable: true,
-            })
+            });
         }
     };
 
-
-    
     useEffect(() => {
         if (!user) {
             // router.push("/swap");
-            dispatch(miscActions.setNeedsLogIn(true))
+            dispatch(miscActions.setNeedsLogIn(true));
         }
     }, [user, dispatch]);
 
@@ -480,12 +652,14 @@ const CreateSwap: NextPage = () => {
                     ))}
                 </Steps>
                 {activeStep === 0 && (
-                    <Step1
+                    <MemoStep1
                         {...stepsControl}
                         setCurrentClassInfo={setCurrentClassInfo}
                         classes={classes}
                         setClasses={setClasses}
                         currentClassInfo={currentClassInfo}
+                        values={desiredClasses}
+                        setValues={setDesiredClasses}
                     />
                 )}
                 {activeStep === 1 && (

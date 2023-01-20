@@ -1,9 +1,18 @@
-import { Grid, GridItem, Flex, Center, useBreakpointValue, useColorModeValue, Text, Box } from "@chakra-ui/react";
+import {
+    Grid,
+    GridItem,
+    Flex,
+    Center,
+    useBreakpointValue,
+    useColorModeValue,
+    Text,
+    Box,
+} from "@chakra-ui/react";
 import React from "react";
 
 import { keepAndCapFirstThree } from "../../lib/functions";
 import { Day } from "../../types/modules";
-import { TimetableLessonEntry, DayRows } from "../../types/timetable";
+import { DayRows, TimetableLessonEntry } from "../../types/timetable";
 import { ClassOverview } from "../../types/types";
 
 import TimetableSelectable from "./TimetableSelectable";
@@ -21,19 +30,15 @@ const order = [
 const GRID_ITEM_HEIGHT_BIG = 75;
 const GRID_ITEM_HEIGHT_SMALL = 50;
 
-
 const Timetable: React.FC<{
-    classesForThis: ClassOverview[];
-    selectedClasses: ClassOverview[];
-    isSelected: ( class_: TimetableLessonEntry,
-        selectedClasses: ClassOverview[] ) => boolean,
-   
-}> = ({ classesForThis, selectedClasses, isSelected }) => {
+    classesToDraw: ClassOverview[];
+    property: (class_: TimetableLessonEntry) => string | undefined;
+    onSelected: (class_: TimetableLessonEntry, selected: boolean) => void;
+}> = ({ classesToDraw, property, onSelected }) => {
     const GRID_ITEM_HEIGHT_RESPONSIVE = useBreakpointValue({
         base: GRID_ITEM_HEIGHT_SMALL,
         md: GRID_ITEM_HEIGHT_BIG,
     });
-
 
     const ALTERNATE_EVEN_GRID_COLOR = useColorModeValue("blue.100", "blue.900");
     const ALTERNATE_ODD_GRID_COLOR = useColorModeValue("blue.50", "blue.800");
@@ -42,7 +47,6 @@ const Timetable: React.FC<{
     const TEXT_HEADER_COLOR = useColorModeValue("gray.700", "gray.200");
 
     const BORDER_COLOR = useColorModeValue("gray.400", "gray.500");
-
 
     const BORDER_WIDTH = "1px";
     const BORDER_RADIUS = "5px";
@@ -61,7 +65,7 @@ const Timetable: React.FC<{
         Sunday: 1,
     };
 
-    classesForThis.forEach((lesson) => {
+    classesToDraw.forEach((lesson) => {
         // Check how many overlapping lessons there are in final
         // If there are none, pushDown = 0
 
@@ -155,10 +159,6 @@ const Timetable: React.FC<{
         (c1, c2) => Number(c1.startTime) - Number(c2.startTime)
     );
 
-    // console.log({ timetableList, totalDayRowsToDraw });
-
-    // Create the rowStart and rowEnd for each day
-
     const rowMappingForDays = order.map((day) => ({
         day: day as Day,
         rowStart: 0,
@@ -182,6 +182,12 @@ const Timetable: React.FC<{
     // console.log(rowMappingForDays);
     const totalRowsToDraw =
         Object.values(totalDayRowsToDraw).reduce((a, b) => a + b, 0) + 1; // 1 for the timing row
+
+    if (!timetableList.length) {
+        // default values
+        earliestTiming = "0800";
+        latestTiming = "1800";
+    }
 
     const totalColumnsToDraw =
         Math.ceil(
@@ -322,11 +328,12 @@ const Timetable: React.FC<{
                                                                     class_={
                                                                         class_
                                                                     }
-                                                                    selected={isSelected(
-                                                                        class_,
-                                                                        selectedClasses
+                                                                    property={property(
+                                                                        class_
                                                                     )}
-                                                                    
+                                                                    onSelected={
+                                                                        onSelected
+                                                                    }
                                                                 />
                                                             </Box>
                                                         );

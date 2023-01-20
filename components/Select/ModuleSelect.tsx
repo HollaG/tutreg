@@ -1,5 +1,6 @@
 import { FormControl, FormHelperText } from "@chakra-ui/react";
 import { AsyncSelect, InputActionMeta } from "chakra-react-select";
+import React from "react";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { sendPOST } from "../../lib/fetcher";
@@ -15,11 +16,12 @@ const ModuleSelect: React.FC<{
 
     setModuleCodeLessonTypeValue: Dispatch<SetStateAction<string>>
     moduleCodeLessonTypeValue: string
-}> = ({ onSelect, isMulti = true, setModuleCodeLessonTypeValue, moduleCodeLessonTypeValue}) => {
+}> = ({ onSelect, isMulti = true,}) => {
     // fetch the list of modules from nusmods
     const [moduleList, setModuleList] = useState<ModuleCondensed[]>();
     const data = useSelector((state: RootState) => state.classesInfo);
-
+    const [moduleCodeLessonTypeValue, setModuleCodeLessonTypeValue] =
+        useState("");
     useEffect(() => {
         if (!ay) console.log("ERROR: no ay");
         fetch(`https://api.nusmods.com/v2/${ay || "2022-2023"}/moduleList.json`)
@@ -139,4 +141,4 @@ const ModuleSelect: React.FC<{
     );
 };
 
-export default ModuleSelect;
+export default React.memo(ModuleSelect);
