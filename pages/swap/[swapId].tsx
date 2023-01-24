@@ -14,6 +14,7 @@ import {
     Link,
     SimpleGrid,
     Stack,
+    Tag,
     Text,
     Tooltip,
     useDisclosure,
@@ -43,9 +44,11 @@ import {
 import { requestSwapHelper } from "../../lib/helpers";
 import { miscActions } from "../../store/misc";
 import { ModuleWithClassDB } from "../../types/db";
-import { ClassSwapRequest, RootState } from "../../types/types";
+import { ClassOverview, ClassSwapRequest, RootState } from "../../types/types";
 import { SpecificSwapData } from "../api/swap/[swapId]";
 import UserAvatar from "../../components/User/UserAvatar";
+import { TimetableLessonEntry } from "../../types/timetable";
+import Timetable from "../../components/ReusableTimetable/Timetable";
 
 const SpecificSwap: NextPage = () => {
     const router = useRouter();
@@ -218,6 +221,27 @@ const SpecificSwap: NextPage = () => {
         }
     };
 
+    const lst: ClassOverview[] = Object.keys(groupedByClassNo || []).map(
+        (classNo) => {
+            const classes_ = groupedByClassNo![classNo];
+            return {
+                classNo,
+                moduleCode: classes_[0].moduleCode,
+                lessonType: classes_[0].lessonType,
+                moduleName: classes_[0].moduleName,
+                size: classes_[0].size,
+                classes: classes_,
+            };
+        }
+    );
+
+    const getProperty = (class_: TimetableLessonEntry) => {
+        if (requestedClassNos?.includes(class_.classNo)) return "selected";
+        else return "readonly";
+    };
+
+    console.log({ swap, groupedByClassNo, requestedClassNos, swapId });
+
     if (swap && groupedByClassNo && requestedClassNos && swapId)
         return (
             <Stack spacing={5} alignItems="center" h="100%">
@@ -329,7 +353,10 @@ const SpecificSwap: NextPage = () => {
                                                                 //         user.photo_url
                                                                 //     }
                                                                 // />
-                                                                <UserAvatar user={user} key={index}/>
+                                                                <UserAvatar
+                                                                    user={user}
+                                                                    key={index}
+                                                                />
                                                             );
                                                     })}
                                             </AvatarGroup>
@@ -403,14 +430,14 @@ const SpecificSwap: NextPage = () => {
                     </Flex>
                 </Card>
 
-                <SwapEntry
+                {/* <SwapEntry
                     badge={swap.moduleCode}
                     classNo={swap.classNo}
                     classes={groupedByClassNo[swap.classNo]}
                     title={`${swap.moduleCode}
-                                ${encodeLessonTypeToShorthand(swap.lessonType)} [${
-                        swap.classNo
-                    }]`}
+                                ${encodeLessonTypeToShorthand(
+                                    swap.lessonType
+                                )} [${swap.classNo}]`}
                     link={`https://nusmods.com/modules/${swap.moduleCode}`}
                 />
 
@@ -424,10 +451,34 @@ const SpecificSwap: NextPage = () => {
                             swap.lessonType
                         )} [${classNo}]`}
                     />
-                ))}
+                ))} */}
                 {/* {classData.map((classSel, index) => (
                     <SwapEntry classNo={classSel.classNo} classes={classSel.}/>
                 ))} */}
+                <Box w="full">
+                    <Flex justifyContent={"space-between"} alignItems="center">
+                        <Badge
+                            fontSize={"2xl"}
+                            colorScheme="orange"
+                            // variant="solid"
+                        >
+                            {swap.moduleCode}: {swap.lessonType}
+                        </Badge>
+                        {/* <Text fontSize={"3xl"} fontWeight="semibold"> {swap.moduleCode}: {swap.lessonType}</Text> */}
+                        <Box>
+                            <Stack direction={{ base: "row", sm: "row" }}>
+                                <Tag colorScheme="red">Class they have</Tag>
+                                <Tag colorScheme="teal">Classes they want</Tag>
+                            </Stack>
+                        </Box>
+                    </Flex>
+                    <Timetable
+                        classesToDraw={lst}
+                        onSelected={() => {}}
+                        property={getProperty}
+                    />
+                </Box>
+
                 <ConfirmDelete {...deleteDisclosure} cb={handleDelete} />
                 <ConfirmComplete {...completeDisclosure} cb={handleComplete} />
             </Stack>

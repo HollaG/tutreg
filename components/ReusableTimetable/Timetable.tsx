@@ -34,12 +34,15 @@ const Timetable: React.FC<{
     classesToDraw: ClassOverview[];
     property: (class_: TimetableLessonEntry) => string | undefined;
     onSelected: (class_: TimetableLessonEntry, selected: boolean) => void;
-}> = ({ classesToDraw, property, onSelected }) => {
+    tinyMode?: boolean
+}> = ({ classesToDraw, property, onSelected, tinyMode = false }) => {
     const GRID_ITEM_HEIGHT_RESPONSIVE = useBreakpointValue({
         base: GRID_ITEM_HEIGHT_SMALL,
-        md: GRID_ITEM_HEIGHT_BIG,
+        md: tinyMode ? GRID_ITEM_HEIGHT_SMALL : GRID_ITEM_HEIGHT_BIG,
     });
 
+    const DEFAULT_FONT_SIZE = tinyMode ? "sm" : "md"
+    const COLUMN_WIDTH_START = tinyMode ? "40px" : "50px";
     const ALTERNATE_EVEN_GRID_COLOR = useColorModeValue("blue.100", "blue.900");
     const ALTERNATE_ODD_GRID_COLOR = useColorModeValue("blue.50", "blue.800");
 
@@ -200,7 +203,7 @@ const Timetable: React.FC<{
         <Grid
             margin="auto"
             gridTemplateRows={"25px 1fr"}
-            templateColumns={`50px repeat(${totalColumnsToDraw - 1}, 1fr)`}
+            templateColumns={`${COLUMN_WIDTH_START} repeat(${totalColumnsToDraw - 1}, 1fr)`}
             // templateAreas={`"header header"
             //                 "day main"`}
 
@@ -212,7 +215,7 @@ const Timetable: React.FC<{
                     <GridItem key={c}>
                         <Flex alignItems={"flex-end"} height="100%" ml="-18px">
                             {c !== 0 ? (
-                                <Text textColor={TEXT_HEADER_COLOR}>
+                                <Text textColor={TEXT_HEADER_COLOR} fontSize={DEFAULT_FONT_SIZE}>
                                     {convertColumnToTime(c, earliestTiming)}
                                 </Text>
                             ) : (
@@ -264,6 +267,7 @@ const Timetable: React.FC<{
                                     }
                                 }
                                 textColor={TEXT_HEADER_COLOR}
+                                 fontSize={DEFAULT_FONT_SIZE}
                             >
                                 {keepAndCapFirstThree(dayObj.day)}
                             </Center>
@@ -334,6 +338,7 @@ const Timetable: React.FC<{
                                                                     onSelected={
                                                                         onSelected
                                                                     }
+                                                                    tinyMode={tinyMode}
                                                                 />
                                                             </Box>
                                                         );

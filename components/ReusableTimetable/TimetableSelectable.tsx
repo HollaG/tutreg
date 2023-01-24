@@ -29,7 +29,8 @@ const TimetableSelectable: React.FC<{
     // selected: boolean;
     property?: string;
     onSelected: (class_: TimetableLessonEntry, selected: boolean) => void;
-}> = ({ class_, property, onSelected }) => {
+    tinyMode?: boolean;
+}> = ({ class_, property, onSelected, tinyMode = false }) => {
     // console.log("timetable selectable rendering");
     const GRAY_BACKGROUND = useColorModeValue("gray.100", "gray.900");
     const HOVER_COLOR = useColorModeValue("teal.100", "teal.800");
@@ -83,11 +84,11 @@ const TimetableSelectable: React.FC<{
                         <Stack
                             direction={{
                                 base: "column",
-                                md: "row",
+                                md: tinyMode ? "column" : "row",
                             }}
                             spacing={{
                                 base: 0,
-                                md: 2,
+                                md: tinyMode ? 0 : 2,
                             }}
                         >
                             <Text
@@ -95,9 +96,11 @@ const TimetableSelectable: React.FC<{
                                 //     base: "xs",
                                 //     md: "md",
                                 // }}
-                                fontSize={{ base: "sm", md: "2xl" }}
+                                fontSize={{
+                                    base: "sm",
+                                    md: tinyMode ? "sm" : "2xl",
+                                }}
                                 fontWeight="semibold"
-                                
                             >
                                 {class_.classNo}
                             </Text>
@@ -105,7 +108,7 @@ const TimetableSelectable: React.FC<{
                                 <Text
                                     fontSize={{
                                         base: "0.65rem",
-                                        md: "sm",
+                                        md: tinyMode ? "0.65rem" : "sm",
                                     }}
                                 >
                                     {class_.venue}
@@ -113,7 +116,7 @@ const TimetableSelectable: React.FC<{
                                 <Text
                                     fontSize={{
                                         base: "0.65rem",
-                                        md: "sm",
+                                        md: tinyMode ? "0.65rem" : "sm",
                                     }}
                                 >
                                     Wks {weeksDisplay}{" "}
@@ -153,17 +156,16 @@ const TimetableSelectable: React.FC<{
                                   bgColor: HOVER_COLOR,
                               },
                           })}
-                   
                     onClick={() => toggleHandler()}
                 >
                     <Stack
                         direction={{
                             base: "column",
-                            md: "row",
+                            md: tinyMode ? "column" : "row",
                         }}
                         spacing={{
                             base: 0,
-                            md: 2,
+                            md: tinyMode ? 0 : 2,
                         }}
                     >
                         <Text
@@ -171,9 +173,11 @@ const TimetableSelectable: React.FC<{
                             //     base: "xs",
                             //     md: "md",
                             // }}
-                            fontSize={{ base: "sm", md: "2xl" }}
+                            fontSize={{
+                                base: "sm",
+                                md: tinyMode ? "sm" : "2xl",
+                            }}
                             fontWeight="semibold"
-                            textColor={sel ? "unset" : TEXT_COLOR}
                         >
                             {class_.classNo}
                         </Text>
@@ -181,7 +185,7 @@ const TimetableSelectable: React.FC<{
                             <Text
                                 fontSize={{
                                     base: "0.65rem",
-                                    md: "sm",
+                                    md: tinyMode ? "0.65rem" : "sm",
                                 }}
                             >
                                 {class_.venue}
@@ -189,7 +193,7 @@ const TimetableSelectable: React.FC<{
                             <Text
                                 fontSize={{
                                     base: "0.65rem",
-                                    md: "sm",
+                                    md: tinyMode ? "0.65rem" : "sm",
                                 }}
                             >
                                 Wks {weeksDisplay}{" "}

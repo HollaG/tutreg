@@ -29,6 +29,7 @@ import { ClassOverview, ClassSwapRequest, RootState } from "../../types/types";
 import { TelegramUser } from "telegram-login-button";
 import { useSelector } from "react-redux";
 import { SwapData } from "../../pages/api/swap";
+import { TimetableLessonEntry } from "../../types/timetable";
 import Timetable from "../ReusableTimetable/Timetable";
 const CustomCardProps = {
     _hover: {
@@ -37,7 +38,7 @@ const CustomCardProps = {
     cursor: "pointer",
 };
 
-const SwapCard: React.FC<{
+const SelfSwapCard: React.FC<{
     swap: ClassSwapRequest;
     user: TelegramUser | null | undefined;
     requestSwap: (
@@ -47,95 +48,84 @@ const SwapCard: React.FC<{
     ) => any;
     hasRequestedSwap: string;
     swapData: SwapData | undefined;
-}> = ({ swap, user, requestSwap, hasRequestedSwap, swapData }) => {
+    promptDelete: (swapId: number) => (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void
+}> = ({ swap, user, requestSwap, hasRequestedSwap, swapData, promptDelete }) => {
     const state = useSelector((state: RootState) => state);
     const highlightedColor = useColorModeValue("green.200", "green.700");
 
     if (!swapData) return null;
 
+    // TODO: I believe that using the Timetable component here is too difficult to read.
+    // const requestedClasses = swapData.requestedClasses[swap.swapId].flatMap(class_ => swapData.classData.filter(c => c.classNo === class_.wantedClassNo && c.moduleCode === swap.moduleCode && c.lessonType === swap.lessonType));
+    // const currentClasses = swapData.classData.filter(
+    //     (class_) =>
+    //         class_.classNo === swap.classNo &&
+    //         class_.moduleCode === swap.moduleCode &&
+    //         class_.lessonType === swap.lessonType
+    // );
 
- 
+    // const requestedClassNos = requestedClasses.map(class_ => class_.classNo);
+    // const currentClassNo  =swap.classNo
 
+    // const lst: ClassOverview[] = [...requestedClasses, ...currentClasses]
+    //     .map((class_) => {
+    //         const classes_ = swapData.classData.filter(c => c.classNo === class_.classNo && c.moduleCode === class_.moduleCode && c.lessonType === class_.lessonType)
+    //         return {
+    //             classNo: class_.classNo,
+    //             moduleCode: classes_[0].moduleCode,
+    //             lessonType: classes_[0].lessonType,
+    //             moduleName: classes_[0].moduleName,
+    //             size: classes_[0].size,
+    //             classes: classes_,
+    //         };
+    //     });
 
+    // const getProperty = (class_: TimetableLessonEntry) => {
+    //     if (requestedClassNos.includes(class_.classNo)) return "selected";
+    //     else if (class_.classNo === currentClassNo) return "readonly";
+    //     else return "";
+    // };
 
+    // console.log(lst)
+
+    // console.log({requestedClasses, currentClasses})
     return (
-        <NextLink href={`/swap/${swap.swapId}`}>
-            <Link
-                style={{
-                    textDecoration: "none",
-                }}
-            >
+        <NextLink passHref href={`/swap/${swap.swapId}`}>
+            <Link style={{ textDecoration: "none" }}>
                 <Card {...CustomCardProps}>
                     <Stack spacing={3}>
-                        <Flex
-                            alignItems="center"
-                            justifyContent="space-between"
-                        >
-                            <HStack>
-                                <HStack flex={1}>
-                                    <UserDisplay user={swap} />
-                                </HStack>
+                        <Flex alignItems="center">
+                            <HStack flex={1}>
+                                <UserDisplay user={swap} />
                             </HStack>
-
-                            {cleanArrayString(swap.requestors).includes(
-                                user?.id.toString() || ""
-                            ) ? (
-                                <Button
-                                    size="sm"
-                                    colorScheme="blue"
-                                    onClick={requestSwap(
-                                        swap.swapId,
-                                        user || null,
-                                        "remove"
-                                    )}
-                                    disabled={
-                                        hasRequestedSwap === "Unrequested!"
-                                    }
-                                >
-                                    {!user
-                                        ? "Request"
-                                        : hasRequestedSwap || "Unrequest"}
-                                </Button>
-                            ) : (
-                                <Button
-                                    size="sm"
-                                    colorScheme="blue"
-                                    onClick={requestSwap(
-                                        swap.swapId,
-                                        user || null,
-                                        "request"
-                                    )}
-                                    disabled={hasRequestedSwap === "Requested!"}
-                                >
-                                    {hasRequestedSwap === "Requested!" ||
-                                        "Request"}
-                                </Button>
-                            )}
+                            <Button
+                                size="sm"
+                                colorScheme="red"
+                                onClick={promptDelete(swap.swapId)}
+                            >
+                                {" "}
+                                Delete{" "}
+                            </Button>
                         </Flex>
                         <Center>
-                            {cleanArrayString(swap.requestors).includes(
-                                user?.id.toString() || ""
-                            ) && (
+                            {swap.status === "Completed" ? (
                                 <Tag colorScheme="green" variant="solid">
                                     {" "}
-                                    Requested{" "}
+                                    Completed{" "}
+                                </Tag>
+                            ) : (
+                                <Tag colorScheme="blue" variant="solid">
+                                    Pending
                                 </Tag>
                             )}
                         </Center>
                         <Divider />
-
                         <SwapEntry
-                            // badge="PS1101E"
-                            bgColor={
-                                state.misc.highlightedClassNos.includes(
-                                    swap.classNo
-                                )
-                                    ? highlightedColor
-                                    : undefined
-                            }
                             title={`${swap.moduleCode}
-    ${encodeLessonTypeToShorthand(swap.lessonType)}
-    [${swap.classNo}]`}
+                                                ${encodeLessonTypeToShorthand(
+                                                    swap.lessonType
+                                                )}
+                                                [${swap.classNo}]`}
                             classNo={swap.classNo}
                             classes={
                                 swapData.classData.filter(
@@ -146,24 +136,17 @@ const SwapCard: React.FC<{
                                 ) || []
                             }
                         />
+
                         <SwapArrows />
                         <SimpleGrid
                             columns={{
-                                base: 2,
-                                // sm: 3,
-                                // lg: 4,
+                                base: 1,
+                                md: 2,
                             }}
                         >
                             {swapData.requestedClasses[swap.swapId].map(
                                 (requestedClass, index3) => (
                                     <SwapEntry
-                                        bgColor={
-                                            state.misc.highlightedClassNos.includes(
-                                                requestedClass.wantedClassNo
-                                            )
-                                                ? highlightedColor
-                                                : undefined
-                                        }
                                         key={index3}
                                         classNo={requestedClass.wantedClassNo}
                                         classes={
@@ -180,27 +163,26 @@ const SwapCard: React.FC<{
                                         title={`${encodeLessonTypeToShorthand(
                                             swap.lessonType
                                         )}
-                [${requestedClass.wantedClassNo}]`}
+                                                        [${
+                                                            requestedClass.wantedClassNo
+                                                        }]`}
                                     />
                                 )
                             )}
                         </SimpleGrid>
 
-                    
-
+                        {/* TODO: I believe that using the Timetable component here is too difficult to read. */}
+                        {/* <Timetable classesToDraw={lst} onSelected={() => {}} property={getProperty} tinyMode={true}/> */}
                         <Divider />
                         <Flex justifyContent="space-between">
-                            <HStack
-                                alignItems="center"
-                                // justifyContent="center"
-                            >
+                            <HStack alignItems="center">
                                 <TimeIcon />
                                 <Text>
                                     {formatTimeElapsed(
                                         swap.createdAt.toString()
                                     )}
                                 </Text>
-                            </HStack>{" "}
+                            </HStack>
                             <Badge colorScheme="orange" fontSize="1em">
                                 {swap.moduleCode}
                             </Badge>
@@ -212,4 +194,4 @@ const SwapCard: React.FC<{
     );
 };
 
-export default SwapCard;
+export default SelfSwapCard;
