@@ -9,7 +9,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { classesActions } from "../../store/classesReducer";
 import { RootState } from "../../types/types";
 import BasicModal from "../Modal/Modal";
-import TimetableContainer, { TimetableLessonEntry } from "./TimetableContainer";
+import TimetableContainer from "./TimetableContainer";
 
 // TODO: Use react.memo correctly, because the state changes in this component, it will re-render the whole timetable.
 
@@ -50,7 +50,7 @@ const TimetableModal: React.FC<{
             title={props.selectedModuleCodeLessonType}
             closeButton="Save & close"
         >
-            <TimetableContainer mclt={mclt} />
+            <TimetableContainer mclt={mclt} closeHandler={closeHandler} />
         </BasicModal>
     );
 };

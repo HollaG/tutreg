@@ -53,11 +53,6 @@ const SwapCard: React.FC<{
 
     if (!swapData) return null;
 
-
- 
-
-
-
     return (
         <NextLink href={`/swap/${swap.swapId}`}>
             <Link
@@ -185,8 +180,6 @@ const SwapCard: React.FC<{
                                 )
                             )}
                         </SimpleGrid>
-
-                    
 
                         <Divider />
                         <Flex justifyContent="space-between">

@@ -44,7 +44,8 @@ const order = [
 const TimetableContainer: React.FC<{
     // listOfLessons: ClassDB[]
     mclt: string;
-}> = ({ mclt }) => {
+    closeHandler: () => void
+}> = ({ mclt, closeHandler: onClose }) => {
     
 
     const classesList = useSelector(
@@ -89,7 +90,7 @@ const TimetableContainer: React.FC<{
                     </Button>
                 </Box>
                 <Box ml={2}>
-                    <Button colorScheme="blue"> Save & close </Button>
+                    <Button onClick={onClose} colorScheme="blue"> Save & close </Button>
                 </Box>
             </Flex>
             <Timetable classesForThis={classesForThis} selectedClasses={selectedClassesMCLT[mclt]} isSelected={isSelected}/>

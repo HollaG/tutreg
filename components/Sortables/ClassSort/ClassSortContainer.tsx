@@ -259,6 +259,7 @@ const ClassSortContainer: React.FC<{ showAdd: boolean }> = ({ showAdd }) => {
                                             onClick={() =>
                                                 handleOpen(moduleCodeLessonType)
                                             }
+                                            size="sm"
                                         >
                                             Add / remove classes
                                         </Button>
