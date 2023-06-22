@@ -31,6 +31,17 @@ import {
     InputRightElement,
     useClipboard,
     Tag,
+    Stepper,
+    Step,
+    StepDescription,
+    StepIcon,
+    StepIndicator,
+    StepNumber,
+    StepStatus,
+    StepTitle,
+    StepSeparator,
+    useSteps,
+    useBreakpointValue,
 } from "@chakra-ui/react";
 import { AnyARecord } from "dns";
 import { NextPage } from "next";
@@ -53,7 +64,11 @@ import { useRouter } from "next/router";
 import Explanation from "../components/Description/Explanation";
 import { ImportResponseData } from "./api/import";
 import { generateLink, tutregToNUSMods } from "../lib/functions";
-import { Step, Steps, useSteps } from "chakra-ui-steps";
+import {
+    Step as OldStep,
+    Steps,
+    useSteps as oldUseSteps,
+} from "chakra-ui-steps";
 
 const ay = process.env.NEXT_PUBLIC_AY;
 const Order: NextPage = () => {
@@ -93,7 +108,6 @@ const Order: NextPage = () => {
 
     // Check if the user is importing something
     const router = useRouter();
-    console.log(router.query, "router query");
 
     const [isImportingShareURL, setIsImportingShareURL] = useState(false);
 
@@ -254,7 +268,7 @@ const Order: NextPage = () => {
     };
 
     const removeAll = () => {
-        setStep(0);
+        setActiveStep(0);
         dispatch(classesActions.removeAll());
     };
 
@@ -276,19 +290,24 @@ const Order: NextPage = () => {
 
     const { hasCopied, onCopy } = useClipboard(timetableLink);
 
-    const { nextStep, prevStep, setStep, reset, activeStep } = useSteps({
-        initialStep: 0,
+    // const { nextStep, prevStep, setStep, reset, activeStep } = useSteps({
+    //     initialStep: 0,
+    // });
+
+    const { activeStep, setActiveStep } = useSteps({
+        index: 0,
+        count: 3,
     });
 
     const clickedStepHandler = (step: number) => {
         if (step === 0) {
-            setStep(0);
+            setActiveStep(0);
         }
         if (step === 1 && !hasNoModulesSelected) {
-            setStep(1);
+            setActiveStep(1);
         }
         if (step === 2 && !hasNoClassesSelected) {
-            setStep(2);
+            setActiveStep(2);
         }
     };
 
@@ -361,7 +380,7 @@ const Order: NextPage = () => {
             </form>
 
             <Text textAlign="center">or, add modules manually</Text>
-            <form onSubmit={e => e.preventDefault()}>
+            <form onSubmit={(e) => e.preventDefault()}>
                 <Flex>
                     <Box flex={1} mr={3}>
                         <FormControl>
@@ -424,7 +443,7 @@ const Order: NextPage = () => {
                     <Button
                         isDisabled={activeStep === 0}
                         mr={4}
-                        onClick={prevStep}
+                        onClick={() => setActiveStep(activeStep - 1)}
                         size="sm"
                         variant="ghost"
                     >
@@ -432,8 +451,8 @@ const Order: NextPage = () => {
                     </Button>
                     <Button
                         size="sm"
-                        onClick={nextStep}
-                        disabled={
+                        onClick={() => setActiveStep(activeStep + 1)}
+                        isDisabled={
                             activeStep === 3 - 1 ||
                             (activeStep === 0 && hasNoModulesSelected) ||
                             (activeStep === 1 && hasNoClassesSelected)
@@ -442,8 +461,93 @@ const Order: NextPage = () => {
                         Next
                     </Button>
                 </Flex>
-                <Steps activeStep={activeStep} onClickStep={clickedStepHandler}>
-                    <Step
+                <Stepper
+                    index={activeStep}
+                    orientation={useBreakpointValue({
+                        base: "vertical",
+                        md: "horizontal",
+                    })}
+                >
+                    <Step onClick={() => clickedStepHandler(0)}>
+                        <HStack cursor={"pointer"}>
+                            <StepIndicator>
+                                <StepStatus
+                                    complete={<StepIcon />}
+                                    incomplete={<StepNumber />}
+                                    active={<StepNumber />}
+                                />
+                            </StepIndicator>
+
+                            <Box flexShrink="0">
+                                <StepTitle> Rank modules </StepTitle>
+                                <StepDescription>
+                                    Rank your modules, highest priority first
+                                </StepDescription>
+                            </Box>
+                        </HStack>
+                        <StepSeparator />
+                    </Step>
+                    <Step onClick={() => clickedStepHandler(1)}>
+                        <HStack
+                            cursor={
+                                hasNoModulesSelected ? "not-allowed" : "pointer"
+                            }
+                        >
+                            <StepIndicator>
+                                <StepStatus
+                                    complete={<StepIcon />}
+                                    incomplete={<StepNumber />}
+                                    active={<StepNumber />}
+                                />
+                            </StepIndicator>
+
+                            <Box flexShrink="0">
+                                <StepTitle> Rank classes </StepTitle>
+                                <StepDescription>
+                                    Rank your classes per module
+                                </StepDescription>
+                            </Box>
+                        </HStack>
+                        <StepSeparator />
+                    </Step>
+                    <Step onClick={() => clickedStepHandler(2)}>
+                        <HStack
+                            cursor={
+                                hasNoClassesSelected ? "not-allowed" : "pointer"
+                            }
+                        >
+                            <StepIndicator>
+                                <StepStatus
+                                    complete={<StepIcon />}
+                                    incomplete={<StepNumber />}
+                                    active={<StepNumber />}
+                                />
+                            </StepIndicator>
+
+                            <Box flexShrink="0">
+                                <StepTitle> Computed ranking </StepTitle>
+                                <StepDescription>
+                                    Export to browser extension
+                                </StepDescription>
+                            </Box>
+                        </HStack>
+                        <StepSeparator />
+                    </Step>
+                </Stepper>
+                <Box display={activeStep === 0 ? "unset" : "none"}>
+                    {" "}
+                    <ModuleSortContainer showAdd={showAdd} />
+                </Box>
+                <Box display={activeStep === 1 ? "unset" : "none"}>
+                    {" "}
+                    <ClassSortContainer showAdd={showAdd} />
+                </Box>
+                <Box display={activeStep === 2 ? "unset" : "none"}>
+                    <ResultContainer showAdd={showAdd} />
+                </Box>
+
+                {/* <Steps activeStep={activeStep} onClickStep={clickedStepHandler}>
+                    <OldStep
                         label="Rank modules"
                         description="Rank your modules, highest priority first"
                     >
@@ -451,8 +555,8 @@ const Order: NextPage = () => {
                             <Text> Add a module to get started! </Text>
                         )}
                         <ModuleSortContainer showAdd={showAdd} />{" "}
-                    </Step>
-                    <Step
+                    </OldStep>
+                    <OldStep
                         label="Rank classes"
                         description="Rank your classes per module"
                         _hover={{
@@ -462,8 +566,8 @@ const Order: NextPage = () => {
                         }}
                     >
                         <ClassSortContainer showAdd={showAdd} />{" "}
-                    </Step>
-                    <Step
+                    </OldStep>
+                    <OldStep
                         label="Computed ranking"
                         description="Export to browser extension"
                         _hover={{
@@ -473,8 +577,8 @@ const Order: NextPage = () => {
                         }}
                     >
                         <ResultContainer showAdd={showAdd} />{" "}
-                    </Step>
-                </Steps>
+                    </OldStep>
+                </Steps> */}
 
                 {/* <Box>
                         <InputGroup>

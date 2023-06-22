@@ -199,7 +199,6 @@ export const generateLink = (
 
     for (const moduleCode in holder) {
         if (holder[moduleCode].length) {
-            console.log(holder)
             holder2[moduleCode] = holder[moduleCode].length
                 ? holder[moduleCode]
                       .map(
@@ -311,7 +310,6 @@ export const checkMultipleDifferentWeeks = (weeks: Weeks[]) => {
 //    "25"
 
 export const getVacanciesForAllLessons = (vacancies: number[]) => {
-    console.log({ vacancies });
     const min = Math.min(...vacancies);
     const max = Math.max(...vacancies);
     if (min === max) return min;
@@ -394,11 +392,9 @@ export const encodeRank = (
         let selString = selectedClasses[moduleCodeLessonType]
             .map((class_) => class_.classNo)
             .join(",");
-        console.log({ selString });
+
         return `${moduleCode}-${lessonTypeAbbr}:${selString}`;
     });
-
-    console.log({ indivSelects });
 
     return `${begin}&classes=${indivSelects.join("__")}`;
 };
@@ -411,7 +407,6 @@ export const tutregToNUSMods = (url: string) => {
         [moduleCode: string]: { [lessonType: string]: string }; // todo: type lessonType
     } = {};
 
-    console.log({ selectedClasses });
     for (let class_ of selectedClasses) {
         const moduleCode: string = class_.split(":")[0];
         const abbreLessonType: LessonTypeAbbrev = class_.split(

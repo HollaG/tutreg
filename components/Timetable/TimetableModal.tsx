@@ -14,12 +14,10 @@ import TimetableContainer from "./TimetableContainer";
 // TODO: Use react.memo correctly, because the state changes in this component, it will re-render the whole timetable.
 
 const TimetableModal: React.FC<{
-
     isOpen: boolean;
     onClose: () => void;
     selectedModuleCodeLessonType: string;
 }> = (props) => {
-    console.log("timetable modal");
     const cleanedProps: any = { ...props };
     const mclt = cleanedProps.selectedModuleCodeLessonType;
     delete cleanedProps.selectedModuleCodeLessonType;
@@ -44,7 +42,6 @@ const TimetableModal: React.FC<{
                     size: "full",
                     isOpen: props.isOpen,
                     onClose: closeHandler,
-                    
                 } as ModalProps
             }
             title={props.selectedModuleCodeLessonType}
