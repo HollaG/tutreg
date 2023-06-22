@@ -83,6 +83,7 @@ const TimetableSelectable: React.FC<{
                     h="100%"
                     justifyContent={"left"}
                     textAlign="left"
+                    pl={{ base: 1, md: 2 }}
                     {...(sel
                         ? {
                               variant: "solid",
@@ -100,25 +101,20 @@ const TimetableSelectable: React.FC<{
                               },
                           })}
                     onClick={() => toggleHandler()}
+                    overflow="hidden"
                 >
-                    <Stack
-                        direction={{
-                            base: "column",
-                            md: "row",
-                        }}
-                        spacing={{
-                            base: 0,
-                            md: 2,
-                        }}
-                    >
+                    <Flex flexWrap={"wrap"}>
                         <Text
                             // fontSize={{
                             //     base: "xs",
                             //     md: "md",
                             // }}
-                            fontSize={{ base: "sm", md: "2xl" }}
+                            fontSize={{
+                                base: "sm",
+                                md: "2xl",
+                            }}
                             fontWeight="semibold"
-                            textColor={sel ? "unset" : TEXT_COLOR}
+                            mr={2}
                         >
                             {class_.classNo}
                         </Text>
@@ -140,7 +136,7 @@ const TimetableSelectable: React.FC<{
                                 Wks {weeksDisplay}{" "}
                             </Text>
                         </Stack>
-                    </Stack>
+                    </Flex>
                 </Button>
             </Flex>{" "}
         </Center>

@@ -299,61 +299,57 @@ const Timetable: React.FC<{
                                     totalDayRowsToDraw
                                 );
                                 return (
-                                    <Box key={r}>
-                                        <GridItem
-                                            colSpan={totalColumnsToDraw - 1}
-                                            height={GRID_ITEM_HEIGHT_RESPONSIVE}
-                                        >
-                                            <Flex h="100%" w="100%">
-                                                {timetableList
-                                                    .filter(
-                                                        (class_) =>
-                                                            class_.day ===
-                                                                day &&
-                                                            class_.pushDown ===
-                                                                pushDown
-                                                    )
-                                                    .map((class_, i) => {
-                                                        return (
-                                                            <Box
-                                                                key={i}
-                                                                height="100%"
-                                                                width={`${calculateWidthPercent(
-                                                                    class_.startTime,
-                                                                    class_.endTime,
-                                                                    earliestTiming,
-                                                                    latestTiming
-                                                                )}%`}
-                                                                marginLeft={`${calculateMarginLeftPercent(
-                                                                    calculateMinutesBeforeThePreviousClass(
-                                                                        class_,
-                                                                        timetableList,
-                                                                        earliestTiming
-                                                                    ),
-                                                                    earliestTiming,
-                                                                    latestTiming
-                                                                )}%`}
-                                                            >
-                                                                <TimetableSelectable
-                                                                    class_={
-                                                                        class_
-                                                                    }
-                                                                    property={property(
-                                                                        class_
-                                                                    )}
-                                                                    onSelected={
-                                                                        onSelected
-                                                                    }
-                                                                    tinyMode={
-                                                                        tinyMode
-                                                                    }
-                                                                />
-                                                            </Box>
-                                                        );
-                                                    })}
-                                            </Flex>
-                                        </GridItem>
-                                    </Box>
+                                    <GridItem
+                                        colSpan={totalColumnsToDraw - 1}
+                                        height={GRID_ITEM_HEIGHT_RESPONSIVE}
+                                        key={r}
+                                    >
+                                        <Flex h="100%" w="100%">
+                                            {timetableList
+                                                .filter(
+                                                    (class_) =>
+                                                        class_.day === day &&
+                                                        class_.pushDown ===
+                                                            pushDown
+                                                )
+                                                .map((class_, i) => {
+                                                    return (
+                                                        <Box
+                                                            key={i}
+                                                            height="100%"
+                                                            width={`${calculateWidthPercent(
+                                                                class_.startTime,
+                                                                class_.endTime,
+                                                                earliestTiming,
+                                                                latestTiming
+                                                            )}%`}
+                                                            marginLeft={`${calculateMarginLeftPercent(
+                                                                calculateMinutesBeforeThePreviousClass(
+                                                                    class_,
+                                                                    timetableList,
+                                                                    earliestTiming
+                                                                ),
+                                                                earliestTiming,
+                                                                latestTiming
+                                                            )}%`}
+                                                        >
+                                                            <TimetableSelectable
+                                                                class_={class_}
+                                                                property={property(
+                                                                    class_
+                                                                )}
+                                                                onSelected={
+                                                                    onSelected
+                                                                }
+                                                                tinyMode={
+                                                                    tinyMode
+                                                                }
+                                                            />
+                                                        </Box>
+                                                    );
+                                                })}
+                                        </Flex>
+                                    </GridItem>
                                 );
                             }
                         )}

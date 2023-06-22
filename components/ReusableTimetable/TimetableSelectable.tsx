@@ -82,16 +82,7 @@ const TimetableSelectable: React.FC<{
                         cursor="not-allowed"
                         colorScheme="red"
                     >
-                        <Stack
-                            direction={{
-                                base: "column",
-                                md: tinyMode ? "column" : "row",
-                            }}
-                            spacing={{
-                                base: 0,
-                                md: tinyMode ? 0 : 2,
-                            }}
-                        >
+                        <Flex flexWrap={"wrap"}>
                             <Text
                                 // fontSize={{
                                 //     base: "xs",
@@ -102,6 +93,7 @@ const TimetableSelectable: React.FC<{
                                     md: tinyMode ? "sm" : "2xl",
                                 }}
                                 fontWeight="semibold"
+                                mr={2}
                             >
                                 {class_.classNo}
                             </Text>
@@ -123,7 +115,7 @@ const TimetableSelectable: React.FC<{
                                     Wks {weeksDisplay}{" "}
                                 </Text>
                             </Stack>
-                        </Stack>
+                        </Flex>
                     </Button>
                 </Flex>{" "}
             </Center>
@@ -138,6 +130,7 @@ const TimetableSelectable: React.FC<{
                 justifyContent={"center"}
                 textAlign="center"
                 w="100%"
+                maxWidth={"100%"}
             >
                 <Button
                     size={"xs"}
@@ -163,7 +156,41 @@ const TimetableSelectable: React.FC<{
                           })}
                     onClick={() => toggleHandler()}
                 >
-                    <Stack
+                    <Flex flexWrap={"wrap"}>
+                        <Text
+                            // fontSize={{
+                            //     base: "xs",
+                            //     md: "md",
+                            // }}
+                            fontSize={{
+                                base: "sm",
+                                md: tinyMode ? "sm" : "2xl",
+                            }}
+                            fontWeight="semibold"
+                            mr={2}
+                        >
+                            {class_.classNo}
+                        </Text>
+                        <Stack spacing={0}>
+                            <Text
+                                fontSize={{
+                                    base: "0.65rem",
+                                    md: tinyMode ? "0.65rem" : "sm",
+                                }}
+                            >
+                                {class_.venue}
+                            </Text>
+                            <Text
+                                fontSize={{
+                                    base: "0.65rem",
+                                    md: tinyMode ? "0.65rem" : "sm",
+                                }}
+                            >
+                                Wks {weeksDisplay}{" "}
+                            </Text>
+                        </Stack>
+                    </Flex>
+                    {/* <Stack
                         direction={{
                             base: "column",
                             md: tinyMode ? "column" : "row",
@@ -172,6 +199,7 @@ const TimetableSelectable: React.FC<{
                             base: 0,
                             md: tinyMode ? 0 : 2,
                         }}
+                        flexWrap="wrap"
                     >
                         <Text
                             // fontSize={{
@@ -204,7 +232,7 @@ const TimetableSelectable: React.FC<{
                                 Wks {weeksDisplay}{" "}
                             </Text>
                         </Stack>
-                    </Stack>
+                    </Stack> */}
                 </Button>
             </Flex>{" "}
         </Center>
