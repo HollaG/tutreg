@@ -240,8 +240,6 @@ const SpecificSwap: NextPage = () => {
         else return "readonly";
     };
 
-    console.log({ swap, groupedByClassNo, requestedClassNos, swapId });
-
     if (swap && groupedByClassNo && requestedClassNos && swapId)
         return (
             <Stack spacing={5} alignItems="center" h="100%">

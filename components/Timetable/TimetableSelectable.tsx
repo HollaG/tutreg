@@ -103,7 +103,7 @@ const TimetableSelectable: React.FC<{
                     onClick={() => toggleHandler()}
                     overflow="hidden"
                 >
-                    <Flex flexWrap={"wrap"}>
+                    <Flex flexWrap={"wrap"} alignItems="center">
                         <Text
                             // fontSize={{
                             //     base: "xs",

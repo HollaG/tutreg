@@ -12,7 +12,6 @@ import { RefObject } from "react";
 const Ended: React.FC<{ scrollTo: RefObject<HTMLDivElement> }> = ({
     scrollTo,
 }) => {
-    console.log(scrollTo)
     return (
         <Alert
             status="info"
@@ -28,15 +27,22 @@ const Ended: React.FC<{ scrollTo: RefObject<HTMLDivElement> }> = ({
                 You&apos;ve reached the end!
             </AlertTitle>
             <AlertDescription maxWidth="sm">
-                <Stack>There are no more requests to show.
-
+                <Stack>
+                    There are no more requests to show.
                     <Center>
-                        <Button colorScheme="blue" size="xs" onClick={() => scrollTo.current?.scrollIntoView({
-                            behavior: 'smooth',
-                            
-                        })}> Back to top </Button>
+                        <Button
+                            colorScheme="blue"
+                            size="xs"
+                            onClick={() =>
+                                scrollTo.current?.scrollIntoView({
+                                    behavior: "smooth",
+                                })
+                            }
+                        >
+                            {" "}
+                            Back to top{" "}
+                        </Button>
                     </Center>
-
                 </Stack>
             </AlertDescription>
         </Alert>

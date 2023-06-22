@@ -77,11 +77,15 @@ const Extension: NextPage = () => {
                             aspectRatio: "959/516",
                         }}
                     />
-                    <Heading fontSize="2xl" textAlign="center"> Watch the video tutorial, or read below for a pictorial guide.</Heading> 
+                    <Heading fontSize="2xl" textAlign="center">
+                        {" "}
+                        Watch the video tutorial, or read below for a pictorial
+                        guide.
+                    </Heading>
                 </Stack>
             </FancyCard>
             <FancyCard
-                content="Select and rank your modules in the Order Classes page. Then, copy the URL given by the website in 'Export link'."
+                content="Select and rank your courses in the Order Classes page. Then, copy the URL given by the website in 'Export link'."
                 header="Step 1"
                 src="tutorial/1.png"
             ></FancyCard>
@@ -91,7 +95,7 @@ const Extension: NextPage = () => {
                 src="tutorial/2.png"
             ></FancyCard>
             <FancyCard
-                content="Open the extension, paste in the URL and click on 'Auto-select'. The extension will automatically select the modules for you."
+                content="Open the extension, paste in the URL and click on 'Auto-select'. The extension will automatically select the courses for you."
                 header="Step 3"
                 src="tutorial/3.png"
             ></FancyCard>
@@ -106,7 +110,7 @@ const Extension: NextPage = () => {
                 src="tutorial/5.png"
             ></FancyCard>
             <FancyCard
-                content="Open the extension, paste in the URL again and click on 'Auto-rank'. The extension will automatically rank the modules for you."
+                content="Open the extension, paste in the URL again and click on 'Auto-rank'. The extension will automatically rank the courses for you."
                 header="Step 6"
                 src="tutorial/6.png"
             ></FancyCard>

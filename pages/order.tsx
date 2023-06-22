@@ -444,28 +444,7 @@ const Order: NextPage = () => {
                         </Button>
                     </HStack>
                 </Center>
-                <Flex width="100%" justify="flex-end">
-                    <Button
-                        isDisabled={activeStep === 0}
-                        mr={4}
-                        onClick={() => setActiveStep(activeStep - 1)}
-                        size="sm"
-                        variant="ghost"
-                    >
-                        Prev
-                    </Button>
-                    <Button
-                        size="sm"
-                        onClick={() => setActiveStep(activeStep + 1)}
-                        isDisabled={
-                            activeStep === 3 - 1 ||
-                            (activeStep === 0 && hasNoModulesSelected) ||
-                            (activeStep === 1 && hasNoClassesSelected)
-                        }
-                    >
-                        Next
-                    </Button>
-                </Flex>
+
                 <Stepper
                     index={activeStep}
                     orientation={useBreakpointValue({
@@ -539,6 +518,28 @@ const Order: NextPage = () => {
                         <StepSeparator />
                     </Step>
                 </Stepper>
+                <Flex width="100%" justify="flex-end">
+                    <Button
+                        isDisabled={activeStep === 0}
+                        mr={4}
+                        onClick={() => setActiveStep(activeStep - 1)}
+                        size="sm"
+                        variant="ghost"
+                    >
+                        Prev step
+                    </Button>
+                    <Button
+                        size="sm"
+                        onClick={() => setActiveStep(activeStep + 1)}
+                        isDisabled={
+                            activeStep === 3 - 1 ||
+                            (activeStep === 0 && hasNoModulesSelected) ||
+                            (activeStep === 1 && hasNoClassesSelected)
+                        }
+                    >
+                        Next step
+                    </Button>
+                </Flex>
                 <Box display={activeStep === 0 ? "unset" : "none"}>
                     {" "}
                     <ModuleSortContainer showAdd={showAdd} />

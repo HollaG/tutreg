@@ -82,7 +82,7 @@ const TimetableSelectable: React.FC<{
                         cursor="not-allowed"
                         colorScheme="red"
                     >
-                        <Flex flexWrap={"wrap"}>
+                        <Flex flexWrap={"wrap"} alignItems="center">
                             <Text
                                 // fontSize={{
                                 //     base: "xs",
