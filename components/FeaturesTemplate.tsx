@@ -30,11 +30,12 @@ const featuresGeneral = [
         id: 2,
         title: "Share data across devices!",
         text: "Sign in with Telegram to share your data across devices!",
-    },{
+    },
+    {
         id: 3,
         title: "Fully open-source",
         text: "This website is fully open-source, and you can view the code on GitHub!",
-    }
+    },
 ];
 const featuresRank = [
     {
@@ -54,13 +55,13 @@ const featuresRank = [
     },
     {
         id: 4,
-        title: "Add more classes and modules",
-        text: "Search for and manually add substitute classes and modules",
+        title: "Add more classes and courses",
+        text: "Search for and manually add substitute classes and courses",
     },
     {
         id: 5,
         title: "Rank by priority",
-        text: "Using a drag-and-drop interface, rank your modules and classes by priority",
+        text: "Using a drag-and-drop interface, rank your courses and classes by priority",
     },
     {
         id: 6,
@@ -83,7 +84,7 @@ const featuresSwap = [
     {
         id: 1,
         title: "Create swap requests",
-        text: "Create swap requests for your modules and classes.",
+        text: "Create swap requests for your courses and classes.",
     },
     {
         id: 2,

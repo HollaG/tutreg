@@ -14,9 +14,9 @@ const ModuleSelect: React.FC<{
     onSelect?: (option: Option[]) => void;
     isMulti?: boolean;
 
-    setModuleCodeLessonTypeValue: Dispatch<SetStateAction<string>>
-    moduleCodeLessonTypeValue: string
-}> = ({ onSelect, isMulti = true,}) => {
+    setModuleCodeLessonTypeValue: Dispatch<SetStateAction<string>>;
+    moduleCodeLessonTypeValue: string;
+}> = ({ onSelect, isMulti = true }) => {
     // fetch the list of modules from nusmods
     const [moduleList, setModuleList] = useState<ModuleCondensed[]>();
     const data = useSelector((state: RootState) => state.classesInfo);
@@ -49,7 +49,7 @@ const ModuleSelect: React.FC<{
         }
     };
     const loadOptions = (inputValue: string) =>
-        new Promise<any[]>((resolve) => {   
+        new Promise<any[]>((resolve) => {
             if (!moduleList) return resolve([]);
 
             const sanitizedValue = inputValue.trim().toUpperCase();
@@ -113,7 +113,7 @@ const ModuleSelect: React.FC<{
                             ?.options.push(option);
                     }
                 });
-               
+
                 resolve(groupedOptions);
             });
         });
@@ -122,7 +122,6 @@ const ModuleSelect: React.FC<{
         <FormControl>
             <AsyncSelect
                 instanceId={`${ay}-select`}
-                
                 placeholder="Search..."
                 value={selectedModules}
                 isMulti={isMulti}
@@ -130,11 +129,10 @@ const ModuleSelect: React.FC<{
                 loadOptions={loadOptions}
                 onInputChange={handleInputChange}
                 onChange={(newValue: any) => handleSelectChange(newValue)}
-
             />
-            <FormHelperText>Search for a module (min. 3 chars)</FormHelperText>
+            <FormHelperText>Search for a course (min. 3 chars)</FormHelperText>
             <FormHelperText>
-                Modules unavailable for bidding in tutorial rounds are not
+                Courses unavailable for bidding in tutorial rounds are not
                 shown.
             </FormHelperText>
         </FormControl>

@@ -27,11 +27,7 @@ export default function CallToAction() {
                 direction={{ base: "column", md: "row" }}
             >
                 <Stack flex={1} spacing={{ base: 5, md: 10 }}>
-                    <Heading
-                        lineHeight={1.1}
-                        fontWeight={600}
-                        
-                    >
+                    <Heading lineHeight={1.1} fontWeight={600}>
                         <Text
                             as={"span"}
                             position={"relative"}
@@ -51,15 +47,19 @@ export default function CallToAction() {
                             Order / swap your slots,
                         </Text>
                         <br />
-                        <Text as={"span"} color={"blue.400"} fontSize={{ base: "2xl", sm: "3xl", lg: "5xl" }}>
+                        <Text
+                            as={"span"}
+                            color={"blue.400"}
+                            fontSize={{ base: "2xl", sm: "3xl", lg: "5xl" }}
+                        >
                             easily and painlessly
                         </Text>
                     </Heading>
                     <Box>
                         <Text color={"gray.500"}>
-                            This website helps you easily rank & order the tutorial /
-                            lab slots of each module, giving you an ordered list
-                            that you can copy into ModReg.
+                            This website helps you easily rank & order the
+                            tutorial / lab slots of each course, giving you an
+                            ordered list that you can copy into CourseReg.
                         </Text>
                         <Text color={"gray.500"}>
                             You can also request swaps for slots [BETA].
@@ -80,13 +80,16 @@ export default function CallToAction() {
                                 px={6}
                                 colorScheme={"blue"}
                                 // bg={"blue.400"}
-                                
+
                                 _hover={{ bg: "blue.500" }}
                                 leftIcon={
                                     <DragHandleIcon
                                         h={4}
                                         w={4}
-                                        color={useColorModeValue("gray.300", "gray.800")}
+                                        color={useColorModeValue(
+                                            "gray.300",
+                                            "gray.800"
+                                        )}
                                     />
                                 }
                             >
@@ -104,7 +107,10 @@ export default function CallToAction() {
                                     <RepeatIcon
                                         h={4}
                                         w={4}
-                                        color={useColorModeValue("gray.300", "gray.800")}
+                                        color={useColorModeValue(
+                                            "gray.300",
+                                            "gray.800"
+                                        )}
                                     />
                                 }
                                 colorScheme="teal"

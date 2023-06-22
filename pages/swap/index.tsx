@@ -350,7 +350,7 @@ const Swap: NextPage = () => {
                                     .sort((a, b) =>
                                         a.label.localeCompare(b.label)
                                     )}
-                                placeholder="Filter by module and lesson type (tut/sec etc...)"
+                                placeholder="Filter by course and lesson type (tut/sec etc...)"
                                 value={selectedModuleCodeLessonType}
                                 isClearable
                                 onChange={(opt: any) =>
@@ -462,7 +462,6 @@ const Swap: NextPage = () => {
                                         promptDelete={promptDelete}
                                     />
                                 ))}
-                               
                             </SimpleGrid>
                         </TabPanel>
                     )}

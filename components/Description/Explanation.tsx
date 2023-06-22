@@ -46,12 +46,13 @@ const Explanation: React.FC = () => {
             <Center>
                 <Button size="xs" onClick={onOpen}>
                     {" "}
-                    View ranking algorithm</Button>
+                    View ranking algorithm
+                </Button>
             </Center>
             {/* <Box>
                 <Text>
                     {" "}
-                    First, select or import some modules, then rank the modules
+                    First, select or import some courses, then rank the courses
                     and classes based on your preferences.
                 </Text>
                 <Text>
@@ -60,11 +61,10 @@ const Explanation: React.FC = () => {
                 </Text>
                 <Text>
                     {" "}
-                    You can also manually rank your classes and modules if you wish.
+                    You can also manually rank your classes and courses if you wish.
                 </Text>
             </Box> */}
-           
-            
+
             <Modal isOpen={isOpen} onClose={onClose} size="full">
                 <ModalOverlay />
                 <ModalContent>

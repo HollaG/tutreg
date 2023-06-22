@@ -105,7 +105,7 @@ export default function CallToActionWithVideo() {
                     </Heading>
                     <Text color={"gray.500"}>
                         With the Tutreg Companion Extension, you can import your
-                        ranking and selected modules directly into Edurec with
+                        ranking and selected courses directly into Edurec with
                         just two buttons presses. Watch the video to find out
                         how!
                     </Text>

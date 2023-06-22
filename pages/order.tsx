@@ -321,8 +321,8 @@ const Order: NextPage = () => {
                 <Stack spacing={1} alignItems="center">
                     <Text>
                         {" "}
-                        You can rank your modules according to the priority in
-                        the <Tag> Rank Modules </Tag> step.
+                        You can rank your courses according to the priority in
+                        the <Tag> Rank Courses </Tag> step.
                     </Text>
                     <Text>
                         {" "}
@@ -359,7 +359,7 @@ const Order: NextPage = () => {
                             </Box>
                             <Tooltip
                                 hasArrow
-                                label="Importing a new timetable will clear your previously selected modules, if any!"
+                                label="Importing a new timetable will clear your previously selected courses, if any!"
                                 textAlign="center"
                             >
                                 <Button
@@ -379,7 +379,7 @@ const Order: NextPage = () => {
                 </Flex>
             </form>
 
-            <Text textAlign="center">or, add modules manually</Text>
+            <Text textAlign="center">or, add courses manually</Text>
             <form onSubmit={(e) => e.preventDefault()}>
                 <Flex>
                     <Box flex={1} mr={3}>
@@ -399,10 +399,10 @@ const Order: NextPage = () => {
                                 }
                             />
                             <FormHelperText>
-                                Search for a module (min. 3 chars)
+                                Search for a courses (min. 3 chars)
                             </FormHelperText>
                             <FormHelperText>
-                                Modules unavailable for bidding in tutorial
+                                Courses unavailable for bidding in tutorial
                                 rounds are not shown.
                             </FormHelperText>
                         </FormControl>
@@ -479,9 +479,9 @@ const Order: NextPage = () => {
                             </StepIndicator>
 
                             <Box flexShrink="0">
-                                <StepTitle> Rank modules </StepTitle>
+                                <StepTitle> Rank courses </StepTitle>
                                 <StepDescription>
-                                    Rank your modules, highest priority first
+                                    Rank your courses, highest priority first
                                 </StepDescription>
                             </Box>
                         </HStack>
@@ -504,7 +504,7 @@ const Order: NextPage = () => {
                             <Box flexShrink="0">
                                 <StepTitle> Rank classes </StepTitle>
                                 <StepDescription>
-                                    Rank your classes per module
+                                    Rank your classes per course
                                 </StepDescription>
                             </Box>
                         </HStack>
@@ -545,64 +545,6 @@ const Order: NextPage = () => {
                 <Box display={activeStep === 2 ? "unset" : "none"}>
                     <ResultContainer showAdd={showAdd} />
                 </Box>
-
-                {/* <Steps activeStep={activeStep} onClickStep={clickedStepHandler}>
-                    <OldStep
-                        label="Rank modules"
-                        description="Rank your modules, highest priority first"
-                    >
-                        {hasNoModulesSelected && (
-                            <Text> Add a module to get started! </Text>
-                        )}
-                        <ModuleSortContainer showAdd={showAdd} />{" "}
-                    </OldStep>
-                    <OldStep
-                        label="Rank classes"
-                        description="Rank your classes per module"
-                        _hover={{
-                            cursor: hasNoModulesSelected
-                                ? "not-allowed"
-                                : "pointer",
-                        }}
-                    >
-                        <ClassSortContainer showAdd={showAdd} />{" "}
-                    </OldStep>
-                    <OldStep
-                        label="Computed ranking"
-                        description="Export to browser extension"
-                        _hover={{
-                            cursor: hasNoClassesSelected
-                                ? "not-allowed"
-                                : "pointer",
-                        }}
-                    >
-                        <ResultContainer showAdd={showAdd} />{" "}
-                    </OldStep>
-                </Steps> */}
-
-                {/* <Box>
-                        <InputGroup>
-                            <InputLeftAddon>Timetable</InputLeftAddon>
-                            <Input readOnly value={timetableLink} />
-                            <InputRightElement width="4.5rem">
-                                <Button h="1.75rem" size="sm" onClick={onCopy}>
-                                    {hasCopied ? "Copied!" : "Copy"}
-                                </Button>
-                            </InputRightElement>
-                        </InputGroup>
-                        <Center mt={2}>
-                            <Link isExternal href={timetableLink}>
-                                {" "}
-                                Open in new tab{" "}
-                            </Link>
-                        </Center>
-                    </Box> */}
-
-                {/* <Box id="divContainer">
-                        <Box id="frameContainer">
-                            <iframe src={timetableLink} width="100%" height="1000px" frameBorder="0" allowFullScreen></iframe>
-                        </Box>
-                    </Box> */}
             </Stack>
             {/* </Collapse> */}
             <Divider />
