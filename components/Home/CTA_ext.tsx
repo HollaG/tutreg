@@ -1,3 +1,4 @@
+import { DownloadIcon } from "@chakra-ui/icons";
 import {
     Container,
     Stack,
@@ -33,11 +34,11 @@ export default function CallToActionWithVideo() {
                     w={"full"}
                 >
                     <Blob
-                        w={"150%"}
-                        h={"150%"}
+                        w={"100%"}
+                        h={"100%"}
                         position={"absolute"}
                         top={"-20%"}
-                        left={0}
+                        left={"-24px"}
                         zIndex={-1}
                         color={useColorModeValue("red.50", "red.400")}
                     />
@@ -103,7 +104,7 @@ export default function CallToActionWithVideo() {
                             now available!
                         </Text>
                     </Heading>
-                    <Text color={"gray.500"}>
+                    <Text color={useColorModeValue("gray.700", "gray.300")}>
                         With the Tutreg Companion Extension, you can import your
                         ranking and selected courses directly into Edurec with
                         just two buttons presses. Watch the video to find out
@@ -121,6 +122,7 @@ export default function CallToActionWithVideo() {
                             colorScheme={"red"}
                             bg={"red.400"}
                             _hover={{ bg: "red.500" }}
+                            leftIcon={<DownloadIcon />}
                         >
                             <Link
                                 isExternal

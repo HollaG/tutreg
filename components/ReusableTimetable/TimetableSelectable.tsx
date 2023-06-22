@@ -179,7 +179,7 @@ const TimetableSelectable: React.FC<{
                                     base: "0.65rem",
                                     md: tinyMode ? "0.65rem" : "xs",
                                 }}
-                                fontWeight="light"
+                                // fontWeight="light"
                             >
                                 {class_.venue}
                             </Text>
@@ -188,7 +188,7 @@ const TimetableSelectable: React.FC<{
                                     base: "0.65rem",
                                     md: tinyMode ? "0.65rem" : "xs",
                                 }}
-                                fontWeight="light"
+                                // fontWeight="light"
                             >
                                 Wks {weeksDisplay}{" "}
                             </Text>

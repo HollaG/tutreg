@@ -46,7 +46,7 @@ const Timetable: React.FC<{
     const ALTERNATE_EVEN_GRID_COLOR = useColorModeValue("gray.100", "gray.900");
     const ALTERNATE_ODD_GRID_COLOR = useColorModeValue("gray.50", "gray.800");
 
-    const HEADER_COLOR = useColorModeValue("blue.200", "blue.700");
+    const HEADER_COLOR = useColorModeValue("gray.200", "gray.700");
     const TEXT_HEADER_COLOR = useColorModeValue("gray.700", "gray.200");
 
     const BORDER_COLOR = useColorModeValue("gray.400", "gray.500");

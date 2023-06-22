@@ -108,14 +108,15 @@ const SwapCard: React.FC<{
                             )}
                         </Flex>
                         <Center>
-                            {cleanArrayString(swap.requestors).includes(
-                                user?.id.toString() || ""
-                            ) && (
-                                <Tag colorScheme="green" variant="solid">
-                                    {" "}
-                                    Requested{" "}
-                                </Tag>
-                            )}
+                            {user &&
+                                cleanArrayString(swap.requestors).includes(
+                                    user?.id.toString() || ""
+                                ) && (
+                                    <Tag colorScheme="green" variant="solid">
+                                        {" "}
+                                        Requested{" "}
+                                    </Tag>
+                                )}
                         </Center>
                         <Divider />
 

@@ -18,6 +18,7 @@ import {
     IconButton,
     useToast,
     Container,
+    Heading,
 } from "@chakra-ui/react";
 import { ChevronLeftIcon, MoonIcon, SunIcon, TimeIcon } from "@chakra-ui/icons";
 import { useDispatch, useSelector } from "react-redux";
@@ -161,7 +162,12 @@ export default function Nav() {
     };
 
     return (
-        <Box bg={useColorModeValue("gray.100", "gray.900")} px={4} w="100%">
+        <Box
+            bg={useColorModeValue("blue.50", "gray.900")}
+            px={4}
+            w="100%"
+            boxShadow="rgba(0, 0, 0, 0.1) 0px 4px 13px -3px"
+        >
             <Container maxW="container.lg">
                 <Flex
                     h={16}
@@ -173,7 +179,7 @@ export default function Nav() {
                         justifyContent={"space-between"}
                         width="54px"
                     >
-                        {
+                        <Center>
                             <IconButton
                                 visibility={
                                     router.pathname === "/"
@@ -189,18 +195,21 @@ export default function Nav() {
                                 icon={<ChevronLeftIcon p={0} />}
                                 aria-label="Go back"
                             />
-                        }
-
+                        </Center>
                         <NextLink passHref href={"/"}>
                             {/* <Link>ModRank 🔢</Link> */}
-                            <Link>TutReg</Link>
+                            <Link>
+                                <Heading fontSize="lg" lineHeight={"40px"}>
+                                    TutReg
+                                </Heading>
+                            </Link>
                         </NextLink>
                     </Flex>
 
                     <Flex alignItems={"center"}>
                         <Stack direction={"row"} spacing={2}>
                             <Timer />
-                            <Button onClick={toggleColorMode}>
+                            <Button onClick={toggleColorMode} variant="ghost">
                                 {colorMode === "light" ? (
                                     <MoonIcon />
                                 ) : (
@@ -209,7 +218,10 @@ export default function Nav() {
                             </Button>
 
                             {user && (
-                                <Button onClick={toggleNotification}>
+                                <Button
+                                    onClick={toggleNotification}
+                                    variant="ghost"
+                                >
                                     {miscState.notify ? (
                                         <MdNotificationsActive />
                                     ) : (
@@ -221,9 +233,10 @@ export default function Nav() {
                                 <MenuButton
                                     as={Button}
                                     rounded={"full"}
-                                    variant={"link"}
+                                    // variant={"link"}
                                     cursor={"pointer"}
                                     minW={0}
+                                    variant="ghost"
                                 >
                                     {/* <Avatar
                                         size={"sm"}

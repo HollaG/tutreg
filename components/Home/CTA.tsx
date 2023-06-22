@@ -13,6 +13,7 @@ import {
     createIcon,
     IconProps,
     useColorModeValue,
+    Kbd,
 } from "@chakra-ui/react";
 
 import NextLink from "next/link";
@@ -44,7 +45,7 @@ export default function CallToAction() {
                             }}
                             fontSize={{ base: "3xl", sm: "4xl", lg: "6xl" }}
                         >
-                            Order / swap your slots,
+                            Order & swap your slots,
                         </Text>
                         <br />
                         <Text
@@ -52,17 +53,17 @@ export default function CallToAction() {
                             color={"blue.400"}
                             fontSize={{ base: "2xl", sm: "3xl", lg: "5xl" }}
                         >
-                            easily and painlessly
+                            easily and painlessly 🤟
                         </Text>
                     </Heading>
                     <Box>
-                        <Text color={"gray.500"}>
+                        <Text color={useColorModeValue("gray.700", "gray.300")}>
                             This website helps you easily rank & order the
                             tutorial / lab slots of each course, giving you an
                             ordered list that you can copy into CourseReg.
                         </Text>
-                        <Text color={"gray.500"}>
-                            You can also request swaps for slots [BETA].
+                        <Text color={useColorModeValue("gray.700", "gray.300")}>
+                            You can also request swaps for slots.
                         </Text>
                         <Text color={"gray.500"} mt={2}>
                             This website is not affiliated with NUSMods or NUS.

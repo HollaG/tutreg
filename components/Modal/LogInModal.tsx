@@ -12,6 +12,10 @@ import {
     Center,
     Stack,
     Box,
+    Image,
+    Alert,
+    AlertIcon,
+    Container,
 } from "@chakra-ui/react";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -25,7 +29,7 @@ const LogInModal = () => {
     const misc = useSelector((state: RootState) => state.misc);
     useEffect(() => {
         if (misc.needsLogIn) onOpen();
-        else onClose()
+        else onClose();
     }, [misc.needsLogIn, onClose, onOpen]);
 
     // reset state to false in preparation for next time
@@ -34,24 +38,35 @@ const LogInModal = () => {
         dispatch(miscActions.setNeedsLogIn(false));
     };
     return (
-        <Modal isOpen={isOpen} onClose={onClose}>
+        <Modal isOpen={isOpen} onClose={onClose} size="3xl">
             <ModalOverlay />
             <ModalContent>
                 <ModalHeader>Access denied!</ModalHeader>
                 <ModalCloseButton />
                 <ModalBody>
-                    <Center>
-                        <Stack spacing={3}>
-                            <Heading size="sm" textAlign="center">
-                                {" "}
-                                You need to sign in before accessing this
-                                content!{" "}
-                            </Heading>
-                            <Box>
-                                <LoginButton />
-                            </Box>
-                        </Stack>
-                    </Center>
+                    <Stack spacing={5}>
+                        <Center>
+                            <Image
+                                src="/icons/manifest-icon-192.maskable.png"
+                                maxW="128px"
+                                maxH="128px"
+                            />
+                        </Center>
+                        <Heading fontSize="2xl" textAlign="center">
+                            {" "}
+                            TutReg{" "}
+                        </Heading>
+                        <Container>
+                            <Alert status="error">
+                                <AlertIcon />
+                                This action requires you to be logged in!
+                            </Alert>
+                        </Container>
+
+                        <Center>
+                            <LoginButton />
+                        </Center>
+                    </Stack>
                 </ModalBody>
 
                 <ModalFooter>

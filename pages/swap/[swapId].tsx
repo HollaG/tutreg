@@ -454,11 +454,16 @@ const SpecificSwap: NextPage = () => {
                     <SwapEntry classNo={classSel.classNo} classes={classSel.}/>
                 ))} */}
                 <Box w="full">
-                    <Flex justifyContent={"space-between"} alignItems="center">
+                    <Flex
+                        justifyContent={"space-between"}
+                        alignItems="center"
+                        flexWrap="wrap"
+                    >
                         <Badge
                             fontSize={"2xl"}
                             colorScheme="orange"
                             // variant="solid"
+                            mb={2}
                         >
                             {swap.moduleCode}: {swap.lessonType}
                         </Badge>

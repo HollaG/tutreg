@@ -64,11 +64,9 @@ import { useRouter } from "next/router";
 import Explanation from "../components/Description/Explanation";
 import { ImportResponseData } from "./api/import";
 import { generateLink, tutregToNUSMods } from "../lib/functions";
-import {
-    Step as OldStep,
-    Steps,
-    useSteps as oldUseSteps,
-} from "chakra-ui-steps";
+
+import { GrSync } from "react-icons/gr";
+import { IconContext } from "react-icons";
 
 const ay = process.env.NEXT_PUBLIC_AY;
 const Order: NextPage = () => {
@@ -348,8 +346,23 @@ const Order: NextPage = () => {
                                     onChange={(e) => setLink(e.target.value)}
                                 />
                                 <FormHelperText>
-                                    Paste the link you get when clicking the
-                                    [Share/Sync] button on{" "}
+                                    Paste the link you get when clicking{" "}
+                                    <Button
+                                        leftIcon={
+                                            <IconContext.Provider
+                                                value={{ color: "orange" }}
+                                            >
+                                                <GrSync />
+                                            </IconContext.Provider>
+                                        }
+                                        size="xs"
+                                        colorScheme={"orange"}
+                                        variant="outline"
+                                    >
+                                        {" "}
+                                        Share/Sync{" "}
+                                    </Button>{" "}
+                                    in{" "}
                                     <Link href="https://nusmods.com" isExternal>
                                         NUSMods
                                     </Link>{" "}

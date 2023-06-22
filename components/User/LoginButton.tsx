@@ -8,7 +8,7 @@ import { userActions } from "../../store/user";
 const botName = process.env.NEXT_PUBLIC_BOT_NAME;
 const LoginButton = () => {
     const dispatch = useDispatch();
-    const toast = useToast()
+    const toast = useToast();
     const handleResponse = async (user: TelegramUser) => {
         console.log(user);
 
@@ -17,22 +17,24 @@ const LoginButton = () => {
             user
         );
 
-        
         if (response.success && response.data) {
             dispatch(userActions.setUser(response.data));
             dispatch(miscActions.setNeedsLogIn(false));
         } else {
             toast({
-               
                 status: "error",
                 title: "Error",
                 description: response.error,
-            })
+            });
         }
     };
 
     return (
-        <TelegramLoginButton botName={botName} dataOnauth={handleResponse} />
+        <TelegramLoginButton
+            usePic
+            botName={botName}
+            dataOnauth={handleResponse}
+        />
     );
 };
 
