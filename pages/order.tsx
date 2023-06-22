@@ -326,6 +326,11 @@ const Order: NextPage = () => {
                     </Text>
                     <Text>
                         {" "}
+                        Simply drag and drop the courses in the order that you
+                        want.
+                    </Text>
+                    <Text>
+                        {" "}
                         Then, add and rank the other classes that you want in
                         the <Tag>Rank Classes</Tag> step, and see the results in{" "}
                         <Tag>Computed Ranking</Tag>.

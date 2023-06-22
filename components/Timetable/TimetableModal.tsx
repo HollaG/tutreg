@@ -39,7 +39,7 @@ const TimetableModal: React.FC<{
         <BasicModal
             props={
                 {
-                    size: "full",
+                    size: "6xl",
                     isOpen: props.isOpen,
                     onClose: closeHandler,
                 } as ModalProps
