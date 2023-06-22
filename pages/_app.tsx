@@ -20,25 +20,31 @@ import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { classesActions } from "../store/classesReducer";
 import Helper from "../components/Helper";
-const theme = extendTheme({
-    components: {
-        Steps,
-    },
-});
+
+import "@fontsource/lexend";
+import "@fontsource/inter";
+import theme from "../theme/theme";
 
 function MyApp({ Component, pageProps }: AppProps) {
-
-   
-
     return (
         <ChakraProvider theme={theme}>
             <Head>
                 <title> tutreg.com | Tutorial Registration Helper </title>
                 <link rel="apple-touch-icon" href="icons/apple-icon-180.png" />
-                <link rel="manifest" href="/manifest.json"/>
+                <link rel="manifest" href="/manifest.json" />
                 <meta name="apple-mobile-web-app-capable" content="yes" />
-                <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png"/>
-                <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png"/>
+                <link
+                    rel="icon"
+                    type="image/png"
+                    sizes="32x32"
+                    href="icons/favicon-32x32.png"
+                />
+                <link
+                    rel="icon"
+                    type="image/png"
+                    sizes="16x16"
+                    href="icons/favicon-16x16.png"
+                />
                 <link
                     rel="apple-touch-startup-image"
                     href="icons/apple-splash-2048-2732.jpg"

@@ -315,7 +315,7 @@ const Order: NextPage = () => {
         <Stack spacing={5}>
             <Heading size="lg" textAlign="center">
                 {" "}
-                To get started, import your NUSMods Timetable.{" "}
+                To get started, import your NUSMods Timetable 📅{" "}
             </Heading>
             <Center textAlign="center">
                 <Stack spacing={1} alignItems="center">
@@ -404,7 +404,7 @@ const Order: NextPage = () => {
                                 }
                             />
                             <FormHelperText>
-                                Search for a courses (min. 3 chars)
+                                Search for a course (min. 3 chars)
                             </FormHelperText>
                             <FormHelperText>
                                 Courses unavailable for bidding in tutorial

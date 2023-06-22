@@ -13,15 +13,25 @@ import {
     InputRightElement,
     SimpleGrid,
     Stack,
+    Step,
+    StepDescription,
+    StepIcon,
+    StepIndicator,
+    StepNumber,
+    Stepper,
+    StepSeparator,
+    StepStatus,
+    StepTitle,
     Tag,
     Text,
     useBoolean,
     useCheckbox,
     useColorModeValue,
+    useSteps,
     useToast,
 } from "@chakra-ui/react";
 import { Select } from "chakra-react-select";
-import { Step, Steps, useSteps } from "chakra-ui-steps";
+// import { Step, Steps, useSteps } from "chakra-ui-steps";
 import type { NextPage } from "next";
 import NextLink from "next/link";
 import {
@@ -52,6 +62,7 @@ import React from "react";
 
 import { classesActions } from "../../store/classesReducer";
 import { TimetableLessonEntry } from "../../types/timetable";
+import { Steps } from "chakra-ui-steps";
 
 const steps = [
     {
@@ -84,7 +95,7 @@ const generateOptionsForModule = (classes: ClassDB[]) => {
 const Step1: React.FC<{
     nextStep: () => void;
     prevStep: () => void;
-    reset: () => void;
+
     setStep: (step: number) => void;
     activeStep: number;
 
@@ -110,7 +121,7 @@ const Step1: React.FC<{
     nextStep,
     prevStep,
     setStep,
-    reset,
+
     activeStep,
     setCurrentClassInfo,
     classes,
@@ -120,13 +131,14 @@ const Step1: React.FC<{
     setValues,
 }) => {
     useEffect(() => {
-        setCurrentClassInfo({ moduleCode: "",
-        lessonType: "Lecture",
-        classNo: "",})
-    }, [])
+        setCurrentClassInfo({
+            moduleCode: "",
+            lessonType: "Lecture",
+            classNo: "",
+        });
+    }, []);
     useEffect(() => {
         setValues([]);
-        
     }, [currentClassInfo.moduleCode]);
     const [moduleCodeLessonTypeValue, setModuleCodeLessonTypeValue] =
         useState("");
@@ -285,7 +297,7 @@ const MemoStep1 = React.memo(Step1);
 const Step2: React.FC<{
     nextStep: () => void;
     prevStep: () => void;
-    reset: () => void;
+
     setStep: (step: number) => void;
     activeStep: number;
     classes: GroupedByClassNo;
@@ -309,7 +321,7 @@ const Step2: React.FC<{
     nextStep,
     prevStep,
     setStep,
-    reset,
+
     activeStep,
     setCurrentClassInfo,
     classes,
@@ -426,7 +438,7 @@ const Step2: React.FC<{
 const Step3: React.FC<{
     nextStep: () => void;
     prevStep: () => void;
-    reset: () => void;
+
     setStep: (step: number) => void;
     activeStep: number;
     classes: GroupedByClassNo;
@@ -448,7 +460,7 @@ const Step3: React.FC<{
     // };
     submitHandler: () => void;
     comments: string;
-    setComments: Dispatch<SetStateAction<string>>
+    setComments: Dispatch<SetStateAction<string>>;
 }> = ({
     classes,
     prevStep,
@@ -459,7 +471,7 @@ const Step3: React.FC<{
     // isEqualRank,
     // setIsEqualRank,
     comments,
-    setComments
+    setComments,
 }) => {
     const deleteIconColor = useColorModeValue("red.500", "red.500");
 
@@ -556,7 +568,10 @@ const Step3: React.FC<{
                 <Stack>
                     <InputGroup>
                         <InputLeftAddon>Comments (opt.)</InputLeftAddon>
-                        <Input value={comments} onChange={(e) => setComments(e.target.value)} />
+                        <Input
+                            value={comments}
+                            onChange={(e) => setComments(e.target.value)}
+                        />
                     </InputGroup>
                     {/* <Checkbox defaultChecked>
                         Show Telegram username publicly
@@ -583,9 +598,15 @@ const Step3: React.FC<{
 };
 const CreateSwap: NextPage = () => {
     const stepsControl = useSteps({
-        initialStep: 0,
+        count: 3,
+        index: 0,
     });
-    const { nextStep, prevStep, setStep, reset, activeStep } = stepsControl;
+    const {
+        goToNext: nextStep,
+        goToPrevious: prevStep,
+        setActiveStep: setStep,
+        activeStep,
+    } = stepsControl;
 
     const [currentClassInfo, setCurrentClassInfo] = useState<{
         moduleCode: string;
@@ -622,7 +643,7 @@ const CreateSwap: NextPage = () => {
             desiredClasses,
             currentClassInfo,
             user,
-            comments
+            comments,
         });
         if (!response.success || !response.data) {
             toast({
@@ -654,14 +675,40 @@ const CreateSwap: NextPage = () => {
     return (
         user && (
             <Stack spacing={5} alignItems="center" h="100%">
-                <Steps activeStep={activeStep}>
+                <Stepper index={activeStep} w="100%">
+                    {steps.map((step, index) => (
+                        <Step key={index}>
+                            <StepIndicator>
+                                <StepStatus
+                                    complete={<StepIcon />}
+                                    incomplete={<StepNumber />}
+                                    active={<StepNumber />}
+                                />
+                            </StepIndicator>
+
+                            <Box flexShrink="0">
+                                <StepTitle>{step.label}</StepTitle>
+                                {/* <StepDescription>
+                                    {step.description}
+                                </StepDescription> */}
+                            </Box>
+
+                            <StepSeparator />
+                        </Step>
+                    ))}
+                </Stepper>
+
+                {/* <Steps activeStep={activeStep}>
                     {steps.map(({ label }) => (
                         <Step label={label} key={label}></Step>
                     ))}
-                </Steps>
+                </Steps> */}
                 {activeStep === 0 && (
                     <MemoStep1
-                        {...stepsControl}
+                        activeStep={activeStep}
+                        nextStep={nextStep}
+                        prevStep={prevStep}
+                        setStep={setStep}
                         setCurrentClassInfo={setCurrentClassInfo}
                         classes={classes}
                         setClasses={setClasses}
@@ -672,7 +719,10 @@ const CreateSwap: NextPage = () => {
                 )}
                 {activeStep === 1 && (
                     <Step2
-                        {...stepsControl}
+                        activeStep={activeStep}
+                        nextStep={nextStep}
+                        prevStep={prevStep}
+                        setStep={setStep}
                         currentClassInfo={currentClassInfo}
                         setCurrentClassInfo={setCurrentClassInfo}
                         classes={classes}
@@ -683,7 +733,10 @@ const CreateSwap: NextPage = () => {
                 )}
                 {activeStep === 2 && (
                     <Step3
-                        {...stepsControl}
+                        activeStep={activeStep}
+                        nextStep={nextStep}
+                        prevStep={prevStep}
+                        setStep={setStep}
                         currentClassInfo={currentClassInfo}
                         classes={classes}
                         desiredClasses={desiredClasses}

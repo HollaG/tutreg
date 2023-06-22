@@ -17,6 +17,7 @@ import {
     Center,
     IconButton,
     useToast,
+    Container,
 } from "@chakra-ui/react";
 import { ChevronLeftIcon, MoonIcon, SunIcon, TimeIcon } from "@chakra-ui/icons";
 import { useDispatch, useSelector } from "react-redux";
@@ -160,16 +161,25 @@ export default function Nav() {
     };
 
     return (
-        <>
-            <Box bg={useColorModeValue("gray.100", "gray.900")} px={4}>
+        <Box bg={useColorModeValue("gray.100", "gray.900")} px={4} w="100%">
+            <Container maxW="container.lg">
                 <Flex
                     h={16}
                     alignItems={"center"}
                     justifyContent={"space-between"}
                 >
-                    <Flex alignItems="center">
-                        {router.pathname !== "/" && (
+                    <Flex
+                        alignItems="center"
+                        justifyContent={"space-between"}
+                        width="54px"
+                    >
+                        {
                             <IconButton
+                                visibility={
+                                    router.pathname === "/"
+                                        ? "hidden"
+                                        : "visible"
+                                }
                                 onClick={goBack}
                                 variant="ghost"
                                 // w={4}
@@ -179,7 +189,7 @@ export default function Nav() {
                                 icon={<ChevronLeftIcon p={0} />}
                                 aria-label="Go back"
                             />
-                        )}
+                        }
 
                         <NextLink passHref href={"/"}>
                             {/* <Link>ModRank 🔢</Link> */}
@@ -262,7 +272,7 @@ export default function Nav() {
                         </Stack>
                     </Flex>
                 </Flex>
-            </Box>
-        </>
+            </Container>
+        </Box>
     );
 }

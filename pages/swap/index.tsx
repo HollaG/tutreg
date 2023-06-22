@@ -16,6 +16,7 @@ import {
     FormHelperText,
     Heading,
     HStack,
+    Image,
     Link,
     SimpleGrid,
     Stack,
@@ -298,6 +299,21 @@ const Swap: NextPage = () => {
     return (
         <Stack spacing={5} h="100%">
             <Center>
+                <Heading> 👀 Swap classes with others </Heading>
+            </Center>
+            <Center>
+                <Image
+                    src="/assets/swap_illustration.svg"
+                    maxWidth={"750px"}
+                    width="100%"
+                ></Image>
+            </Center>
+
+            <Center
+                transform={{ base: "unset", md: "translateY(-100px)" }}
+                float="left"
+                height={{ base: "unset", md: "0" }}
+            >
                 <Button
                     colorScheme="blue"
                     onClick={() => router.push("/swap/create")}

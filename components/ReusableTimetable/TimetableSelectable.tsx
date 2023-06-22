@@ -33,8 +33,8 @@ const TimetableSelectable: React.FC<{
 }> = ({ class_, property, onSelected, tinyMode = false }) => {
     // console.log("timetable selectable rendering");
     const GRAY_BACKGROUND = useColorModeValue("gray.100", "gray.900");
-    const HOVER_COLOR = useColorModeValue("blue.100", "blue.800");
-    const BTN_COLOR_SCHEME = "blue";
+    const HOVER_COLOR = useColorModeValue("green.100", "green.800");
+    const BTN_COLOR_SCHEME = "green";
     const TEXT_COLOR = useColorModeValue("black", "white");
 
     const [sel, setSel] = useBoolean(property === "selected");
@@ -101,16 +101,18 @@ const TimetableSelectable: React.FC<{
                                 <Text
                                     fontSize={{
                                         base: "0.65rem",
-                                        md: tinyMode ? "0.65rem" : "sm",
+                                        md: tinyMode ? "0.65rem" : "xs",
                                     }}
+                                    fontWeight="light"
                                 >
                                     {class_.venue}
                                 </Text>
                                 <Text
                                     fontSize={{
                                         base: "0.65rem",
-                                        md: tinyMode ? "0.65rem" : "sm",
+                                        md: tinyMode ? "0.65rem" : "xs",
                                     }}
+                                    fontWeight="light"
                                 >
                                     Wks {weeksDisplay}{" "}
                                 </Text>
@@ -175,16 +177,18 @@ const TimetableSelectable: React.FC<{
                             <Text
                                 fontSize={{
                                     base: "0.65rem",
-                                    md: tinyMode ? "0.65rem" : "sm",
+                                    md: tinyMode ? "0.65rem" : "xs",
                                 }}
+                                fontWeight="light"
                             >
                                 {class_.venue}
                             </Text>
                             <Text
                                 fontSize={{
                                     base: "0.65rem",
-                                    md: tinyMode ? "0.65rem" : "sm",
+                                    md: tinyMode ? "0.65rem" : "xs",
                                 }}
+                                fontWeight="light"
                             >
                                 Wks {weeksDisplay}{" "}
                             </Text>
