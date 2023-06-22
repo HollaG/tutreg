@@ -198,207 +198,227 @@ const Timetable: React.FC<{
         ) + 1; // # of hours in timetable + 1
 
     return (
-        <Grid
-            margin="auto"
-            gridTemplateRows={"25px 1fr"}
-            templateColumns={`50px repeat(${totalColumnsToDraw - 1}, 1fr)`}
-            // templateAreas={`"header header"
-            //                 "day main"`}
+        <Box overflowX="scroll">
+            <Grid
+                minW="750px"
+                margin="auto"
+                gridTemplateRows={"25px 1fr"}
+                templateColumns={`50px repeat(${totalColumnsToDraw - 1}, 1fr)`}
+                // templateAreas={`"header header"
+                //                 "day main"`}
 
-            // }
-        >
-            {/* Headers for timing */}
-            {Array.from({ length: totalColumnsToDraw }).map((_, c) => {
-                return (
-                    <GridItem key={c}>
-                        <Flex alignItems={"flex-end"} height="100%" ml="-18px">
-                            {c !== 0 ? (
-                                <Text textColor={TEXT_HEADER_COLOR}>
-                                    {convertColumnToTime(c, earliestTiming)}
-                                </Text>
-                            ) : (
-                                <></>
-                            )}
-                        </Flex>
-                    </GridItem>
-                );
-            })}
-
-            {/* Create the day headers */}
-            <GridItem
-                // borderLeft={BORDER_WIDTH}
-                borderColor={BORDER_COLOR}
-                // borderTop={BORDER_WIDTH}
-                // borderBottom={BORDER_WIDTH}
+                // }
             >
-                <Grid
-                    gridTemplateRows={`${rowMappingForDays
-                        .map(
-                            (dayObj) =>
-                                `${dayObj.rowEnd - dayObj.rowStart + 1}fr`
-                        )
-                        .join(" ")}`}
-                    height="100%"
-                    borderRadius="10px"
-                >
-                    {rowMappingForDays.map((dayObj, r) => (
-                        <GridItem
-                            key={r}
-                            bgColor={HEADER_COLOR}
-                            borderTop={r === 0 ? 0 : BORDER_WIDTH}
-                            // borderLeft={BORDER_WIDTH}
-                            borderRight={BORDER_WIDTH}
-                            borderColor={BORDER_COLOR}
-                            minH={GRID_ITEM_HEIGHT_RESPONSIVE}
-                            {...(r === 0 && {
-                                borderTopLeftRadius: BORDER_RADIUS,
-                            })}
-                            {...(r === rowMappingForDays.length - 1 && {
-                                borderBottomLeftRadius: BORDER_RADIUS,
-                            })}
-                        >
-                            <Center
-                                h={"100%"}
-                                sx={
-                                    {
-                                        // transform: "rotate(-90deg)",
-                                    }
-                                }
-                                textColor={TEXT_HEADER_COLOR}
-                                fontWeight="semibold"
+                {/* Headers for timing */}
+                {Array.from({ length: totalColumnsToDraw }).map((_, c) => {
+                    return (
+                        <GridItem key={c}>
+                            <Flex
+                                alignItems={"flex-end"}
+                                height="100%"
+                                ml="-18px"
                             >
-                                {keepAndCapFirstThree(dayObj.day)}
-                            </Center>
-                        </GridItem>
-                    ))}
-                </Grid>
-            </GridItem>
-
-            {/* Create the table for the items */}
-            <GridItem colSpan={totalColumnsToDraw - 1}>
-                <Box position="relative">
-                    {/* Table to hold the TimetableSelectables */}
-                    <Grid
-                        templateRows={`repeat(${totalRowsToDraw - 1}, 1fr)`}
-                        templateColumns={`repeat(${
-                            totalColumnsToDraw - 1
-                        }, 1fr)`}
-                    >
-                        {Array.from({ length: totalRowsToDraw - 1 }).map(
-                            (_, r) => {
-                                const { day, pushDown } = convertRowToDay(
-                                    r,
-                                    totalDayRowsToDraw
-                                );
-                                return (
-                                    <GridItem
-                                        colSpan={totalColumnsToDraw - 1}
-                                        height={GRID_ITEM_HEIGHT_RESPONSIVE}
-                                        key={r}
+                                {c !== 0 ? (
+                                    <Text
+                                        textColor={TEXT_HEADER_COLOR}
+                                        fontSize={{
+                                            base: "xs",
+                                            md: "md",
+                                        }}
                                     >
-                                        <Flex h="100%" w="100%">
-                                            {timetableList
-                                                .filter(
-                                                    (class_) =>
-                                                        class_.day === day &&
-                                                        class_.pushDown ===
-                                                            pushDown
-                                                )
-                                                .map((class_, i) => {
-                                                    return (
-                                                        <Box
-                                                            key={i}
-                                                            height="100%"
-                                                            width={`${calculateWidthPercent(
-                                                                class_.startTime,
-                                                                class_.endTime,
-                                                                earliestTiming,
-                                                                latestTiming
-                                                            )}%`}
-                                                            marginLeft={`${calculateMarginLeftPercent(
-                                                                calculateMinutesBeforeThePreviousClass(
-                                                                    class_,
-                                                                    timetableList,
-                                                                    earliestTiming
-                                                                ),
-                                                                earliestTiming,
-                                                                latestTiming
-                                                            )}%`}
-                                                        >
-                                                            <TimetableSelectable
-                                                                class_={class_}
-                                                                selected={isSelected(
-                                                                    class_,
-                                                                    selectedClasses
-                                                                )}
-                                                            />
-                                                        </Box>
-                                                    );
-                                                })}
-                                        </Flex>
-                                    </GridItem>
-                                );
-                            }
-                        )}
-                    </Grid>
+                                        {convertColumnToTime(c, earliestTiming)}
+                                    </Text>
+                                ) : (
+                                    <></>
+                                )}
+                            </Flex>
+                        </GridItem>
+                    );
+                })}
 
-                    {/* Table to draw the background */}
+                {/* Create the day headers */}
+                <GridItem
+                    // borderLeft={BORDER_WIDTH}
+                    borderColor={BORDER_COLOR}
+                    // borderTop={BORDER_WIDTH}
+                    // borderBottom={BORDER_WIDTH}
+                >
                     <Grid
-                        position="absolute"
-                        top={0}
-                        left={0}
-                        templateRows={`repeat(${totalRowsToDraw - 1}, 1fr)`}
-                        templateColumns={`repeat(${
-                            totalColumnsToDraw - 1
-                        }, 1fr)`}
-                        width="100%"
-                        zIndex={-1}
-                        // borderLeft="2px"
-                        // borderRight={BORDER_WIDTH}
-                        // borderTop={BORDER_WIDTH}
-                        // borderBottom={BORDER_WIDTH}
-                        borderRightRadius={BORDER_RADIUS}
-                        borderColor={BORDER_COLOR}
+                        gridTemplateRows={`${rowMappingForDays
+                            .map(
+                                (dayObj) =>
+                                    `${dayObj.rowEnd - dayObj.rowStart + 1}fr`
+                            )
+                            .join(" ")}`}
+                        height="100%"
+                        borderRadius="10px"
                     >
-                        {Array.from({ length: totalRowsToDraw - 1 }).map(
-                            (_, r) =>
-                                Array.from({
-                                    length: totalColumnsToDraw - 1,
-                                }).map((__, c) => (
-                                    <GridItem
-                                        key={`${r}${c}`}
-                                        height={GRID_ITEM_HEIGHT_RESPONSIVE}
-                                        bgColor={
-                                            c % 2 === 1
-                                                ? ALTERNATE_EVEN_GRID_COLOR
-                                                : ALTERNATE_ODD_GRID_COLOR
+                        {rowMappingForDays.map((dayObj, r) => (
+                            <GridItem
+                                key={r}
+                                bgColor={HEADER_COLOR}
+                                borderTop={r === 0 ? 0 : BORDER_WIDTH}
+                                // borderLeft={BORDER_WIDTH}
+                                borderRight={BORDER_WIDTH}
+                                borderColor={BORDER_COLOR}
+                                minH={GRID_ITEM_HEIGHT_RESPONSIVE}
+                                {...(r === 0 && {
+                                    borderTopLeftRadius: BORDER_RADIUS,
+                                })}
+                                {...(r === rowMappingForDays.length - 1 && {
+                                    borderBottomLeftRadius: BORDER_RADIUS,
+                                })}
+                            >
+                                <Center
+                                    h={"100%"}
+                                    sx={
+                                        {
+                                            // transform: "rotate(-90deg)",
                                         }
-                                        {...(doDrawTopBorder(
-                                            r,
-                                            totalDayRowsToDraw
-                                        )
-                                            ? {
-                                                  borderTop: BORDER_WIDTH,
-                                                  borderColor: BORDER_COLOR,
-                                              }
-                                            : {})}
-                                        {...(c === totalColumnsToDraw - 2 &&
-                                            r === 0 && {
-                                                borderTopRightRadius:
-                                                    BORDER_RADIUS,
-                                            })}
-                                        {...(c === totalColumnsToDraw - 2 &&
-                                            r === totalRowsToDraw - 2 && {
-                                                borderBottomRightRadius:
-                                                    BORDER_RADIUS,
-                                            })}
-                                    ></GridItem>
-                                ))
-                        )}
+                                    }
+                                    textColor={TEXT_HEADER_COLOR}
+                                    fontWeight="semibold"
+                                    fontSize={{
+                                        base: "sm",
+                                        md: "md",
+                                    }}
+                                >
+                                    {keepAndCapFirstThree(dayObj.day)}
+                                </Center>
+                            </GridItem>
+                        ))}
                     </Grid>
-                </Box>
-            </GridItem>
-        </Grid>
+                </GridItem>
+
+                {/* Create the table for the items */}
+                <GridItem colSpan={totalColumnsToDraw - 1}>
+                    <Box position="relative">
+                        {/* Table to hold the TimetableSelectables */}
+                        <Grid
+                            templateRows={`repeat(${totalRowsToDraw - 1}, 1fr)`}
+                            templateColumns={`repeat(${
+                                totalColumnsToDraw - 1
+                            }, 1fr)`}
+                        >
+                            {Array.from({ length: totalRowsToDraw - 1 }).map(
+                                (_, r) => {
+                                    const { day, pushDown } = convertRowToDay(
+                                        r,
+                                        totalDayRowsToDraw
+                                    );
+                                    return (
+                                        <GridItem
+                                            colSpan={totalColumnsToDraw - 1}
+                                            height={GRID_ITEM_HEIGHT_RESPONSIVE}
+                                            key={r}
+                                        >
+                                            <Flex h="100%" w="100%">
+                                                {timetableList
+                                                    .filter(
+                                                        (class_) =>
+                                                            class_.day ===
+                                                                day &&
+                                                            class_.pushDown ===
+                                                                pushDown
+                                                    )
+                                                    .map((class_, i) => {
+                                                        return (
+                                                            <Box
+                                                                key={i}
+                                                                height="100%"
+                                                                width={`${calculateWidthPercent(
+                                                                    class_.startTime,
+                                                                    class_.endTime,
+                                                                    earliestTiming,
+                                                                    latestTiming
+                                                                )}%`}
+                                                                marginLeft={`${calculateMarginLeftPercent(
+                                                                    calculateMinutesBeforeThePreviousClass(
+                                                                        class_,
+                                                                        timetableList,
+                                                                        earliestTiming
+                                                                    ),
+                                                                    earliestTiming,
+                                                                    latestTiming
+                                                                )}%`}
+                                                            >
+                                                                <TimetableSelectable
+                                                                    class_={
+                                                                        class_
+                                                                    }
+                                                                    selected={isSelected(
+                                                                        class_,
+                                                                        selectedClasses
+                                                                    )}
+                                                                />
+                                                            </Box>
+                                                        );
+                                                    })}
+                                            </Flex>
+                                        </GridItem>
+                                    );
+                                }
+                            )}
+                        </Grid>
+
+                        {/* Table to draw the background */}
+                        <Grid
+                            position="absolute"
+                            top={0}
+                            left={0}
+                            templateRows={`repeat(${totalRowsToDraw - 1}, 1fr)`}
+                            templateColumns={`repeat(${
+                                totalColumnsToDraw - 1
+                            }, 1fr)`}
+                            width="100%"
+                            zIndex={-1}
+                            // borderLeft="2px"
+                            // borderRight={BORDER_WIDTH}
+                            // borderTop={BORDER_WIDTH}
+                            // borderBottom={BORDER_WIDTH}
+                            borderRightRadius={BORDER_RADIUS}
+                            borderColor={BORDER_COLOR}
+                        >
+                            {Array.from({ length: totalRowsToDraw - 1 }).map(
+                                (_, r) =>
+                                    Array.from({
+                                        length: totalColumnsToDraw - 1,
+                                    }).map((__, c) => (
+                                        <GridItem
+                                            key={`${r}${c}`}
+                                            height={GRID_ITEM_HEIGHT_RESPONSIVE}
+                                            bgColor={
+                                                c % 2 === 1
+                                                    ? ALTERNATE_EVEN_GRID_COLOR
+                                                    : ALTERNATE_ODD_GRID_COLOR
+                                            }
+                                            {...(doDrawTopBorder(
+                                                r,
+                                                totalDayRowsToDraw
+                                            )
+                                                ? {
+                                                      borderTop: BORDER_WIDTH,
+                                                      borderColor: BORDER_COLOR,
+                                                  }
+                                                : {})}
+                                            {...(c === totalColumnsToDraw - 2 &&
+                                                r === 0 && {
+                                                    borderTopRightRadius:
+                                                        BORDER_RADIUS,
+                                                })}
+                                            {...(c === totalColumnsToDraw - 2 &&
+                                                r === totalRowsToDraw - 2 && {
+                                                    borderBottomRightRadius:
+                                                        BORDER_RADIUS,
+                                                })}
+                                        ></GridItem>
+                                    ))
+                            )}
+                        </Grid>
+                    </Box>
+                </GridItem>
+            </Grid>
+        </Box>
     );
 };
 
