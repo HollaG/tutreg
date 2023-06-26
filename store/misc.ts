@@ -18,14 +18,18 @@ export interface MiscState {
     needsLogIn: boolean;
     notify: boolean;
     highlightedClassNos: string[];
-    notifyAcadYearSemChanged: boolean;
+    notifications: {
+        changedTo2023S1: boolean;
+    };
 }
 
-const initialState: MiscState = loadState() || {
+const initialState: MiscState = {
     needsLogIn: false,
     notify: false,
     highlightedClassNos: [],
-    notifyAcadYearSemChanged: false,
+    notifications: {
+        changedTo2023S1: false,
+    },
 };
 
 const miscSlice = createSlice({
@@ -42,7 +46,7 @@ const miscSlice = createSlice({
             state.highlightedClassNos = action.payload;
         },
         setAcadYearNotificationDismissed: (state) => {
-            state.notifyAcadYearSemChanged = false;
+            state.notifications.changedTo2023S1 = false;
         },
     },
 });

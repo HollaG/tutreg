@@ -316,48 +316,41 @@ const Order: NextPage = () => {
         }
     };
 
-    // notify on acad year change
-    const misc = useSelector((state: RootState) => state.misc);
-    const notifyAcadYearSemChanged = misc.notifyAcadYearSemChanged || false;
     return (
         <>
-            <Box mb={4}>
-                <Collapse in={notifyAcadYearSemChanged}>
-                    <Alert
-                        status="success"
-                        variant="subtle"
-                        // flexDirection="column"
-                        // alignItems="center"
-                        // height="200px"
-                        justifyContent={"space-between"}
-                    >
-                        <Stack>
-                            <Flex alignItems={"center"}>
-                                <AlertIcon boxSize="40px" mr={0} />
-                                <AlertTitle ml={3} fontSize="lg">
-                                    tutreg.com has been updated to AY2023/2024!
-                                </AlertTitle>
-                            </Flex>
-                            <AlertDescription maxWidth="sm">
-                                You may need to remove and re-add your courses.
-                                All data will be up to date with NUSMods.
-                            </AlertDescription>
-                        </Stack>
-                        <CloseButton
-                            alignSelf="flex-start"
-                            position="relative"
-                            right={-1}
-                            top={-1}
-                            onClick={() =>
-                                dispatch(
-                                    miscActions.setAcadYearNotificationDismissed()
-                                )
-                            }
-                        />
-                    </Alert>
-                </Collapse>
-            </Box>
             <Stack spacing={5}>
+                <Alert
+                    status="success"
+                    variant="subtle"
+                    // flexDirection="column"
+                    // alignItems="center"
+                    // height="200px"
+                    justifyContent={"space-between"}
+                >
+                    <Stack>
+                        <Flex alignItems={"center"}>
+                            <AlertIcon boxSize="40px" mr={0} />
+                            <AlertTitle ml={3} fontSize="lg">
+                                tutreg.com has been updated to AY2023/2024!
+                            </AlertTitle>
+                        </Flex>
+                        <AlertDescription maxWidth="sm">
+                            You may need to remove and re-add your courses. All
+                            data will be up to date with NUSMods.
+                        </AlertDescription>
+                    </Stack>
+                    <CloseButton
+                        alignSelf="flex-start"
+                        position="relative"
+                        right={-1}
+                        top={-1}
+                        onClick={() =>
+                            dispatch(
+                                miscActions.setAcadYearNotificationDismissed()
+                            )
+                        }
+                    />
+                </Alert>
                 <Heading size="lg" textAlign="center">
                     {" "}
                     To get started, import your NUSMods Timetable 📅{" "}
