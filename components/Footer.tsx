@@ -7,10 +7,18 @@ import {
     Text,
     useColorModeValue,
 } from "@chakra-ui/react";
+import { useEffect, useState } from "react";
+import { BrowserView, isMobile } from "react-device-detect";
 import WebsiteCredits from "./Description/WebsiteCredits";
 
 const Footer = () => {
     const footerColor = useColorModeValue("gray.50", "blue.900");
+
+    const [showShortcuts, setShowShortcuts] = useState(false);
+
+    useEffect(() => {
+        setShowShortcuts(!isMobile);
+    }, [isMobile]);
     return (
         <Box bgColor={footerColor} py={5}>
             <Container maxWidth="container.lg">
@@ -20,25 +28,28 @@ const Footer = () => {
                     flexWrap={"wrap"}
                 >
                     <WebsiteCredits />
-                    <Stack spacing={0} textAlign="right">
-                        <Text
-                            textAlign={"center"}
-                            fontWeight="semibold"
-                            textDecor={"underline"}
-                            fontSize="sm"
-                        >
-                            Shortcuts
-                        </Text>
-                        <Text fontSize="xs">
-                            <Kbd>x</Kbd> : Night mode
-                        </Text>
-                        <Text fontSize="xs">
-                            <Kbd>o</Kbd> or <Kbd>r</Kbd> : Order page
-                        </Text>
-                        <Text fontSize="xs">
-                            <Kbd>s</Kbd> : Swap page
-                        </Text>
-                    </Stack>
+
+                    {showShortcuts && (
+                        <Stack spacing={0} textAlign="right">
+                            <Text
+                                textAlign={"center"}
+                                fontWeight="semibold"
+                                textDecor={"underline"}
+                                fontSize="sm"
+                            >
+                                Shortcuts
+                            </Text>
+                            <Text fontSize="xs">
+                                <Kbd>x</Kbd> : Night mode
+                            </Text>
+                            <Text fontSize="xs">
+                                <Kbd>o</Kbd> or <Kbd>r</Kbd> : Order page
+                            </Text>
+                            <Text fontSize="xs">
+                                <Kbd>s</Kbd> : Swap page
+                            </Text>
+                        </Stack>
+                    )}
                 </Flex>
             </Container>
         </Box>

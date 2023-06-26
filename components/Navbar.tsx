@@ -164,7 +164,6 @@ export default function Nav() {
     return (
         <Box
             bg={useColorModeValue("blue.50", "gray.900")}
-            px={4}
             w="100%"
             boxShadow="rgba(0, 0, 0, 0.1) 0px 4px 13px -3px"
         >
@@ -207,7 +206,7 @@ export default function Nav() {
                     </Flex>
 
                     <Flex alignItems={"center"}>
-                        <Stack direction={"row"} spacing={2}>
+                        <Stack direction={"row"} spacing={{ base: 0, md: 2 }}>
                             <Timer />
                             <Button onClick={toggleColorMode} variant="ghost">
                                 {colorMode === "light" ? (

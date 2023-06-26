@@ -26,6 +26,7 @@
         "mousetrap": "^1.6.5",
         "next": "12.2.4",
         "react": "18.2.0",
+        "react-device-detect": "^2.2.3",
         "react-dom": "18.2.0",
         "react-icons": "^4.7.1",
         "react-infinite-scroll-component": "^6.1.0",
