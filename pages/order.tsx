@@ -42,10 +42,15 @@ import {
     StepSeparator,
     useSteps,
     useBreakpointValue,
+    Alert,
+    AlertDescription,
+    AlertIcon,
+    AlertTitle,
+    CloseButton,
 } from "@chakra-ui/react";
 import { AnyARecord } from "dns";
 import { NextPage } from "next";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import ReactSelect, { InputActionMeta, MultiValue } from "react-select";
 import { AsyncSelect, Select } from "chakra-react-select";
@@ -67,6 +72,7 @@ import { generateLink, tutregToNUSMods } from "../lib/functions";
 
 import { GrSync } from "react-icons/gr";
 import { IconContext } from "react-icons";
+import { miscActions } from "../store/misc";
 
 const ay = process.env.NEXT_PUBLIC_AY;
 const Order: NextPage = () => {
@@ -76,7 +82,8 @@ const Order: NextPage = () => {
         !link.startsWith("https://nusmods.com/timetable/sem") && link !== "";
 
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const handleSubmit = async () => {
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
         setIsSubmitting(true);
 
         const result: ImportResponseData = await sendPOST("/api/import", {
@@ -309,267 +316,317 @@ const Order: NextPage = () => {
         }
     };
 
+    // notify on acad year change
+    const misc = useSelector((state: RootState) => state.misc);
+    const notifyAcadYearSemChanged = misc.notifyAcadYearSemChanged || false;
     return (
-        <Stack spacing={5}>
-            <Heading size="lg" textAlign="center">
-                {" "}
-                To get started, import your NUSMods Timetable 📅{" "}
-            </Heading>
-            <Center textAlign="center">
-                <Stack spacing={1} alignItems="center">
-                    <Text>
-                        {" "}
-                        You can rank your courses according to the priority in
-                        the <Tag> Rank Courses </Tag> step.
-                    </Text>
-                    <Text>
-                        {" "}
-                        Simply drag and drop the courses in the order that you
-                        want.
-                    </Text>
-                    <Text>
-                        {" "}
-                        Then, add and rank the other classes that you want in
-                        the <Tag>Rank Classes</Tag> step, and see the results in{" "}
-                        <Tag>Computed Ranking</Tag>.
-                    </Text>
-                </Stack>
-            </Center>
-            <form>
-                <Flex>
-                    <FormControl isInvalid={isError}>
-                        <Flex>
-                            <Box flexGrow={1} mr={3}>
-                                <Input
-                                    placeholder="https://nusmods.com/timetable/sem-1/share?..."
-                                    value={link}
-                                    onChange={(e) => setLink(e.target.value)}
-                                />
-                                <FormHelperText>
-                                    Paste the link you get when clicking{" "}
-                                    <Button
-                                        leftIcon={
-                                            <IconContext.Provider
-                                                value={{ color: "orange" }}
-                                            >
-                                                <GrSync />
-                                            </IconContext.Provider>
+        <>
+            <Box mb={4}>
+                <Collapse in={notifyAcadYearSemChanged}>
+                    <Alert
+                        status="success"
+                        variant="subtle"
+                        // flexDirection="column"
+                        // alignItems="center"
+                        // height="200px"
+                        justifyContent={"space-between"}
+                    >
+                        <Stack>
+                            <Flex alignItems={"center"}>
+                                <AlertIcon boxSize="40px" mr={0} />
+                                <AlertTitle ml={3} fontSize="lg">
+                                    tutreg.com has been updated to AY2023/2024!
+                                </AlertTitle>
+                            </Flex>
+                            <AlertDescription maxWidth="sm">
+                                You may need to remove and re-add your courses.
+                                All data will be up to date with NUSMods.
+                            </AlertDescription>
+                        </Stack>
+                        <CloseButton
+                            alignSelf="flex-start"
+                            position="relative"
+                            right={-1}
+                            top={-1}
+                            onClick={() =>
+                                dispatch(
+                                    miscActions.setAcadYearNotificationDismissed()
+                                )
+                            }
+                        />
+                    </Alert>
+                </Collapse>
+            </Box>
+            <Stack spacing={5}>
+                <Heading size="lg" textAlign="center">
+                    {" "}
+                    To get started, import your NUSMods Timetable 📅{" "}
+                </Heading>
+                <Center textAlign="center">
+                    <Stack spacing={1} alignItems="center">
+                        <Text>
+                            {" "}
+                            You can rank your courses according to the priority
+                            in the <Tag> Rank Courses </Tag> step.
+                        </Text>
+                        <Text>
+                            {" "}
+                            Simply drag and drop the courses in the order that
+                            you want.
+                        </Text>
+                        <Text>
+                            {" "}
+                            Then, add and rank the other classes that you want
+                            in the <Tag>Rank Classes</Tag> step, and see the
+                            results in <Tag>Computed Ranking</Tag>.
+                        </Text>
+                    </Stack>
+                </Center>
+                <form onSubmit={handleSubmit}>
+                    <Flex>
+                        <FormControl isInvalid={isError}>
+                            <Flex>
+                                <Box flexGrow={1} mr={3}>
+                                    <Input
+                                        placeholder="https://nusmods.com/timetable/sem-1/share?..."
+                                        value={link}
+                                        onChange={(e) =>
+                                            setLink(e.target.value)
                                         }
-                                        size="xs"
-                                        colorScheme={"orange"}
-                                        variant="outline"
+                                    />
+                                    <FormHelperText>
+                                        Paste the link you get when clicking{" "}
+                                        <Button
+                                            leftIcon={
+                                                <IconContext.Provider
+                                                    value={{ color: "orange" }}
+                                                >
+                                                    <GrSync />
+                                                </IconContext.Provider>
+                                            }
+                                            size="xs"
+                                            colorScheme={"orange"}
+                                            variant="outline"
+                                        >
+                                            {" "}
+                                            Share/Sync{" "}
+                                        </Button>{" "}
+                                        in{" "}
+                                        <Link
+                                            href="https://nusmods.com"
+                                            isExternal
+                                        >
+                                            NUSMods
+                                        </Link>{" "}
+                                        above.
+                                    </FormHelperText>
+
+                                    {isError && (
+                                        <FormErrorMessage>
+                                            Invalid share link!
+                                        </FormErrorMessage>
+                                    )}
+                                </Box>
+                                <Tooltip
+                                    hasArrow
+                                    label="Importing a new timetable will clear your previously selected courses, if any!"
+                                    textAlign="center"
+                                >
+                                    <Button
+                                        type="submit"
+                                        colorScheme="blue"
+                                        isDisabled={isSubmitting || !link}
                                     >
                                         {" "}
-                                        Share/Sync{" "}
-                                    </Button>{" "}
-                                    in{" "}
-                                    <Link href="https://nusmods.com" isExternal>
-                                        NUSMods
-                                    </Link>{" "}
-                                    above.
-                                </FormHelperText>
-
-                                {isError && (
-                                    <FormErrorMessage>
-                                        Invalid share link!
-                                    </FormErrorMessage>
-                                )}
-                            </Box>
-                            <Tooltip
-                                hasArrow
-                                label="Importing a new timetable will clear your previously selected courses, if any!"
-                                textAlign="center"
-                            >
-                                <Button
-                                    type="submit"
-                                    colorScheme="blue"
-                                    onClick={() => handleSubmit()}
-                                    disabled={isSubmitting || !link}
-                                >
-                                    {" "}
-                                    {isSubmitting
-                                        ? "Importing..."
-                                        : "Import"}{" "}
-                                </Button>
-                            </Tooltip>
-                        </Flex>
-                    </FormControl>
-                </Flex>
-            </form>
-
-            <Text textAlign="center">or, add courses manually</Text>
-            <form onSubmit={(e) => e.preventDefault()}>
-                <Flex>
-                    <Box flex={1} mr={3}>
-                        <FormControl>
-                            <AsyncSelect
-                                instanceId={`${ay}-select`}
-                                closeMenuOnSelect={false}
-                                placeholder="Search..."
-                                value={selectedModules}
-                                isMulti
-                                // cacheOptions
-                                loadOptions={loadOptions}
-                                // inputValue={value}
-                                onInputChange={handleInputChange}
-                                onChange={(newValue: any) =>
-                                    handleSelectChange(newValue)
-                                }
-                            />
-                            <FormHelperText>
-                                Search for a course (min. 3 chars)
-                            </FormHelperText>
-                            <FormHelperText>
-                                Courses unavailable for bidding in tutorial
-                                rounds are not shown.
-                            </FormHelperText>
+                                        {isSubmitting
+                                            ? "Importing..."
+                                            : "Import"}{" "}
+                                    </Button>
+                                </Tooltip>
+                            </Flex>
                         </FormControl>
-                    </Box>
-                    <Button
-                        onClick={() => addModules()}
-                        type="submit"
-                        colorScheme="blue"
-                    >
-                        {" "}
-                        Add{" "}
-                    </Button>
-                </Flex>
-            </form>
-            {/* <Collapse in={showCollapse}> */}
-            <Stack spacing={5}>
-                <Center>
-                    <HStack>
+                    </Flex>
+                </form>
+
+                <Text textAlign="center">or, add courses manually</Text>
+                <form onSubmit={(e) => e.preventDefault()}>
+                    <Flex>
+                        <Box flex={1} mr={3}>
+                            <FormControl>
+                                <AsyncSelect
+                                    instanceId={`${ay}-select`}
+                                    closeMenuOnSelect={false}
+                                    placeholder="Search..."
+                                    value={selectedModules}
+                                    isMulti
+                                    // cacheOptions
+                                    loadOptions={loadOptions}
+                                    // inputValue={value}
+                                    onInputChange={handleInputChange}
+                                    onChange={(newValue: any) =>
+                                        handleSelectChange(newValue)
+                                    }
+                                />
+                                <FormHelperText>
+                                    Search for a course (min. 3 chars)
+                                </FormHelperText>
+                                <FormHelperText>
+                                    Courses unavailable for bidding in tutorial
+                                    rounds are not shown.
+                                </FormHelperText>
+                            </FormControl>
+                        </Box>
                         <Button
-                            size="sm"
-                            colorScheme="red"
-                            onClick={() => removeAll()}
-                        >
-                            {" "}
-                            Remove all mods{" "}
-                        </Button>
-                        <Button
-                            size="sm"
+                            onClick={() => addModules()}
+                            type="submit"
                             colorScheme="blue"
-                            onClick={setShowAdd.toggle}
                         >
                             {" "}
-                            {showAdd ? `Hide` : `Show`} details{" "}
+                            Add{" "}
                         </Button>
-                    </HStack>
-                </Center>
-
-                <Stepper
-                    index={activeStep}
-                    orientation={useBreakpointValue({
-                        base: "vertical",
-                        md: "horizontal",
-                    })}
-                >
-                    <Step onClick={() => clickedStepHandler(0)}>
-                        <HStack cursor={"pointer"}>
-                            <StepIndicator>
-                                <StepStatus
-                                    complete={<StepIcon />}
-                                    incomplete={<StepNumber />}
-                                    active={<StepNumber />}
-                                />
-                            </StepIndicator>
-
-                            <Box flexShrink="0">
-                                <StepTitle> Rank courses </StepTitle>
-                                <StepDescription>
-                                    Rank your courses, highest priority first
-                                </StepDescription>
-                            </Box>
+                    </Flex>
+                </form>
+                {/* <Collapse in={showCollapse}> */}
+                <Stack spacing={5}>
+                    <Center>
+                        <HStack>
+                            <Button
+                                size="sm"
+                                colorScheme="red"
+                                onClick={() => removeAll()}
+                            >
+                                {" "}
+                                Remove all mods{" "}
+                            </Button>
+                            <Button
+                                size="sm"
+                                colorScheme="blue"
+                                onClick={setShowAdd.toggle}
+                            >
+                                {" "}
+                                {showAdd ? `Hide` : `Show`} details{" "}
+                            </Button>
                         </HStack>
-                        <StepSeparator />
-                    </Step>
-                    <Step onClick={() => clickedStepHandler(1)}>
-                        <HStack
-                            cursor={
-                                hasNoModulesSelected ? "not-allowed" : "pointer"
+                    </Center>
+
+                    <Stepper
+                        index={activeStep}
+                        orientation={useBreakpointValue({
+                            base: "vertical",
+                            md: "horizontal",
+                        })}
+                    >
+                        <Step onClick={() => clickedStepHandler(0)}>
+                            <HStack cursor={"pointer"}>
+                                <StepIndicator>
+                                    <StepStatus
+                                        complete={<StepIcon />}
+                                        incomplete={<StepNumber />}
+                                        active={<StepNumber />}
+                                    />
+                                </StepIndicator>
+
+                                <Box flexShrink="0">
+                                    <StepTitle> Rank courses </StepTitle>
+                                    <StepDescription>
+                                        Rank your courses, highest priority
+                                        first
+                                    </StepDescription>
+                                </Box>
+                            </HStack>
+                            <StepSeparator />
+                        </Step>
+                        <Step onClick={() => clickedStepHandler(1)}>
+                            <HStack
+                                cursor={
+                                    hasNoModulesSelected
+                                        ? "not-allowed"
+                                        : "pointer"
+                                }
+                            >
+                                <StepIndicator>
+                                    <StepStatus
+                                        complete={<StepIcon />}
+                                        incomplete={<StepNumber />}
+                                        active={<StepNumber />}
+                                    />
+                                </StepIndicator>
+
+                                <Box flexShrink="0">
+                                    <StepTitle> Rank classes </StepTitle>
+                                    <StepDescription>
+                                        Rank your classes per course
+                                    </StepDescription>
+                                </Box>
+                            </HStack>
+                            <StepSeparator />
+                        </Step>
+                        <Step onClick={() => clickedStepHandler(2)}>
+                            <HStack
+                                cursor={
+                                    hasNoClassesSelected
+                                        ? "not-allowed"
+                                        : "pointer"
+                                }
+                            >
+                                <StepIndicator>
+                                    <StepStatus
+                                        complete={<StepIcon />}
+                                        incomplete={<StepNumber />}
+                                        active={<StepNumber />}
+                                    />
+                                </StepIndicator>
+
+                                <Box flexShrink="0">
+                                    <StepTitle> Computed ranking </StepTitle>
+                                    <StepDescription>
+                                        Export to browser extension
+                                    </StepDescription>
+                                </Box>
+                            </HStack>
+                            <StepSeparator />
+                        </Step>
+                    </Stepper>
+                    <Flex width="100%" justify="flex-end">
+                        <Button
+                            isDisabled={activeStep === 0}
+                            mr={4}
+                            onClick={() => setActiveStep(activeStep - 1)}
+                            size="sm"
+                            variant="ghost"
+                        >
+                            Prev step
+                        </Button>
+                        <Button
+                            size="sm"
+                            onClick={() => setActiveStep(activeStep + 1)}
+                            isDisabled={
+                                activeStep === 3 - 1 ||
+                                (activeStep === 0 && hasNoModulesSelected) ||
+                                (activeStep === 1 && hasNoClassesSelected)
                             }
                         >
-                            <StepIndicator>
-                                <StepStatus
-                                    complete={<StepIcon />}
-                                    incomplete={<StepNumber />}
-                                    active={<StepNumber />}
-                                />
-                            </StepIndicator>
+                            Next step
+                        </Button>
+                    </Flex>
+                    <Box display={activeStep === 0 ? "unset" : "none"}>
+                        {" "}
+                        <ModuleSortContainer showAdd={showAdd} />
+                    </Box>
+                    <Box display={activeStep === 1 ? "unset" : "none"}>
+                        {" "}
+                        <ClassSortContainer showAdd={showAdd} />
+                    </Box>
+                    <Box display={activeStep === 2 ? "unset" : "none"}>
+                        <ResultContainer showAdd={showAdd} />
+                    </Box>
+                </Stack>
+                {/* </Collapse> */}
+                <Divider />
 
-                            <Box flexShrink="0">
-                                <StepTitle> Rank classes </StepTitle>
-                                <StepDescription>
-                                    Rank your classes per course
-                                </StepDescription>
-                            </Box>
-                        </HStack>
-                        <StepSeparator />
-                    </Step>
-                    <Step onClick={() => clickedStepHandler(2)}>
-                        <HStack
-                            cursor={
-                                hasNoClassesSelected ? "not-allowed" : "pointer"
-                            }
-                        >
-                            <StepIndicator>
-                                <StepStatus
-                                    complete={<StepIcon />}
-                                    incomplete={<StepNumber />}
-                                    active={<StepNumber />}
-                                />
-                            </StepIndicator>
-
-                            <Box flexShrink="0">
-                                <StepTitle> Computed ranking </StepTitle>
-                                <StepDescription>
-                                    Export to browser extension
-                                </StepDescription>
-                            </Box>
-                        </HStack>
-                        <StepSeparator />
-                    </Step>
-                </Stepper>
-                <Flex width="100%" justify="flex-end">
-                    <Button
-                        isDisabled={activeStep === 0}
-                        mr={4}
-                        onClick={() => setActiveStep(activeStep - 1)}
-                        size="sm"
-                        variant="ghost"
-                    >
-                        Prev step
-                    </Button>
-                    <Button
-                        size="sm"
-                        onClick={() => setActiveStep(activeStep + 1)}
-                        isDisabled={
-                            activeStep === 3 - 1 ||
-                            (activeStep === 0 && hasNoModulesSelected) ||
-                            (activeStep === 1 && hasNoClassesSelected)
-                        }
-                    >
-                        Next step
-                    </Button>
-                </Flex>
-                <Box display={activeStep === 0 ? "unset" : "none"}>
-                    {" "}
-                    <ModuleSortContainer showAdd={showAdd} />
-                </Box>
-                <Box display={activeStep === 1 ? "unset" : "none"}>
-                    {" "}
-                    <ClassSortContainer showAdd={showAdd} />
-                </Box>
-                <Box display={activeStep === 2 ? "unset" : "none"}>
-                    <ResultContainer showAdd={showAdd} />
-                </Box>
+                <Explanation />
             </Stack>
-            {/* </Collapse> */}
-            <Divider />
-
-            <Explanation />
-        </Stack>
+        </>
     );
 };
 

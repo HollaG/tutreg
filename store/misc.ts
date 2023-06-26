@@ -4,27 +4,29 @@ import { canBeBidFor } from "../lib/functions";
 import { Data } from "../pages/api/import";
 import { ModuleCodeLessonType, ClassOverview } from "../types/types";
 
-// const loadState = () => {
-//     try {
-//         const serializedState = localStorage.getItem("user");
-//         if (!serializedState) return undefined;
-//         else return JSON.parse(serializedState);
-//     } catch (err) {
-//         return undefined;
-//     }
-// };
+const loadState = () => {
+    try {
+        const serializedState = localStorage.getItem("misc");
+        if (!serializedState) return undefined;
+        else return JSON.parse(serializedState);
+    } catch (err) {
+        return undefined;
+    }
+};
 
-export interface MiscState { 
+export interface MiscState {
     needsLogIn: boolean;
-    notify: boolean,
-    highlightedClassNos: string[]
+    notify: boolean;
+    highlightedClassNos: string[];
+    notifyAcadYearSemChanged: boolean;
 }
 
-const initialState: MiscState = {
+const initialState: MiscState = loadState() || {
     needsLogIn: false,
     notify: false,
-    highlightedClassNos: []
-}
+    highlightedClassNos: [],
+    notifyAcadYearSemChanged: false,
+};
 
 const miscSlice = createSlice({
     name: "misc",
@@ -38,7 +40,10 @@ const miscSlice = createSlice({
         },
         setHighlightedClassNos: (state, action: PayloadAction<string[]>) => {
             state.highlightedClassNos = action.payload;
-        }
+        },
+        setAcadYearNotificationDismissed: (state) => {
+            state.notifyAcadYearSemChanged = false;
+        },
     },
 });
 
