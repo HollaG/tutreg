@@ -51,13 +51,15 @@ export default async function handler(
             const semester = url.includes("sem-1") ? "1" : "2";
 
             // extract module codes
-            const stripped = url.replace(
-                /^https:\/\/nusmods\.com\/timetable\/.*\/share\?/gm,
-                ""
-            ).trim(); // CFG1002=&CS1101S=TUT:07B,REC:11E,LEC:1&CS1231S=TUT:08B,LEC:1&IS1108=TUT:03,LEC:1&MA2001=TUT:1,LAB:2,LEC:1&RVX1000=SEC:1&RVX1002=SEC:2
+            const stripped = url
+                .replace(
+                    /^https:\/\/nusmods\.com\/timetable\/.*\/share\?/gm,
+                    ""
+                )
+                .trim(); // CFG1002=&CS1101S=TUT:07B,REC:11E,LEC:1&CS1231S=TUT:08B,LEC:1&IS1108=TUT:03,LEC:1&MA2001=TUT:1,LAB:2,LEC:1&RVX1000=SEC:1&RVX1002=SEC:2
             // get the url params
             const params = new URLSearchParams(stripped);
-            console.log(params)
+
             const classesSelected: {
                 moduleCode: string;
                 timetable: {
@@ -65,21 +67,36 @@ export default async function handler(
                 };
             }[] = [];
 
+            // check if there's any hidden modules (by hidden key)
+            let hiddenModules: string[] = [];
+            if (params.has("hidden")) {
+                hiddenModules = params.get("hidden")!.split(",");
+                params.delete("hidden");
+            }
+
             for (const p of params) {
                 // p: [moduleCode, selectedLessons]
                 const moduleCode = p[0];
                 const selectedLessons = p[1];
+
+                // skip over this if the module is hidden
+                if (hiddenModules.includes(moduleCode)) {
+                    continue;
+                }
 
                 const lessons = selectedLessons.split(",");
 
                 const timetable: { [key: string]: string } = {};
                 lessons.forEach((lesson) => {
                     if (lesson.includes(":")) {
-                        let lessonType = lesson.split(":")[0] as LessonTypeAbbrev;
+                        let lessonType = lesson.split(
+                            ":"
+                        )[0] as LessonTypeAbbrev;
 
                         const classNo = lesson.split(":")[1];
 
-                        const decodedLessonType = decodeLessonTypeShorthand(lessonType);
+                        const decodedLessonType =
+                            decodeLessonTypeShorthand(lessonType);
                         timetable[decodedLessonType] = classNo;
                     }
                 });
