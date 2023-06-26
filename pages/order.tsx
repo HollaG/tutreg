@@ -339,7 +339,7 @@ const Order: NextPage = () => {
                             data will be up to date with NUSMods.
                         </AlertDescription>
                     </Stack>
-                    <CloseButton
+                    {/* <CloseButton
                         alignSelf="flex-start"
                         position="relative"
                         right={-1}
@@ -349,7 +349,7 @@ const Order: NextPage = () => {
                                 miscActions.setAcadYearNotificationDismissed()
                             )
                         }
-                    />
+                    /> */}
                 </Alert>
                 <Heading size="lg" textAlign="center">
                     {" "}
