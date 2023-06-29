@@ -268,7 +268,11 @@ const Step1: React.FC<{
                     Next
                 </Button>
             </Center>
-            <ModuleSelect isMulti={false} onSelect={selectHandler} />
+            <ModuleSelect
+                isMulti={false}
+                onSelect={selectHandler}
+                hideNonBiddable={false}
+            />
             <SwapCodeIndicator currentClassInfo={currentClassInfo} />
             <Timetable
                 classesToDraw={possibleClasses}
@@ -462,7 +466,11 @@ const ModuleSelectStep2: React.FC<{
                 </Button>
             </Center>
 
-            <ModuleSelect isMulti={true} onSelect={selectHandler} />
+            <ModuleSelect
+                isMulti={true}
+                onSelect={selectHandler}
+                hideNonBiddable={false}
+            />
 
             <SwapCodeIndicator
                 desiredModulesInfo={desiredModulesInfo}

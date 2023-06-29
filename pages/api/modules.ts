@@ -20,8 +20,9 @@ export default async function handler(
     const semester = process.env.NEXT_PUBLIC_SEM;
 
     if (req.method === "POST") {
-        const { modules } = req.body as {
+        const { modules, hideNonBiddable } = req.body as {
             modules: ModuleCondensed[];
+            hideNonBiddable: boolean;
         };
 
         const moduleCodes = modules.map((module) => module.moduleCode);
@@ -122,8 +123,8 @@ export default async function handler(
                             values: [classData],
                         });
                 } catch (e) {
-                    console.log(e)
-                    console.log(`${moduleCode} already inserted`)
+                    console.log(e);
+                    console.log(`${moduleCode} already inserted`);
                 }
             } else {
                 console.log(`${moduleCode} exists`);
@@ -142,9 +143,12 @@ export default async function handler(
 
         // Manipulate the availableClassList to the format we want
         const totalModuleCodeLessonTypeMap: ModuleCodeLessonType = {};
+
         availableClassList.forEach((availableClass) => {
             // Only add non-lectures because you don't bid for lecture slots in tutreg round
+            // unless the user wants to see non-biddable classes
             if (
+                !hideNonBiddable ||
                 canBeBidFor(
                     availableClass.moduleCode,
                     availableClass.lessonType

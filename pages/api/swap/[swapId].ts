@@ -116,8 +116,12 @@ export default async function handler(
                 });
             }
 
-            // return this data to the client
+            const desiredModules = [...uniqueDesiredModules].map((m) => ({
+                moduleCode: m.split(":")[0].trim(),
+                lessonType: m.split(":")[1].trim(),
+            })) as HalfInfo[];
 
+            // return this data to the client
             const data = {
                 drawnClasses,
                 swap,
@@ -129,14 +133,11 @@ export default async function handler(
                 } as FullInfo,
 
                 desiredClasses,
-                desiredModules: [...uniqueDesiredModules].map((m) => ({
-                    moduleCode: m.split(":")[0].trim(),
-                    lessonType: m.split(":")[1].trim(),
-                })) as HalfInfo[],
+                desiredModules,
                 isInternalSwap:
-                    desiredClasses.length === 1 &&
-                    desiredClasses[0].moduleCode === swap.moduleCode &&
-                    desiredClasses[0].lessonType === swap.lessonType,
+                    desiredModules.length === 1 &&
+                    desiredModules[0].moduleCode === swap.moduleCode &&
+                    desiredModules[0].lessonType === swap.lessonType,
             };
 
             return res.status(200).json({

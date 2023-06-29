@@ -17,7 +17,8 @@ const ModuleSelect: React.FC<{
     setModuleCodeLessonTypeValue?: Dispatch<SetStateAction<string>>;
     moduleCodeLessonTypeValue?: string;
     defaultValue?: Option;
-}> = ({ onSelect, isMulti = true, defaultValue }) => {
+    hideNonBiddable?: boolean; // hides modules that are not biddable
+}> = ({ onSelect, isMulti = true, defaultValue, hideNonBiddable = true }) => {
     // fetch the list of modules from nusmods
     const [moduleList, setModuleList] = useState<ModuleCondensed[]>();
     const data = useSelector((state: RootState) => state.classesInfo);
@@ -68,6 +69,7 @@ const ModuleSelect: React.FC<{
             // Request from internal database
             sendPOST(`/api/modules`, {
                 modules: matchedModules,
+                hideNonBiddable,
             }).then((result: ModulesResponseData) => {
                 if (!result.success || !result.data)
                     return console.log("error");
@@ -133,10 +135,12 @@ const ModuleSelect: React.FC<{
                 defaultValue={defaultValue}
             />
             <FormHelperText>Search for a course (min. 3 chars)</FormHelperText>
-            <FormHelperText>
-                Courses unavailable for bidding in tutorial rounds are not
-                shown.
-            </FormHelperText>
+            {!hideNonBiddable && (
+                <FormHelperText>
+                    Courses unavailable for bidding in tutorial rounds are not
+                    shown.
+                </FormHelperText>
+            )}
         </FormControl>
     );
 };
