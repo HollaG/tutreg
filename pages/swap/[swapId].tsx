@@ -483,7 +483,6 @@ const SpecificSwap = (
                 <SwapCodeIndicator
                     desiredModulesInfo={desiredModules}
                     currentClassInfo={currentClassInfo}
-                    perspective={user?.id === swap.from_t_id ? "self" : "other"}
                     desiredClassesInfo={desiredClasses}
                     onHover={setHoveredClass}
                 />

@@ -20,30 +20,23 @@ const SwapCodeIndicator = ({
     desiredModulesInfo,
     currentClassInfo,
     desiredClassesInfo,
-    perspective = "self",
+
     onHover,
 }: {
     desiredModulesInfo?: HalfInfo[];
     desiredClassesInfo?: FullInfo[];
     currentClassInfo: FullInfo;
-    perspective?: "self" | "other";
+
     onHover?: (class_: FullInfo | null) => void;
 }) => {
     return !desiredModulesInfo ? (
         <Heading fontSize="2xl" display="flex" alignItems="center">
-            {/* <Icon
-                        viewBox="0 0 200 200"
-                        color={`${CURRENT_CLASS_COLOR}`}
-                        mr={1}
-                    >
-                        <path
-                            fill="currentColor"
-                            d="M 100, 100 m -75, 0 a 75,75 0 1,0 150,0 a 75,75 0 1,0 -150,0"
-                        />
-                    </Icon> */}
-            <Tag mr={2} colorScheme="orange">
-                {perspective === "self" ? "Yours" : "Theirs"}
-            </Tag>
+            <Icon viewBox="0 0 200 200" color={`${"orange.500"}`} mr={1}>
+                <path
+                    fill="currentColor"
+                    d="M 100, 100 m -75, 0 a 75,75 0 1,0 150,0 a 75,75 0 1,0 -150,0"
+                />
+            </Icon>
             {currentClassInfo.moduleCode}: {currentClassInfo.lessonType}
         </Heading>
     ) : (
@@ -56,9 +49,6 @@ const SwapCodeIndicator = ({
                             d="M 100, 100 m -75, 0 a 75,75 0 1,0 150,0 a 75,75 0 1,0 -150,0"
                         />
                     </Icon>
-                    {/* <Tag mr={2} colorScheme="orange">
-                        {perspective === "self" ? "Yours" : "Theirs"}
-                    </Tag> */}
                     {currentClassInfo.moduleCode}: {currentClassInfo.lessonType}{" "}
                     [{currentClassInfo.classNo}]
                 </Heading>
@@ -68,11 +58,7 @@ const SwapCodeIndicator = ({
                     <SwapArrows />
                 </Flex>
                 <Flex>
-                    <Box>
-                        {/* <Tag mr={2} colorScheme="teal">
-                            {perspective === "self" ? "Theirs" : "Yours"}
-                        </Tag> */}
-                    </Box>
+                    <Box></Box>
                     <Flex flexWrap={"wrap"}>
                         {desiredModulesInfo.map((desiredModule, i) => {
                             const desiredClasses = desiredClassesInfo?.filter(

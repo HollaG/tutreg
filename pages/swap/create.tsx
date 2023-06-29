@@ -451,6 +451,19 @@ const ModuleSelectStep2: React.FC<{
         else return "";
     };
 
+    // handle the expansion of the desired modules
+    const [hoveredClass, setHoveredClass] = useState<null | FullInfo>(null);
+    console.log({ hoveredClass });
+    const getClassNames = (class_: TimetableLessonEntry) => {
+        if (
+            class_.classNo === hoveredClass?.classNo &&
+            class_.moduleCode === hoveredClass.moduleCode &&
+            class_.lessonType === hoveredClass.lessonType
+        )
+            return "pulse";
+        else return "";
+    };
+
     return (
         <Stack spacing={3} width="100%">
             <Center>
@@ -475,6 +488,8 @@ const ModuleSelectStep2: React.FC<{
             <SwapCodeIndicator
                 desiredModulesInfo={desiredModulesInfo}
                 currentClassInfo={currentClassInfo}
+                desiredClassesInfo={desiredClasses}
+                onHover={setHoveredClass}
             />
             <Timetable
                 classesToDraw={possibleClasses}
@@ -482,6 +497,7 @@ const ModuleSelectStep2: React.FC<{
                 property={getProperty}
                 showLessonType={!isInternalSwap}
                 showModuleCode={!isInternalSwap}
+                getClassNames={getClassNames}
             />
 
             <Center>
@@ -564,7 +580,18 @@ const Step3: React.FC<{
         } else return "";
     };
 
-    console.log(displayedClasses, "----------------");
+    // handle the expansion of the desired modules
+    const [hoveredClass, setHoveredClass] = useState<null | FullInfo>(null);
+    console.log({ hoveredClass });
+    const getClassNames = (class_: TimetableLessonEntry) => {
+        if (
+            class_.classNo === hoveredClass?.classNo &&
+            class_.moduleCode === hoveredClass.moduleCode &&
+            class_.lessonType === hoveredClass.lessonType
+        )
+            return "pulse";
+        else return "";
+    };
     return (
         <Stack spacing={3} width="100%">
             {/* <Box textAlign="right">
@@ -587,6 +614,8 @@ const Step3: React.FC<{
             <SwapCodeIndicator
                 desiredModulesInfo={desiredModulesInfo}
                 currentClassInfo={currentClassInfo}
+                desiredClassesInfo={desiredClasses}
+                onHover={setHoveredClass}
             />
             <Timetable
                 classesToDraw={displayedClasses}
@@ -594,6 +623,7 @@ const Step3: React.FC<{
                 property={getProperty}
                 showLessonType={!isInternalSwap}
                 showModuleCode={!isInternalSwap}
+                getClassNames={getClassNames}
             />
             <FormControl>
                 <Stack>
