@@ -27,6 +27,7 @@ import {
     Tag,
     Text,
     useBoolean,
+    useBreakpointValue,
     useCheckbox,
     useColorModeValue,
     useSteps,
@@ -68,6 +69,7 @@ import { TimetableLessonEntry } from "../../types/timetable";
 import { Steps } from "chakra-ui-steps";
 import { TbArrowDown, TbArrowNarrowRight } from "react-icons/tb";
 import SwapCodeIndicator from "../../components/Swap/SwapModuleCodeIndicator";
+import { TelegramUser } from "telegram-login-button";
 
 const steps = [
     {
@@ -172,6 +174,8 @@ const Step1: React.FC<{
     setPossibleClasses,
     setPossibleStep2Classes,
 }) => {
+    const canGoStep2 = currentClassInfo.classNo !== "";
+
     // useEffect(() => {
     //     setCurrentClassInfo({
     //         moduleCode: "",
@@ -184,8 +188,6 @@ const Step1: React.FC<{
     //     useState("");
 
     const selectHandler = async (option: Option[]) => {
-        console.log(option, "-----------");
-
         // Send request to find the classes available for this moduleCodeLessonType
         const moduleCodeLessonType = option[0].value;
         const moduleCode = moduleCodeLessonType.split(": ")[0];
@@ -260,12 +262,7 @@ const Step1: React.FC<{
                 <Button
                     colorScheme="blue"
                     onClick={() => nextStep()}
-                    disabled={
-                        !(
-                            currentClassInfo.moduleCode &&
-                            currentClassInfo.classNo
-                        )
-                    }
+                    isDisabled={!canGoStep2}
                 >
                     Next
                 </Button>
@@ -286,13 +283,7 @@ const Step1: React.FC<{
                 <Button
                     colorScheme="blue"
                     onClick={() => nextStep()}
-                    disabled={
-                        !(
-                            currentClassInfo.moduleCode &&
-                            (currentClassInfo.classNo ||
-                                currentlySelectedClass.length !== 0)
-                        )
-                    }
+                    isDisabled={!canGoStep2}
                 >
                     Next
                 </Button>
@@ -348,10 +339,9 @@ const ModuleSelectStep2: React.FC<{
 
     isInternalSwap,
 }) => {
+    const canGoStep3 = desiredClasses.length > 0;
     // provide another select if the user wants to select a different module code lesson type
     const selectHandler = async (options: Option[]) => {
-        console.log(options, "-----------");
-
         let possibleDesiredClasses: ClassOverview[] = [];
         let desiredModules: HalfInfo[] = [];
         for (const option of options) {
@@ -391,7 +381,7 @@ const ModuleSelectStep2: React.FC<{
             }
         }
         setPossibleClasses(possibleDesiredClasses);
-        console.log("setting desired modulesinfo", desiredModules);
+
         setDesiredModulesInfo(desiredModules);
 
         // set desired classes to only classes that are IN desiredModulesInfo
@@ -407,7 +397,6 @@ const ModuleSelectStep2: React.FC<{
         );
     };
 
-    console.log({ desiredClasses });
     const onSelected = (class_: TimetableLessonEntry, selected: boolean) => {
         if (selected) {
             setDesiredClasses((prevState) => [
@@ -455,7 +444,7 @@ const ModuleSelectStep2: React.FC<{
 
     // handle the expansion of the desired modules
     const [hoveredClass, setHoveredClass] = useState<null | FullInfo>(null);
-    console.log({ hoveredClass });
+
     const getClassNames = (class_: TimetableLessonEntry) => {
         if (
             class_.classNo === hoveredClass?.classNo &&
@@ -474,7 +463,7 @@ const ModuleSelectStep2: React.FC<{
                     colorScheme="blue"
                     onClick={() => nextStep()}
                     ml={3}
-                    disabled={!setDesiredClasses.length}
+                    isDisabled={!canGoStep3}
                 >
                     {" "}
                     Next{" "}
@@ -509,7 +498,7 @@ const ModuleSelectStep2: React.FC<{
                     colorScheme="blue"
                     onClick={() => nextStep()}
                     ml={3}
-                    disabled={!setDesiredClasses.length}
+                    isDisabled={!canGoStep3}
                 >
                     {" "}
                     Next{" "}
@@ -539,6 +528,7 @@ const Step3: React.FC<{
     desiredClasses: FullInfo[];
 
     isInternalSwap: boolean;
+    isSubmitting: boolean;
 }> = ({
     prevStep,
 
@@ -552,18 +542,8 @@ const Step3: React.FC<{
     desiredClasses,
     desiredModulesInfo,
     isInternalSwap,
+    isSubmitting,
 }) => {
-    const deleteIconColor = useColorModeValue("red.500", "red.500");
-
-    // const deleteHandler = (desiredClassNo: string | number) => {
-    //     setDesiredClasses((prevState) =>
-    //         prevState.filter((classNo) => classNo !== desiredClassNo)
-    //     );
-    // };
-    // useEffect(() => {
-    //     if (!desiredClasses.length) prevStep();
-    // }, [desiredClasses, prevStep]);
-
     const getProperty = (class_: TimetableLessonEntry) => {
         if (
             desiredClasses.find(
@@ -585,7 +565,7 @@ const Step3: React.FC<{
 
     // handle the expansion of the desired modules
     const [hoveredClass, setHoveredClass] = useState<null | FullInfo>(null);
-    console.log({ hoveredClass });
+
     const getClassNames = (class_: TimetableLessonEntry) => {
         if (
             class_.classNo === hoveredClass?.classNo &&
@@ -595,6 +575,7 @@ const Step3: React.FC<{
             return "pulse";
         else return "";
     };
+
     return (
         <Stack spacing={3} width="100%">
             {/* <Box textAlign="right">
@@ -608,6 +589,7 @@ const Step3: React.FC<{
                     colorScheme="blue"
                     onClick={() => submitHandler()}
                     ml={3}
+                    isLoading={isSubmitting}
                 >
                     {" "}
                     Submit{" "}
@@ -653,6 +635,7 @@ const Step3: React.FC<{
                     colorScheme="blue"
                     onClick={() => submitHandler()}
                     ml={3}
+                    isLoading={isSubmitting}
                 >
                     {" "}
                     Submit{" "}
@@ -684,7 +667,16 @@ const CreateSwap: NextPage = () => {
     } = stepsControl;
 
     // hooks
-    const user = useSelector((state: RootState) => state.user);
+    const stateUser = useSelector((state: RootState) => state.user);
+    const [user, setUser] = useState<TelegramUser | null>(null);
+    useEffect(() => {
+        setUser(stateUser);
+        if (!stateUser) {
+            // router.push("/swap");
+            dispatch(miscActions.setNeedsLogIn(true));
+        }
+    }, [stateUser]);
+
     const router = useRouter();
     const dispatch = useDispatch();
     const toast = useToast();
@@ -713,6 +705,7 @@ const CreateSwap: NextPage = () => {
 
     // whether the user is swapping internally (within the same module and lesson type)
     const isInternalSwap =
+        desiredModulesInfo.length === 1 &&
         desiredModulesInfo[0].lessonType === currentClassInfo.lessonType &&
         desiredModulesInfo[0].moduleCode === currentClassInfo.moduleCode;
 
@@ -770,10 +763,8 @@ const CreateSwap: NextPage = () => {
     const [comments, setComments] = useState("");
 
     // Submit swap request
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const submitHandler = async () => {
-        console.log(desiredClasses);
-        console.log(currentClassInfo);
-
         // const response = await sendPOST("/api/swap/create", {
         //     desiredClassNos: desiredClasses,
         //     currentClassInfo,
@@ -781,51 +772,62 @@ const CreateSwap: NextPage = () => {
         //     comments,
         //     desiredModulesInfo,
         // });
-        const response = await sendPOST("/api/swap/create", {
-            currentClassInfo,
+        setIsSubmitting(true);
+        try {
+            const response = await sendPOST("/api/swap/create", {
+                currentClassInfo,
 
-            desiredClasses,
+                desiredClasses,
 
-            user,
-            comments,
-        });
-        if (!response.success || !response.data) {
+                user,
+                comments,
+            });
+            if (!response.success || !response.data) {
+                toast({
+                    title: "Error",
+                    description: response.error,
+                    status: "error",
+                });
+            } else {
+                router.push(`/swap/${response.data}`);
+
+                toast({
+                    title: "Swap created",
+                    status: "success",
+                    description:
+                        "Swap created! If you have enabled notifications, you will be notified on Telegram if someone requests to swap with you.\nYou can toggle this function by clicking the notification bell in the top right corner of the page.",
+                    duration: 10000,
+                    isClosable: true,
+                });
+            }
+        } catch (e: any) {
             toast({
                 title: "Error",
-                description: response.error,
+                description: e.toString(),
                 status: "error",
             });
-        } else {
-            router.push(`/swap/${response.data}`);
-
-            toast({
-                title: "Swap created",
-                status: "success",
-                description:
-                    "Swap created! If you have enabled notifications, you will be notified on Telegram if someone requests to swap with you.\nYou can toggle this function by clicking the notification bell in the top right corner of the page.",
-                duration: 10000,
-                isClosable: true,
-            });
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
-    useEffect(() => {
-        if (!user) {
-            // router.push("/swap");
-            dispatch(miscActions.setNeedsLogIn(true));
-        }
-    }, [user, dispatch]);
-
-    console.log({
-        currentClassInfo,
-        desiredModulesInfo,
-        desiredClassNos: desiredClasses,
-        comments,
+    const [orientation, setOrientation] = useState<"vertical" | "horizontal">(
+        "horizontal"
+    );
+    const hookOrientation = useBreakpointValue({
+        base: "vertical",
+        md: "horizontal",
     });
+    useEffect(() => {
+        if (hookOrientation) {
+            setOrientation(hookOrientation as "vertical" | "horizontal");
+        }
+    }, [hookOrientation]);
+
     return (
         user && (
             <Stack spacing={5} alignItems="center" h="100%">
-                <Stepper index={activeStep} w="100%">
+                <Stepper index={activeStep} w="100%" orientation={orientation}>
                     {steps.map((step, index) => (
                         <Step key={index}>
                             <StepIndicator>
@@ -894,6 +896,7 @@ const CreateSwap: NextPage = () => {
                         comments={comments}
                         setComments={setComments}
                         isInternalSwap={isInternalSwap}
+                        isSubmitting={isSubmitting}
                     />
                 )}
             </Stack>

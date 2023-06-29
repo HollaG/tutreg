@@ -47,7 +47,10 @@ const TimetableSelectable: React.FC<{
 }) => {
     // console.log("timetable selectable rendering");
     const GRAY_BACKGROUND = useColorModeValue("gray.100", "gray.900");
-    const HOVER_COLOR = useColorModeValue("teal.100", "teal.800");
+    const HOVER_COLOR = useColorModeValue(
+        `${BTN_COLOR_SCHEME}.100`,
+        `${BTN_COLOR_SCHEME}.800`
+    );
     // const BTN_COLOR_SCHEME = "purple";
     const TEXT_COLOR = useColorModeValue("black", "white");
 

@@ -66,7 +66,8 @@ const SwapCodeIndicator = ({
                     d="M 100, 100 m -75, 0 a 75,75 0 1,0 150,0 a 75,75 0 1,0 -150,0"
                 />
             </Icon>
-            {currentClassInfo.moduleCode}: {currentClassInfo.lessonType}
+            {currentClassInfo.moduleCode &&
+                `${currentClassInfo.moduleCode}: ${currentClassInfo.lessonType}`}
         </Heading>
     ) : (
         <Flex justifyContent={"left"}>
@@ -138,7 +139,7 @@ const SwapCodeIndicator = ({
                                         desiredModule.moduleCode
                             );
                             return (
-                                <Box mb={2} mr={3}>
+                                <Box mb={2} mr={3} key={i}>
                                     <Text
                                         display="flex"
                                         alignItems="center"
@@ -164,7 +165,7 @@ const SwapCodeIndicator = ({
                                     >
                                         <TbChevronDownLeft />
 
-                                        {desiredClasses?.map((dc, i) => {
+                                        {desiredClasses?.map((dc, j) => {
                                             const thisClassFullInfo =
                                                 drawnClasses?.find(
                                                     (c) =>
@@ -176,7 +177,7 @@ const SwapCodeIndicator = ({
                                                             dc.moduleCode
                                                 );
                                             return (
-                                                <Popover>
+                                                <Popover key={j}>
                                                     <PopoverTrigger>
                                                         <Text
                                                             onClick={(e) =>
@@ -199,7 +200,7 @@ const SwapCodeIndicator = ({
                                                         >
                                                             {dc.classNo}
                                                             {desiredClasses?.length ===
-                                                            i + 1
+                                                            j + 1
                                                                 ? ""
                                                                 : ", "}{" "}
                                                         </Text>

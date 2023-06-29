@@ -133,6 +133,7 @@ const ModuleSelect: React.FC<{
                 onInputChange={handleInputChange}
                 onChange={(newValue: any) => handleSelectChange(newValue)}
                 defaultValue={defaultValue}
+                closeMenuOnSelect={!isMulti}
             />
             <FormHelperText>Search for a course (min. 3 chars)</FormHelperText>
             {!hideNonBiddable && (

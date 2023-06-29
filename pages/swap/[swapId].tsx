@@ -216,44 +216,84 @@ const SpecificSwap = (
         completeDisclosure.onOpen();
     };
 
+    const [isDeleting, setIsDeleting] = useState(false);
     const handleDelete = async () => {
-        const response = await sendDELETE(`/api/swap/${swapId}`, user);
-        if (response.success) {
-            toast({
-                title: "Swap deleted!",
-                status: "success",
-                duration: 3000,
-                isClosable: true,
-            });
-            router.push("/swap");
-        } else {
+        try {
+            setIsDeleting(true);
+            const response = await sendDELETE(`/api/swap/${swapId}`, user);
+            if (response.success) {
+                toast({
+                    title: "Swap deleted!",
+                    status: "success",
+                    duration: 3000,
+                    isClosable: true,
+                });
+                router.push("/swap");
+            } else {
+                toast({
+                    title: "Error deleting swap",
+                    description: response.error,
+                    status: "error",
+                    duration: 3000,
+                    isClosable: true,
+                });
+            }
+        } catch (e: any) {
             toast({
                 title: "Error deleting swap",
-                description: response.error,
+                description: e.toString(),
                 status: "error",
                 duration: 3000,
                 isClosable: true,
             });
+        } finally {
+            setIsDeleting(false);
         }
     };
 
+    const [isCompleting, setIsCompleting] = useState(false);
     const handleComplete = async () => {
-        const response = await sendPATCH(`/api/swap/${swapId}`, user);
-        if (response.success) {
-            toast({
-                title: "Swap completed!",
-                status: "success",
-                duration: 3000,
-                isClosable: true,
-            });
-        } else {
+        try {
+            setIsCompleting(true);
+            const response = await sendPATCH(`/api/swap/${swapId}`, user);
+            if (response.success) {
+                toast({
+                    title: "Swap completed!",
+                    status: "success",
+                    duration: 3000,
+                    isClosable: true,
+                });
+
+                setSwapData((prev) =>
+                    prev
+                        ? {
+                              ...prev,
+                              swap: {
+                                  ...prev.swap,
+                                  status: "Completed",
+                              },
+                          }
+                        : undefined
+                );
+            } else {
+                toast({
+                    title: "Error completing swap",
+                    description: response.error,
+                    status: "error",
+                    duration: 3000,
+                    isClosable: true,
+                });
+            }
+        } catch (e: any) {
             toast({
                 title: "Error completing swap",
-                description: response.error,
+                description: e.toString(),
                 status: "error",
                 duration: 3000,
                 isClosable: true,
             });
+        } finally {
+            setIsCompleting(false);
         }
     };
 
@@ -438,6 +478,7 @@ const SpecificSwap = (
                                         colorScheme="blue"
                                         mr={2}
                                         onClick={promptComplete}
+                                        isLoading={isCompleting}
                                     >
                                         Complete
                                     </Button>
@@ -446,6 +487,7 @@ const SpecificSwap = (
                                     size="sm"
                                     colorScheme="red"
                                     onClick={promptDelete}
+                                    isLoading={isDeleting}
                                 >
                                     Delete
                                 </Button>

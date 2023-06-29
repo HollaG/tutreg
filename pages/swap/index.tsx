@@ -87,7 +87,7 @@ import SelfSwapCard from "../../components/Swap/SelfSwapCard";
 import { GetSwapClassesData } from "../api/swap/[swapId]";
 import { TbCheck, TbChevronDown, TbNewSection, TbPlus } from "react-icons/tb";
 import { LessonType } from "../../types/modules";
-const SWAP_VISIBLE_AMOUNT = 2;
+const SWAP_VISIBLE_AMOUNT = 20;
 const CustomCardProps = {
     _hover: {
         boxShadow: "lg",
