@@ -312,8 +312,6 @@ const classesSlice = createSlice({
                     copiedChangedClasses.includes(class_.classNo)
                 );
 
-            console.log({ selectedClassesForCode });
-
             if (selectedClassesForCode[0]) {
                 return {
                     ...state,

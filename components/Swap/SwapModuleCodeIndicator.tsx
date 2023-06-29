@@ -51,9 +51,16 @@ const SwapCodeIndicator = ({
     // if supplied, will show additional info in the popup
     drawnClasses?: ClassOverview[];
 }) => {
+    const currentClassFullInfo = drawnClasses?.find(
+        (c) =>
+            c.moduleCode === currentClassInfo.moduleCode &&
+            c.lessonType === currentClassInfo.lessonType &&
+            c.classNo === currentClassInfo.classNo
+    );
+
     return !desiredModulesInfo ? (
         <Heading fontSize="2xl" display="flex" alignItems="center">
-            <Icon viewBox="0 0 200 200" color={`${"orange.500"}`} mr={1}>
+            <Icon viewBox="0 0 200 200" color={`orange.500`} mr={1}>
                 <path
                     fill="currentColor"
                     d="M 100, 100 m -75, 0 a 75,75 0 1,0 150,0 a 75,75 0 1,0 -150,0"
@@ -64,7 +71,7 @@ const SwapCodeIndicator = ({
     ) : (
         <Flex justifyContent={"left"}>
             <Stack flexWrap="wrap">
-                <Heading fontSize="2xl" display="flex" alignItems="center">
+                <Flex display="flex" alignItems="center">
                     <Icon
                         viewBox="0 0 200 200"
                         color={`${"orange.500"}`}
@@ -75,9 +82,47 @@ const SwapCodeIndicator = ({
                             d="M 100, 100 m -75, 0 a 75,75 0 1,0 150,0 a 75,75 0 1,0 -150,0"
                         />
                     </Icon>
-                    {currentClassInfo.moduleCode}: {currentClassInfo.lessonType}{" "}
-                    [{currentClassInfo.classNo}]
-                </Heading>
+                    <Heading fontSize="2xl" m={0}>
+                        {currentClassInfo.moduleCode}:{" "}
+                        {currentClassInfo.lessonType}{" "}
+                    </Heading>
+
+                    <Popover>
+                        <PopoverTrigger>
+                            <Text
+                                onClick={(e) => e.stopPropagation()}
+                                ml={2}
+                                onMouseEnter={() =>
+                                    onHover && onHover(currentClassInfo)
+                                }
+                                onMouseLeave={() => onHover && onHover(null)}
+                                borderBottom="1px dotted"
+                                borderBottomColor={useColorModeValue(
+                                    "black",
+                                    "white"
+                                )}
+                                cursor="help"
+                                fontSize="2xl"
+                            >
+                                [{currentClassInfo.classNo}]
+                            </Text>
+                        </PopoverTrigger>
+                        <PopoverContent>
+                            <PopoverArrow />
+
+                            <PopoverBody>
+                                {currentClassFullInfo &&
+                                    currentClassFullInfo.classes.map((c, i) => (
+                                        <Text key={i}>
+                                            {convertDayToAbbrev(c.day)}{" "}
+                                            {c.startTime} - {c.endTime} @{" "}
+                                            {c.venue}
+                                        </Text>
+                                    ))}{" "}
+                            </PopoverBody>
+                        </PopoverContent>
+                    </Popover>
+                </Flex>
 
                 {/* <TbArrowsDownUp fontSize="2em" /> */}
                 <Flex>
@@ -136,6 +181,9 @@ const SwapCodeIndicator = ({
                                                 <Popover>
                                                     <PopoverTrigger>
                                                         <Text
+                                                            onClick={(e) =>
+                                                                e.stopPropagation()
+                                                            }
                                                             mr={1}
                                                             onMouseEnter={() =>
                                                                 onHover &&

@@ -28,6 +28,7 @@ import {
     Tag,
     Text,
     Tooltip,
+    useColorModeValue,
     useDisclosure,
     useToast,
     Wrap,
@@ -294,11 +295,17 @@ const SpecificSwap = (
                     your swap, click the bell in the top-right corner.
                 </Alert>
             )}
-            <Card>
+            {/* <Card> */}
+            <Box w="100%">
                 <Stack>
-                    <HStack alignItems="center" justifyContent="center">
+                    <HStack alignItems="center" justifyContent="left">
                         <TimeIcon />
-                        <Text>
+                        <Text
+                            textColor={useColorModeValue(
+                                "gray.700",
+                                "gray.300"
+                            )}
+                        >
                             Created{" "}
                             {formatTimeElapsed(swap.createdAt.toString())}, on{" "}
                             {formatDate(new Date(swap.createdAt))}
@@ -306,7 +313,7 @@ const SpecificSwap = (
                     </HStack>{" "}
                     <Flex>
                         <Stack flex={1}>
-                            <UserDisplay user={swap} />
+                            <UserDisplay swap={swap} />
 
                             {user?.id === swap.from_t_id &&
                                 cleanArrayString(swap.requestors).length && (
@@ -334,7 +341,7 @@ const SpecificSwap = (
                                                                         href={`https://t.me/${user.username}`}
                                                                     >
                                                                         <UserDisplay
-                                                                            user={
+                                                                            swap={
                                                                                 user
                                                                             }
                                                                         >
@@ -477,7 +484,8 @@ const SpecificSwap = (
                         </Box>
                     )}
                 </Stack>
-            </Card>
+            </Box>
+            {/* </Card> */}
 
             <Box w="full">
                 <SwapCodeIndicator

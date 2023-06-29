@@ -2,6 +2,7 @@ import {
     ArrowDownIcon,
     ArrowUpDownIcon,
     ArrowUpIcon,
+    ChevronDownIcon,
     TimeIcon,
 } from "@chakra-ui/icons";
 import {
@@ -9,6 +10,7 @@ import {
     Badge,
     Box,
     Button,
+    ButtonGroup,
     Center,
     Divider,
     Flex,
@@ -17,8 +19,19 @@ import {
     Heading,
     HStack,
     Image,
+    Input,
+    InputGroup,
+    InputRightElement,
     Link,
+    Menu,
+    MenuButton,
+    MenuDivider,
+    MenuItem,
+    MenuItemOption,
+    MenuList,
+    MenuOptionGroup,
     SimpleGrid,
+    Spinner,
     Stack,
     Tab,
     TabList,
@@ -32,10 +45,14 @@ import {
     useToast,
 } from "@chakra-ui/react";
 import { Select } from "chakra-react-select";
-import type { NextPage } from "next";
+import type {
+    GetServerSideProps,
+    InferGetServerSidePropsType,
+    NextPage,
+} from "next";
 import { useRouter } from "next/router";
 import { title } from "process";
-import { MouseEvent, useEffect, useRef, useState } from "react";
+import { MouseEvent, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import TelegramLoginButton, { TelegramUser } from "telegram-login-button";
 import Card from "../../components/Card/Card";
@@ -67,6 +84,9 @@ import SwapCard from "../../components/Swap/SwapCard";
 import Loading from "../../components/Indicators/Loading";
 import Ended from "../../components/Indicators/Ended";
 import SelfSwapCard from "../../components/Swap/SelfSwapCard";
+import { GetSwapClassesData } from "../api/swap/[swapId]";
+import { TbCheck, TbChevronDown, TbNewSection, TbPlus } from "react-icons/tb";
+import { LessonType } from "../../types/modules";
 const SWAP_VISIBLE_AMOUNT = 10;
 const CustomCardProps = {
     _hover: {
@@ -75,7 +95,30 @@ const CustomCardProps = {
     cursor: "pointer",
 };
 
-const Swap: NextPage = () => {
+const ROOT_URL = process.env.NEXT_PUBLIC_ROOT_URL;
+
+export const getServerSideProps: GetServerSideProps<{
+    openSwaps: GetSwapClassesData[];
+}> = async (ctx) => {
+    // get the data about this swap
+    const { swapId } = ctx.query;
+    const res = await fetch(`${ROOT_URL}api/swap`);
+    const data: { openSwaps: GetSwapClassesData[] } = (await res.json()).data;
+
+    // const userData = await sendPOST(`${ROOT_URL}api/swap/${swapId}`, {});
+    // const safeUsers = userData.data;
+    // console.log(data.openSwaps);
+    return {
+        props: {
+            openSwaps: data.openSwaps,
+            // users: safeUsers,
+        },
+    };
+};
+
+const Swap = (
+    props: InferGetServerSidePropsType<typeof getServerSideProps>
+) => {
     const dispatch = useDispatch();
 
     // check if user is logged in
@@ -87,42 +130,42 @@ const Swap: NextPage = () => {
     useEffect(() => {
         if (state.user) {
             setUser(state.user);
+            // populate the user swaps
+            const self = props.openSwaps.filter(
+                (swapData) => swapData.swap.from_t_id === state.user?.id
+            );
+
+            // remove the user swaps from the open swaps
+            const open = props.openSwaps.filter(
+                (swapData) => swapData.swap.from_t_id !== state.user?.id
+            );
+            setAllSwapData({
+                openSwaps: open,
+                selfSwaps: self,
+            });
+
+            setVisibleSwaps(open.slice(0, SWAP_VISIBLE_AMOUNT));
         } else setUser(undefined);
-    }, [state.user]);
+    }, [state.user, props.openSwaps]);
 
     // Get current swap requests
-    const [swapData, setSwapData] = useState<SwapData>();
+    const [allSwapsData, setAllSwapData] = useState<{
+        openSwaps: GetSwapClassesData[];
+        selfSwaps: GetSwapClassesData[];
+    }>({
+        openSwaps: props.openSwaps,
+        selfSwaps: [],
+    });
 
     // Control the swap data visible to the user
-    const [visibleSwaps, setVisibleSwaps] = useState<ClassSwapRequest[]>();
+    const [_visibleSwaps, setVisibleSwaps] = useState<GetSwapClassesData[]>(
+        props.openSwaps.slice(0, SWAP_VISIBLE_AMOUNT)
+    );
+
+    // allow for filtering
+    // let visibleSwaps = _visibleSwaps;
 
     const [counter, setCounter] = useState(0);
-    useEffect(() => {
-        fetch("/api/swap")
-            .then((res) => res.json())
-            .then((data) => {
-                if (data.success && data.data) {
-                    const selfSwaps = data.data.openSwaps.filter(
-                        (swap: any) => swap.from_t_id === user?.id
-                    );
-                    const othersSwaps = data.data.openSwaps.filter(
-                        (swap: any) =>
-                            swap.from_t_id !== user?.id &&
-                            swap.status !== "Completed" // only show pending swaps
-                    );
-                    setSwapData({
-                        classData: data.data.classData,
-                        openSwaps: othersSwaps,
-                        selfSwaps: selfSwaps,
-                        requestedClasses: data.data.requestedClasses,
-                    });
-
-                    setVisibleSwaps(othersSwaps.slice(0, SWAP_VISIBLE_AMOUNT));
-                } else {
-                    alert(data.error);
-                }
-            });
-    }, [user, counter]);
 
     const router = useRouter();
 
@@ -211,6 +254,119 @@ const Swap: NextPage = () => {
         useState<Option | null>(null);
     const [availableClassNos, setAvailableClassNos] = useState<string[]>([]);
     const [selectedClassNo, setSelectedClassNo] = useState<Option | null>(null);
+
+    // ------------------ FILTERING ------------------
+    // Set up the type button
+    // get a list of all the different lessonTypes
+    const lessonTypes: LessonType[] = [
+        ...new Set(
+            allSwapsData.openSwaps.flatMap((swapData) =>
+                swapData.drawnClasses.map((class_) => class_.lessonType)
+            )
+        ),
+    ];
+
+    const [selectedLessonTypes, setSelectedLessonTypes] = useState<
+        LessonType[]
+    >([]);
+    const menuItemClicked = (lessonType: LessonType) => {
+        if (selectedLessonTypes.includes(lessonType)) {
+            setSelectedLessonTypes(
+                selectedLessonTypes.filter((type) => type !== lessonType)
+            );
+        } else {
+            setSelectedLessonTypes([...selectedLessonTypes, lessonType]);
+        }
+    };
+
+    const [searchText, setSearchText] = useState("");
+    const [searchQuery, setSearchQuery] = useState("");
+    // debounce so we don't get massive lag spikes
+    useEffect(() => {
+        const delayDebounceFn = setTimeout(() => {
+            setSearchQuery(searchText);
+        }, 750);
+
+        return () => clearTimeout(delayDebounceFn);
+    }, [searchText]);
+
+    let visibleSwaps = useMemo(() => {
+        let t = _visibleSwaps;
+        if (searchQuery.length) {
+            const terms = searchQuery.trim().split(" ");
+            t = t.filter((swapData) => {
+                // return true if search term found in:
+                // 1) moduleCode
+                // 2) lessonType
+                // 3) classNo
+                // --> in both desired and current (just look in drawnClasses)
+
+                return terms.every((term) => {
+                    return swapData.drawnClasses.some((class_) => {
+                        return (
+                            class_.moduleCode
+                                .toLowerCase()
+                                .includes(term.toLowerCase()) ||
+                            class_.lessonType
+                                .toLowerCase()
+                                .includes(term.toLowerCase()) ||
+                            class_.classNo
+                                .toLowerCase()
+                                .includes(term.toLowerCase())
+                        );
+                    });
+                });
+
+                // if (
+                //     swapData.drawnClasses.find((class_) => {
+                //         // true if at least one term is found
+                //         return (
+                //             // class_.moduleCode
+                //             //     .toLowerCase()
+                //             //     .includes(searchQuery.toLowerCase()) ||
+                //             // class_.lessonType
+                //             //     .toLowerCase()
+                //             //     .includes(searchQuery.toLowerCase()) ||
+                //             // class_.classNo
+                //             //     .toLowerCase()
+                //             //     .includes(searchQuery.toLowerCase())
+                //             terms.every((term) =>
+                //                 class_.moduleCode
+                //                     .toLowerCase()
+                //                     .includes(term.toLowerCase())
+                //             ) ||
+                //             terms.every((term) =>
+                //                 class_.lessonType
+                //                     .toLowerCase()
+                //                     .includes(term.toLowerCase())
+                //             ) ||
+                //             terms.every((term) =>
+                //                 class_.classNo
+                //                     .toLowerCase()
+                //                     .includes(term.toLowerCase())
+                //             )
+                //         );
+                //     })
+                // ) {
+                //     return true;
+                // } else {
+                //     return false;
+                // }
+            });
+        }
+
+        // filter according to selectedLessonTypes (only allow those selected)
+        if (selectedLessonTypes.length > 0) {
+            t = t.filter((swapData) =>
+                swapData.drawnClasses.find((class_) =>
+                    selectedLessonTypes.includes(class_.lessonType)
+                )
+            );
+        }
+
+        return t;
+    }, [_visibleSwaps, searchQuery, selectedLessonTypes]);
+
     const selectModuleCodeLessonTypeHandler = (opt: Option) => {
         dispatch(miscActions.setHighlightedClassNos([]));
         setSelectedModuleCodeLessonType(opt);
@@ -219,23 +375,27 @@ const Swap: NextPage = () => {
         if (!opt) return;
         const moduleCode = opt.value.split(": ")[0];
         const lessonType = opt.value.split(": ")[1];
-        const swapsMatching = swapData?.openSwaps.filter(
-            (swap) =>
-                swap.moduleCode === moduleCode && swap.lessonType === lessonType
+        const swapsMatching = allSwapsData?.openSwaps.filter(
+            (swapData) =>
+                swapData.swap.moduleCode === moduleCode &&
+                swapData.swap.lessonType === lessonType
         );
 
+        // the list of available class numbers for this slot
         const availableClassNos: string[] = [];
-        swapsMatching?.forEach((swap) => {
-            if (swapData?.requestedClasses[swap.swapId]) {
-                const requestedClasses =
-                    swapData?.requestedClasses[swap.swapId];
-                const classNos = requestedClasses.map(
-                    (key) => key.wantedClassNo
-                );
-                availableClassNos.push(...classNos);
-                availableClassNos.push(swap.classNo);
-            }
-        });
+        // TODO: fix this
+        // swapsMatching?.forEach((swap) => {
+        //     if (swapData?.requestedClasses[swap.swapId]) {
+        //         const requestedClasses =
+        //             swapData?.requestedClasses[swap.swapId];
+        //         const classNos = requestedClasses.map(
+        //             (key) => key.wantedClassNo
+        //         );
+        //         availableClassNos.push(...classNos);
+        //         availableClassNos.push(swap.classNo);
+        //     }
+        // });
+
         // remvoe duplicates from availableClassNos
         const uniqueAvailableClassNos = [...new Set(availableClassNos.flat())];
         setAvailableClassNos(uniqueAvailableClassNos);
@@ -261,14 +421,16 @@ const Swap: NextPage = () => {
                 );
             else {
                 // find requested class numbers for this swap
-                const requestedClasses = swapData?.requestedClasses[
-                    swap.swapId
-                ].map((class_) => class_.wantedClassNo);
+                // TODO: fix this
+                // const requestedClasses = swapData?.requestedClasses[
+                //     swap.swapId
+                // ].map((class_) => class_.wantedClassNo);
                 return (
                     swap.moduleCode === moduleCode &&
                     swap.lessonType === lessonType &&
-                    (swap.classNo === selectedClassNo.value ||
-                        requestedClasses?.includes(selectedClassNo.value))
+                    swap.classNo === selectedClassNo.value
+                    // ||
+                    // requestedClasses?.includes(selectedClassNo.value)
                 );
             }
         }
@@ -291,7 +453,7 @@ const Swap: NextPage = () => {
     const handleLoadMore = () => {
         const newVisibleAmount = visibleAmount + SWAP_VISIBLE_AMOUNT;
         setVisibleAmount(newVisibleAmount);
-        setVisibleSwaps(swapData?.openSwaps.slice(0, newVisibleAmount));
+        setVisibleSwaps(allSwapsData?.openSwaps.slice(0, newVisibleAmount));
     };
 
     const infiniteScrollRef = useRef<HTMLDivElement>(null);
@@ -323,7 +485,7 @@ const Swap: NextPage = () => {
             </Center>
 
             <Tabs
-                variant="enclosed"
+                variant="soft-rounded"
                 colorScheme="blue"
                 isFitted
                 index={tabIndex}
@@ -331,20 +493,20 @@ const Swap: NextPage = () => {
                 ref={infiniteScrollRef}
             >
                 <TabList>
-                    <Tab>All swaps ({swapData?.openSwaps.length})</Tab>
+                    <Tab>All swaps ({allSwapsData?.openSwaps.length})</Tab>
                     {user && (
-                        <Tab>Your swaps ({swapData?.selfSwaps.length})</Tab>
+                        <Tab>Your swaps ({allSwapsData?.selfSwaps.length})</Tab>
                     )}
                 </TabList>
 
                 <TabPanels
-                    borderLeft={"1px solid"}
-                    borderRight={"1px solid"}
-                    borderBottom={"1px solid"}
+                    // borderLeft={"1px solid"}
+                    // borderRight={"1px solid"}
+                    // borderBottom={"1px solid"}
                     borderColor={borderColor}
                 >
                     <TabPanel>
-                        <SimpleGrid
+                        {/* <SimpleGrid
                             columns={{ base: 1, md: 2 }}
                             mb={3}
                             spacing={3}
@@ -353,9 +515,9 @@ const Swap: NextPage = () => {
                                 // first filter the array, making a string[] so we cna remove duplicates with set, then map it back into Option
                                 options={[
                                     ...new Set(
-                                        swapData?.openSwaps.map(
-                                            (swap) =>
-                                                `${swap.moduleCode}: ${swap.lessonType}`
+                                        allSwapsData?.openSwaps.map(
+                                            (swapData) =>
+                                                `${swapData.swap.moduleCode}: ${swapData.swap.lessonType}`
                                         )
                                     ),
                                 ]
@@ -389,7 +551,86 @@ const Swap: NextPage = () => {
                                 value={selectedClassNo}
                                 isClearable
                             />
-                        </SimpleGrid>
+                        </SimpleGrid> */}
+
+                        <Flex mb={4}>
+                            <InputGroup size="sm">
+                                <Input
+                                    // type="search"
+                                    placeholder="Search for anything..."
+                                    value={searchText}
+                                    onChange={(e) =>
+                                        setSearchText(e.target.value)
+                                    }
+                                />
+                                <InputRightElement>
+                                    {searchQuery !== searchText && (
+                                        <Spinner size="xs" />
+                                    )}
+                                </InputRightElement>
+                            </InputGroup>
+                            <Menu closeOnSelect={false}>
+                                <MenuButton
+                                    as={Button}
+                                    rightIcon={<ChevronDownIcon />}
+                                    size="sm"
+                                    ml={2}
+                                >
+                                    Type
+                                </MenuButton>
+                                <MenuList>
+                                    {/* <Text ml={4} fontWeight="semibold">
+                                        {" "}
+                                        Select type
+                                    </Text>
+                                    <MenuDivider />
+                                    {lessonTypes.map((type, i) => (
+                                        <MenuItem
+                                            icon={
+                                                selectedLessonTypes.includes(
+                                                    type
+                                                ) ? (
+                                                    <TbCheck />
+                                                ) : (
+                                                    <></>
+                                                )
+                                            }
+                                            key={i}
+                                            onClick={() =>
+                                                menuItemClicked(type)
+                                            }
+                                        >
+                                            {" "}
+                                            {type}{" "}
+                                        </MenuItem>
+                                    ))} */}
+                                    <MenuOptionGroup
+                                        title="Select type"
+                                        type="checkbox"
+                                    >
+                                        {lessonTypes.map((type, i) => (
+                                            <MenuItemOption
+                                                key={i}
+                                                value={type}
+                                                onClick={() =>
+                                                    menuItemClicked(type)
+                                                }
+                                            >
+                                                {type}
+                                            </MenuItemOption>
+                                        ))}
+                                    </MenuOptionGroup>
+                                </MenuList>
+                            </Menu>
+                            <Button
+                                colorScheme="blue"
+                                size="sm"
+                                ml={2}
+                                leftIcon={<TbPlus />}
+                            >
+                                New
+                            </Button>
+                        </Flex>
 
                         {/* The below section should be visible when the user is NOT filtering anything */}
                         {!selectedModuleCodeLessonType && (
@@ -397,7 +638,7 @@ const Swap: NextPage = () => {
                                 dataLength={visibleSwaps?.length || 0}
                                 next={handleLoadMore}
                                 hasMore={
-                                    (swapData?.openSwaps.length || 0) >
+                                    (allSwapsData?.openSwaps.length || 0) >
                                     visibleAmount
                                 }
                                 loader={<Loading />}
@@ -405,10 +646,7 @@ const Swap: NextPage = () => {
                                     <Ended scrollTo={infiniteScrollRef} />
                                 }
                             >
-                                <SimpleGrid
-                                    columns={{ base: 1, md: 2 }}
-                                    spacing={3}
-                                >
+                                <Stack spacing={6} divider={<Divider />}>
                                     {/* {swapData?.openSwaps.map((swap, index) => (
                                     <SwapCard
                                         hasRequestedSwap={hasRequestedSwap}
@@ -419,40 +657,42 @@ const Swap: NextPage = () => {
                                     />
                                 ))} */}
                                     {visibleSwaps?.map(
-                                        (swap, index) =>
-                                            checkIfShouldDisplay(swap) && (
+                                        (swapData, index) =>
+                                            checkIfShouldDisplay(
+                                                swapData.swap
+                                            ) && (
                                                 <SwapCard
                                                     key={index}
                                                     hasRequestedSwap={
                                                         hasRequestedSwap
                                                     }
                                                     requestSwap={requestSwap}
-                                                    swap={swap}
+                                                    swap={swapData.swap}
                                                     swapData={swapData}
                                                     user={user}
                                                 />
                                             )
                                     )}
-                                </SimpleGrid>
+                                </Stack>
                             </InfiniteScroll>
                         )}
 
                         {/* The below section should be visible when filtering. We do not infinite-scroll when filtering. */}
                         {selectedModuleCodeLessonType && (
                             <SimpleGrid
-                                columns={{ base: 1, md: 2 }}
+                                columns={{ base: 1, md: 1 }}
                                 spacing={3}
                             >
-                                {swapData?.openSwaps.map(
-                                    (swap, index) =>
-                                        checkIfShouldDisplay(swap) && (
+                                {allSwapsData?.openSwaps.map(
+                                    (swapData, index) =>
+                                        checkIfShouldDisplay(swapData.swap) && (
                                             <SwapCard
                                                 key={index}
                                                 hasRequestedSwap={
                                                     hasRequestedSwap
                                                 }
                                                 requestSwap={requestSwap}
-                                                swap={swap}
+                                                swap={swapData.swap}
                                                 swapData={swapData}
                                                 user={user}
                                             />
@@ -463,22 +703,29 @@ const Swap: NextPage = () => {
                     </TabPanel>
                     {user && (
                         <TabPanel>
-                            <SimpleGrid
-                                columns={{ base: 1, md: 2 }}
-                                spacing={3}
-                            >
-                                {swapData?.selfSwaps.map((swap, index) => (
-                                    <SelfSwapCard
-                                        key={index}
-                                        hasRequestedSwap={hasRequestedSwap}
-                                        requestSwap={requestSwap}
-                                        swap={swap}
-                                        swapData={swapData}
-                                        user={user}
-                                        promptDelete={promptDelete}
-                                    />
-                                ))}
-                            </SimpleGrid>
+                            <Stack spacing={6} divider={<Divider />}>
+                                {allSwapsData?.selfSwaps.map(
+                                    (swapData, index) => (
+                                        // <SelfSwapCard
+                                        //     key={index}
+                                        //     hasRequestedSwap={hasRequestedSwap}
+                                        //     requestSwap={requestSwap}
+                                        //     swap={swapData.swap}
+                                        //     swapData={allSwapsData}
+                                        //     user={user}
+                                        //     promptDelete={promptDelete}
+                                        // />
+                                        <SwapCard
+                                            key={index}
+                                            hasRequestedSwap={hasRequestedSwap}
+                                            requestSwap={requestSwap}
+                                            swap={swapData.swap}
+                                            swapData={swapData}
+                                            user={user}
+                                        />
+                                    )
+                                )}
+                            </Stack>
                         </TabPanel>
                     )}
                 </TabPanels>

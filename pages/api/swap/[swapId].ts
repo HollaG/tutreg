@@ -27,6 +27,139 @@ export type GetSwapClassesData = {
 type GroupedByClassNo = {
     [classNo: string]: ModuleWithClassDB[];
 };
+
+/**
+ * Gets the swap data (with formatted classes for timetables etc) from a swap request
+ *
+ * @param swapId
+ * @param _swap
+ * @returns
+ */
+export const getSwapData = async (
+    swapId: number,
+    _swap?: ClassSwapRequest
+): Promise<GetSwapClassesData> => {
+    let swap = _swap;
+    if (!swap) {
+        const swapDb: ClassSwapRequest[] = await executeQuery({
+            query: "SELECT * FROM swaps LEFT JOIN users ON swaps.from_t_id = users.id WHERE swapId = ?",
+            values: [swapId],
+        });
+
+        // error handling
+        if (!swapDb.length)
+            throw {
+                error: "Swap not found",
+                success: false,
+                status: 404,
+            };
+
+        swap = swapDb[0];
+    }
+
+    // 2) get the requested classes
+    const requestedClassesDb: ClassSwapFor[] = await executeQuery({
+        query: `SELECT * FROM swaps_list WHERE swapId IN (?)`,
+        values: [swap.swapId],
+    });
+
+    const desiredClasses = requestedClassesDb.map((requestedClass) => ({
+        moduleCode: requestedClass.wantedModuleCode,
+        lessonType: requestedClass.wantedLessonType,
+        classNo: requestedClass.wantedClassNo,
+    })) as FullInfo[];
+
+    // for every moduleCode and lessonType in both the current class and the desired classes, get the list of available classes
+    // TODO: see if we can optimize this by doing a single query using the `IN` operator
+    const moduleCodeLessonTypes = [
+        {
+            moduleCode: swap.moduleCode,
+            lessonType: swap.lessonType,
+            classNo: swap.classNo,
+        },
+        ...desiredClasses,
+    ];
+
+    const drawnClasses: ClassOverview[] = [];
+
+    const uniqueDesiredModules = new Set<string>();
+    for (const moduleCodeLessonType of moduleCodeLessonTypes) {
+        // only add it to desiredModules if it's not the class that they have
+        if (
+            !(
+                moduleCodeLessonType.moduleCode === swap.moduleCode &&
+                moduleCodeLessonType.lessonType === swap.lessonType &&
+                moduleCodeLessonType.classNo === swap.classNo
+            )
+        ) {
+            uniqueDesiredModules.add(
+                `${moduleCodeLessonType.moduleCode}: ${moduleCodeLessonType.lessonType}`
+            );
+        }
+        const { moduleCode, lessonType, classNo } = moduleCodeLessonType;
+
+        const possiblyDrawnClassesForThisModule: ModuleWithClassDB[] =
+            await executeQuery({
+                query: `SELECT * FROM classlist LEFT JOIN moduleList ON classlist.moduleCode = modulelist.moduleCode WHERE classlist.moduleCode = ? AND classlist.lessonType = ? AND classlist.classNo = ? AND ay = ? AND semester = ?`,
+                values: [
+                    moduleCode,
+                    lessonType,
+                    classNo,
+                    swap.ay,
+                    swap.semester,
+                ],
+            });
+
+        // might be more than 1: see linked classes.
+        // group them by classNumber
+        const groupedByClassNo: GroupedByClassNo = {
+            [classNo]: possiblyDrawnClassesForThisModule,
+        };
+
+        // convert to a timetable format
+
+        const drawnClassesForThis = convertToTimetableList(groupedByClassNo);
+
+        if (drawnClassesForThis.length) {
+            drawnClasses.push(...drawnClassesForThis);
+        }
+    }
+
+    if (!drawnClasses.length) {
+        throw {
+            error: "Class data not found",
+            success: false,
+            status: 404,
+        };
+    }
+
+    const desiredModules = [...uniqueDesiredModules].map((m) => ({
+        moduleCode: m.split(":")[0].trim(),
+        lessonType: m.split(":")[1].trim(),
+    })) as HalfInfo[];
+
+    // return this data to the client
+    const data = {
+        drawnClasses,
+        swap,
+
+        currentClassInfo: {
+            moduleCode: swap.moduleCode,
+            lessonType: swap.lessonType,
+            classNo: swap.classNo,
+        } as FullInfo,
+
+        desiredClasses,
+        desiredModules,
+        isInternalSwap:
+            desiredModules.length === 1 &&
+            desiredModules[0].moduleCode === swap.moduleCode &&
+            desiredModules[0].lessonType === swap.lessonType,
+    };
+
+    return data;
+};
+
 export default async function handler(
     req: NextApiRequest,
     res: NextApiResponse<SpecificSwapResponseData>
@@ -34,125 +167,139 @@ export default async function handler(
     const { swapId } = req.query;
     try {
         if (req.method === "GET") {
-            // 1) get this swap
-            const swapDb: ClassSwapRequest[] = await executeQuery({
-                query: "SELECT * FROM swaps LEFT JOIN users ON swaps.from_t_id = users.id WHERE swapId = ?",
-                values: [swapId],
-            });
+            // // 1) get this swap
+            // const swapDb: ClassSwapRequest[] = await executeQuery({
+            //     query: "SELECT * FROM swaps LEFT JOIN users ON swaps.from_t_id = users.id WHERE swapId = ?",
+            //     values: [swapId],
+            // });
 
-            // error handling
-            if (!swapDb.length)
-                return res.status(400).json({
-                    error: "Swap not found",
-                    success: false,
+            // // error handling
+            // if (!swapDb.length)
+            //     return res.status(400).json({
+            //         error: "Swap not found",
+            //         success: false,
+            //     });
+
+            // const swap = swapDb[0];
+
+            // // 2) get the requested classes
+            // const requestedClassesDb: ClassSwapFor[] = await executeQuery({
+            //     query: `SELECT * FROM swaps_list WHERE swapId IN (?)`,
+            //     values: [swap.swapId],
+            // });
+
+            // const desiredClasses = requestedClassesDb.map((requestedClass) => ({
+            //     moduleCode: requestedClass.wantedModuleCode,
+            //     lessonType: requestedClass.wantedLessonType,
+            //     classNo: requestedClass.wantedClassNo,
+            // })) as FullInfo[];
+
+            // // for every moduleCode and lessonType in both the current class and the desired classes, get the list of available classes
+            // // TODO: see if we can optimize this by doing a single query using the `IN` operator
+            // const moduleCodeLessonTypes = [
+            //     {
+            //         moduleCode: swap.moduleCode,
+            //         lessonType: swap.lessonType,
+            //         classNo: swap.classNo,
+            //     },
+            //     ...desiredClasses,
+            // ];
+
+            // const drawnClasses: ClassOverview[] = [];
+
+            // const uniqueDesiredModules = new Set<string>();
+            // for (const moduleCodeLessonType of moduleCodeLessonTypes) {
+            //     // only add it to desiredModules if it's not the class that they have
+            //     if (
+            //         !(
+            //             moduleCodeLessonType.moduleCode === swap.moduleCode &&
+            //             moduleCodeLessonType.lessonType === swap.lessonType &&
+            //             moduleCodeLessonType.classNo === swap.classNo
+            //         )
+            //     ) {
+            //         uniqueDesiredModules.add(
+            //             `${moduleCodeLessonType.moduleCode}: ${moduleCodeLessonType.lessonType}`
+            //         );
+            //     }
+            //     const { moduleCode, lessonType, classNo } =
+            //         moduleCodeLessonType;
+
+            //     const possiblyDrawnClassesForThisModule: ModuleWithClassDB[] =
+            //         await executeQuery({
+            //             query: `SELECT * FROM classlist LEFT JOIN moduleList ON classlist.moduleCode = modulelist.moduleCode WHERE classlist.moduleCode = ? AND classlist.lessonType = ? AND classlist.classNo = ? AND ay = ? AND semester = ?`,
+            //             values: [
+            //                 moduleCode,
+            //                 lessonType,
+            //                 classNo,
+            //                 swap.ay,
+            //                 swap.semester,
+            //             ],
+            //         });
+
+            //     // might be more than 1: see linked classes.
+            //     // group them by classNumber
+            //     const groupedByClassNo: GroupedByClassNo = {
+            //         [classNo]: possiblyDrawnClassesForThisModule,
+            //     };
+
+            //     // convert to a timetable format
+            //     const drawnClassesForThis =
+            //         convertToTimetableList(groupedByClassNo);
+
+            //     if (drawnClassesForThis.length) {
+            //         drawnClasses.push(...drawnClassesForThis);
+            //     }
+            // }
+
+            // if (!drawnClasses.length) {
+            //     return res.status(400).json({
+            //         error: "Class data not found",
+            //         success: false,
+            //     });
+            // }
+
+            // const desiredModules = [...uniqueDesiredModules].map((m) => ({
+            //     moduleCode: m.split(":")[0].trim(),
+            //     lessonType: m.split(":")[1].trim(),
+            // })) as HalfInfo[];
+
+            // // return this data to the client
+            // const data = {
+            //     drawnClasses,
+            //     swap,
+
+            //     currentClassInfo: {
+            //         moduleCode: swap.moduleCode,
+            //         lessonType: swap.lessonType,
+            //         classNo: swap.classNo,
+            //     } as FullInfo,
+
+            //     desiredClasses,
+            //     desiredModules,
+            //     isInternalSwap:
+            //         desiredModules.length === 1 &&
+            //         desiredModules[0].moduleCode === swap.moduleCode &&
+            //         desiredModules[0].lessonType === swap.lessonType,
+            // };
+
+            // return res.status(200).json({
+            //     success: true,
+            //     data,
+            // });
+            try {
+                const data = await getSwapData(Number(swapId?.toString()));
+
+                res.status(200).json({
+                    success: true,
+                    data: data,
                 });
-
-            const swap = swapDb[0];
-
-            // 2) get the requested classes
-            const requestedClassesDb: ClassSwapFor[] = await executeQuery({
-                query: `SELECT * FROM swaps_list WHERE swapId IN (?)`,
-                values: [swap.swapId],
-            });
-
-            const desiredClasses = requestedClassesDb.map((requestedClass) => ({
-                moduleCode: requestedClass.wantedModuleCode,
-                lessonType: requestedClass.wantedLessonType,
-                classNo: requestedClass.wantedClassNo,
-            })) as FullInfo[];
-
-            // for every moduleCode and lessonType in both the current class and the desired classes, get the list of available classes
-            // TODO: see if we can optimize this by doing a single query using the `IN` operator
-            const moduleCodeLessonTypes = [
-                {
-                    moduleCode: swap.moduleCode,
-                    lessonType: swap.lessonType,
-                    classNo: swap.classNo,
-                },
-                ...desiredClasses,
-            ];
-
-            const drawnClasses: ClassOverview[] = [];
-
-            const uniqueDesiredModules = new Set<string>();
-            for (const moduleCodeLessonType of moduleCodeLessonTypes) {
-                // only add it to desiredModules if it's not the class that they have
-                if (
-                    !(
-                        moduleCodeLessonType.moduleCode === swap.moduleCode &&
-                        moduleCodeLessonType.lessonType === swap.lessonType &&
-                        moduleCodeLessonType.classNo === swap.classNo
-                    )
-                ) {
-                    uniqueDesiredModules.add(
-                        `${moduleCodeLessonType.moduleCode}: ${moduleCodeLessonType.lessonType}`
-                    );
-                }
-                const { moduleCode, lessonType, classNo } =
-                    moduleCodeLessonType;
-
-                const possiblyDrawnClassesForThisModule: ModuleWithClassDB[] =
-                    await executeQuery({
-                        query: `SELECT * FROM classlist LEFT JOIN moduleList ON classlist.moduleCode = modulelist.moduleCode WHERE classlist.moduleCode = ? AND classlist.lessonType = ? AND classlist.classNo = ? AND ay = ? AND semester = ?`,
-                        values: [
-                            moduleCode,
-                            lessonType,
-                            classNo,
-                            swap.ay,
-                            swap.semester,
-                        ],
-                    });
-
-                // might be more than 1: see linked classes.
-                // group them by classNumber
-                const groupedByClassNo: GroupedByClassNo = {
-                    [classNo]: possiblyDrawnClassesForThisModule,
-                };
-
-                // convert to a timetable format
-                const drawnClassesForThis =
-                    convertToTimetableList(groupedByClassNo);
-
-                if (drawnClassesForThis.length) {
-                    drawnClasses.push(...drawnClassesForThis);
-                }
-            }
-
-            if (!drawnClasses.length) {
-                return res.status(400).json({
-                    error: "Class data not found",
+            } catch (e) {
+                console.log(e);
+                return res.status(500).json({
                     success: false,
+                    error: "Internal server error",
                 });
             }
-
-            const desiredModules = [...uniqueDesiredModules].map((m) => ({
-                moduleCode: m.split(":")[0].trim(),
-                lessonType: m.split(":")[1].trim(),
-            })) as HalfInfo[];
-
-            // return this data to the client
-            const data = {
-                drawnClasses,
-                swap,
-
-                currentClassInfo: {
-                    moduleCode: swap.moduleCode,
-                    lessonType: swap.lessonType,
-                    classNo: swap.classNo,
-                } as FullInfo,
-
-                desiredClasses,
-                desiredModules,
-                isInternalSwap:
-                    desiredModules.length === 1 &&
-                    desiredModules[0].moduleCode === swap.moduleCode &&
-                    desiredModules[0].lessonType === swap.lessonType,
-            };
-
-            return res.status(200).json({
-                success: true,
-                data,
-            });
 
             // const possiblyDrawnClasses = await executeQuery({
             //     query: `SELECT * FROM classlist LEFT JOIN modulelist ON classlist.moduleCode = modulelist.moduleCode WHERE classlist.moduleCode IN (?) AND classlist.lessonType IN (?) AND `,

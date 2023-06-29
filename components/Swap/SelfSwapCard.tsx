@@ -48,8 +48,17 @@ const SelfSwapCard: React.FC<{
     ) => any;
     hasRequestedSwap: string;
     swapData: SwapData | undefined;
-    promptDelete: (swapId: number) => (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void
-}> = ({ swap, user, requestSwap, hasRequestedSwap, swapData, promptDelete }) => {
+    promptDelete: (
+        swapId: number
+    ) => (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
+}> = ({
+    swap,
+    user,
+    requestSwap,
+    hasRequestedSwap,
+    swapData,
+    promptDelete,
+}) => {
     const state = useSelector((state: RootState) => state);
     const highlightedColor = useColorModeValue("green.200", "green.700");
 
@@ -96,7 +105,7 @@ const SelfSwapCard: React.FC<{
                     <Stack spacing={3}>
                         <Flex alignItems="center">
                             <HStack flex={1}>
-                                <UserDisplay user={swap} />
+                                <UserDisplay swap={swap} />
                             </HStack>
                             <Button
                                 size="sm"

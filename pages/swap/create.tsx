@@ -113,17 +113,19 @@ const DESIRED_CLASS_COLOR = "teal.500";
  * @returns
  */
 export const convertToTimetableList = (data: GroupedByClassNo) => {
-    return Object.keys(data).map((classNo) => {
-        const classes = data[classNo];
-        return {
-            classNo,
-            moduleCode: classes[0].moduleCode,
-            lessonType: classes[0].lessonType,
-            moduleName: classes[0].moduleName,
-            size: classes[0].size,
-            classes,
-        };
-    });
+    return Object.keys(data)
+        .filter((classNo) => data[classNo].length !== 0)
+        .map((classNo) => {
+            const classes = data[classNo];
+            return {
+                classNo,
+                moduleCode: classes[0].moduleCode,
+                lessonType: classes[0].lessonType,
+                moduleName: classes[0].moduleName,
+                size: classes[0].size,
+                classes,
+            };
+        });
 };
 const Step1: React.FC<{
     nextStep: () => void;
