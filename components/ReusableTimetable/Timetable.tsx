@@ -333,7 +333,7 @@ const Timetable: React.FC<{
                                                     .map((class_, i) => {
                                                         return (
                                                             <Box
-                                                                key={i}
+                                                                key={i * 1000}
                                                                 height="100%"
                                                                 width={`${calculateWidthPercent(
                                                                     class_.startTime,
@@ -564,8 +564,13 @@ const calculateMinutesBeforeThePreviousClass = (
     );
 
     // find the index of our class
+    // note: we need the last two conditions because there are some classes that are the same.
+    // this would mean that the index of the supposed current class we are checking for is incorrect
     const index = inTheSameRow.findIndex(
-        (class_2) => class_2.classNo === class_.classNo
+        (class_2) =>
+            class_2.classNo === class_.classNo &&
+            class_2.startTime === class_.startTime &&
+            class_2.endTime === class_.endTime
     );
 
     // if index is 0, then we are the first class in the row, so we return the difference between our start time and the earliest timing
@@ -576,10 +581,11 @@ const calculateMinutesBeforeThePreviousClass = (
         );
     } else {
         // return the different between index - 1 and us
-        return (
+        const diff =
             convertToMinutes(class_.startTime) -
-            convertToMinutes(inTheSameRow[index - 1].endTime)
-        );
+            convertToMinutes(inTheSameRow[index - 1].endTime);
+
+        return diff;
     }
 };
 export default React.memo(Timetable);
