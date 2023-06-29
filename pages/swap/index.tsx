@@ -87,7 +87,7 @@ import SelfSwapCard from "../../components/Swap/SelfSwapCard";
 import { GetSwapClassesData } from "../api/swap/[swapId]";
 import { TbCheck, TbChevronDown, TbNewSection, TbPlus } from "react-icons/tb";
 import { LessonType } from "../../types/modules";
-const SWAP_VISIBLE_AMOUNT = 10;
+const SWAP_VISIBLE_AMOUNT = 2;
 const CustomCardProps = {
     _hover: {
         boxShadow: "lg",
@@ -131,21 +131,24 @@ const Swap = (
         if (state.user) {
             setUser(state.user);
             // populate the user swaps
-            const self = props.openSwaps.filter(
-                (swapData) => swapData.swap.from_t_id === state.user?.id
-            );
+            // const self = props.openSwaps.filter(
+            //     (swapData) => swapData.swap.from_t_id === state.user?.id
+            // );
 
-            // remove the user swaps from the open swaps
-            const open = props.openSwaps.filter(
-                (swapData) => swapData.swap.from_t_id !== state.user?.id
-            );
-            setAllSwapData({
-                openSwaps: open,
-                selfSwaps: self,
-            });
+            // // remove the user swaps from the open swaps
+            // const open = props.openSwaps.filter(
+            //     (swapData) => swapData.swap.from_t_id !== state.user?.id
+            // );
+            // setAllSwapData({
+            //     openSwaps: open,
+            //     selfSwaps: self,
+            // });
 
-            setVisibleSwaps(open.slice(0, SWAP_VISIBLE_AMOUNT));
-        } else setUser(undefined);
+            // setVisibleSwaps(open.slice(0, SWAP_VISIBLE_AMOUNT));
+        } else {
+            setUser(undefined);
+            setRequestState({});
+        }
     }, [state.user, props.openSwaps]);
 
     // Get current swap requests
@@ -171,62 +174,60 @@ const Swap = (
 
     const borderColor = useColorModeValue("gray.200", "gray.700");
 
-    const [hasRequestedSwap, setHasRequestedSwap] = useState("");
+    const [requestState, setRequestState] = useState<{
+        [swapId: number]: string;
+    }>({});
 
-    const requestSwap =
-        (
-            swapId: number,
-            user: TelegramUser | null,
-            type: "request" | "remove"
-        ) =>
-        async (e: MouseEvent<HTMLButtonElement>) => {
-            try {
-                e.stopPropagation();
+    const requestSwap = async (
+        swapId: number,
+        user: TelegramUser | null,
+        type: "request" | "remove"
+    ) => {
+        try {
+            const response = await requestSwapHelper(
+                dispatch,
+                swapId,
+                user,
+                type
+            );
+            if (!response) return;
+            if (response.error || !response.success) {
+                toast({
+                    title: "Error",
+                    description: response?.error,
+                    status: "error",
+                    duration: 5000,
+                    isClosable: true,
+                });
+            } else {
+                // update swap data: response.data contains the new requestors
+                // prevent user from selecting the button again
 
-                const response = await requestSwapHelper(
-                    dispatch,
-                    swapId,
-                    user,
-                    type
-                );
-                if (!response) return;
-                if (response.error || !response.success) {
-                    toast({
-                        title: "Error",
-                        description: response?.error,
-                        status: "error",
-                        duration: 5000,
-                        isClosable: true,
-                    });
-                } else {
-                    // update swap data: response.data contains the new requestors
-                    // prevent user from selecting the button again
-                    setHasRequestedSwap(
-                        type === "remove" ? "Unrequested!" : "Requested!"
-                    );
-
-                    toast({
-                        title: "Success",
-                        description:
-                            type === "remove"
-                                ? "Removed your request!"
-                                : "Requested! They will contact you shortly.",
-                        status: "success",
-                        duration: 3000,
-                    });
-                }
-            } catch (e) {}
-        };
+                setRequestState((prev) => ({
+                    ...prev,
+                    [swapId]:
+                        type === "remove" ? "Request removed!" : "Requested!",
+                }));
+                toast({
+                    title: "Success",
+                    description:
+                        type === "remove"
+                            ? "Removed your request!"
+                            : "Requested! They will contact you shortly.",
+                    status: "success",
+                    duration: 3000,
+                });
+            }
+        } catch (e) {}
+    };
 
     const toast = useToast();
     const disclosure = useDisclosure();
     const [deletingSwapId, setDeletingSwapId] = useState(0);
-    const promptDelete =
-        (swapId: number) => (e: MouseEvent<HTMLButtonElement>) => {
-            e.stopPropagation();
-            disclosure.onOpen();
-            setDeletingSwapId(swapId);
-        };
+    const promptDelete = (swapId: number) => {
+        disclosure.onOpen();
+        setDeletingSwapId(swapId);
+    };
     const handleDelete = async () => {
         const response = await sendDELETE(`/api/swap/${deletingSwapId}`, user);
         if (response.success) {
@@ -236,7 +237,14 @@ const Swap = (
                 duration: 3000,
                 isClosable: true,
             });
-            setCounter((prev) => prev + 1);
+            // remove the swap from the list
+            setAllSwapData((prev) => ({
+                ...prev,
+
+                selfSwaps: prev.selfSwaps.filter(
+                    (swapData) => swapData.swap.id !== deletingSwapId
+                ),
+            }));
         } else {
             toast({
                 title: "Error deleting swap",
@@ -367,44 +375,44 @@ const Swap = (
         return t;
     }, [_visibleSwaps, searchQuery, selectedLessonTypes]);
 
-    const selectModuleCodeLessonTypeHandler = (opt: Option) => {
-        dispatch(miscActions.setHighlightedClassNos([]));
-        setSelectedModuleCodeLessonType(opt);
-        setAvailableClassNos([]);
-        setSelectedClassNo(null);
-        if (!opt) return;
-        const moduleCode = opt.value.split(": ")[0];
-        const lessonType = opt.value.split(": ")[1];
-        const swapsMatching = allSwapsData?.openSwaps.filter(
-            (swapData) =>
-                swapData.swap.moduleCode === moduleCode &&
-                swapData.swap.lessonType === lessonType
-        );
+    // const selectModuleCodeLessonTypeHandler = (opt: Option) => {
+    //     dispatch(miscActions.setHighlightedClassNos([]));
+    //     setSelectedModuleCodeLessonType(opt);
+    //     setAvailableClassNos([]);
+    //     setSelectedClassNo(null);
+    //     if (!opt) return;
+    //     const moduleCode = opt.value.split(": ")[0];
+    //     const lessonType = opt.value.split(": ")[1];
+    //     const swapsMatching = allSwapsData?.openSwaps.filter(
+    //         (swapData) =>
+    //             swapData.swap.moduleCode === moduleCode &&
+    //             swapData.swap.lessonType === lessonType
+    //     );
 
-        // the list of available class numbers for this slot
-        const availableClassNos: string[] = [];
-        // TODO: fix this
-        // swapsMatching?.forEach((swap) => {
-        //     if (swapData?.requestedClasses[swap.swapId]) {
-        //         const requestedClasses =
-        //             swapData?.requestedClasses[swap.swapId];
-        //         const classNos = requestedClasses.map(
-        //             (key) => key.wantedClassNo
-        //         );
-        //         availableClassNos.push(...classNos);
-        //         availableClassNos.push(swap.classNo);
-        //     }
-        // });
+    //     // the list of available class numbers for this slot
+    //     const availableClassNos: string[] = [];
+    //     // TODO: fix this
+    //     // swapsMatching?.forEach((swap) => {
+    //     //     if (swapData?.requestedClasses[swap.swapId]) {
+    //     //         const requestedClasses =
+    //     //             swapData?.requestedClasses[swap.swapId];
+    //     //         const classNos = requestedClasses.map(
+    //     //             (key) => key.wantedClassNo
+    //     //         );
+    //     //         availableClassNos.push(...classNos);
+    //     //         availableClassNos.push(swap.classNo);
+    //     //     }
+    //     // });
 
-        // remvoe duplicates from availableClassNos
-        const uniqueAvailableClassNos = [...new Set(availableClassNos.flat())];
-        setAvailableClassNos(uniqueAvailableClassNos);
-    };
-    const selectClassNoHandler = (opt: Option) => {
-        setSelectedClassNo(opt);
-        if (!opt) dispatch(miscActions.setHighlightedClassNos([]));
-        else dispatch(miscActions.setHighlightedClassNos([opt.value]));
-    };
+    //     // remvoe duplicates from availableClassNos
+    //     const uniqueAvailableClassNos = [...new Set(availableClassNos.flat())];
+    //     setAvailableClassNos(uniqueAvailableClassNos);
+    // };
+    // const selectClassNoHandler = (opt: Option) => {
+    //     setSelectedClassNo(opt);
+    //     if (!opt) dispatch(miscActions.setHighlightedClassNos([]));
+    //     else dispatch(miscActions.setHighlightedClassNos([opt.value]));
+    // };
 
     const checkIfShouldDisplay = (swap: ClassSwapRequest) => {
         if (!selectedModuleCodeLessonType && !selectedClassNo) return true;
@@ -451,6 +459,7 @@ const Swap = (
     const [visibleAmount, setVisibleAmount] = useState(SWAP_VISIBLE_AMOUNT);
 
     const handleLoadMore = () => {
+        console.log("Loading more...");
         const newVisibleAmount = visibleAmount + SWAP_VISIBLE_AMOUNT;
         setVisibleAmount(newVisibleAmount);
         setVisibleSwaps(allSwapsData?.openSwaps.slice(0, newVisibleAmount));
@@ -506,53 +515,6 @@ const Swap = (
                     borderColor={borderColor}
                 >
                     <TabPanel>
-                        {/* <SimpleGrid
-                            columns={{ base: 1, md: 2 }}
-                            mb={3}
-                            spacing={3}
-                        >
-                            <Select
-                                // first filter the array, making a string[] so we cna remove duplicates with set, then map it back into Option
-                                options={[
-                                    ...new Set(
-                                        allSwapsData?.openSwaps.map(
-                                            (swapData) =>
-                                                `${swapData.swap.moduleCode}: ${swapData.swap.lessonType}`
-                                        )
-                                    ),
-                                ]
-                                    .map((moduleCodeLessonType) => ({
-                                        value: moduleCodeLessonType,
-                                        label: moduleCodeLessonType,
-                                    }))
-                                    .sort((a, b) =>
-                                        a.label.localeCompare(b.label)
-                                    )}
-                                placeholder="Filter by course and lesson type (tut/sec etc...)"
-                                value={selectedModuleCodeLessonType}
-                                isClearable
-                                onChange={(opt: any) =>
-                                    selectModuleCodeLessonTypeHandler(opt)
-                                }
-                            />
-                            <Select
-                                placeholder="Filter by class number..."
-                                options={availableClassNos
-                                    .map((class_) => ({
-                                        label: class_,
-                                        value: class_,
-                                    }))
-                                    .sort((a, b) =>
-                                        a.label.localeCompare(b.label)
-                                    )}
-                                onChange={(opt: any) =>
-                                    selectClassNoHandler(opt)
-                                }
-                                value={selectedClassNo}
-                                isClearable
-                            />
-                        </SimpleGrid> */}
-
                         <Flex mb={4}>
                             <InputGroup size="sm">
                                 <Input
@@ -622,17 +584,16 @@ const Swap = (
                                     </MenuOptionGroup>
                                 </MenuList>
                             </Menu>
-                            <Button
+                            {/* <Button
                                 colorScheme="blue"
                                 size="sm"
                                 ml={2}
                                 leftIcon={<TbPlus />}
                             >
                                 New
-                            </Button>
+                            </Button> */}
                         </Flex>
 
-                        {/* The below section should be visible when the user is NOT filtering anything */}
                         {!selectedModuleCodeLessonType && (
                             <InfiniteScroll
                                 dataLength={visibleSwaps?.length || 0}
@@ -663,13 +624,86 @@ const Swap = (
                                             ) && (
                                                 <SwapCard
                                                     key={index}
-                                                    hasRequestedSwap={
-                                                        hasRequestedSwap
-                                                    }
-                                                    requestSwap={requestSwap}
                                                     swap={swapData.swap}
                                                     swapData={swapData}
                                                     user={user}
+                                                    RequestButton={
+                                                        swapData.swap.requestors.includes(
+                                                            (
+                                                                user?.id ||
+                                                                "LONG_STRING_THAT_DOESNT_EXIST"
+                                                            ).toString()
+                                                        ) ? (
+                                                            <Button
+                                                                ml={3}
+                                                                size="xs"
+                                                                colorScheme={
+                                                                    "blue"
+                                                                }
+                                                                onClick={(
+                                                                    e
+                                                                ) => {
+                                                                    e.stopPropagation();
+                                                                    requestSwap(
+                                                                        swapData
+                                                                            .swap
+                                                                            .swapId,
+                                                                        user ||
+                                                                            null,
+                                                                        "remove"
+                                                                    );
+                                                                }}
+                                                                isDisabled={
+                                                                    !!requestState[
+                                                                        swapData
+                                                                            .swap
+                                                                            .swapId
+                                                                    ]
+                                                                }
+                                                            >
+                                                                {requestState[
+                                                                    swapData
+                                                                        .swap
+                                                                        .swapId
+                                                                ] ||
+                                                                    "Remove request"}
+                                                            </Button>
+                                                        ) : (
+                                                            <Button
+                                                                ml={3}
+                                                                size="xs"
+                                                                colorScheme={
+                                                                    "blue"
+                                                                }
+                                                                onClick={(
+                                                                    e
+                                                                ) => {
+                                                                    e.stopPropagation();
+                                                                    requestSwap(
+                                                                        swapData
+                                                                            .swap
+                                                                            .swapId,
+                                                                        user ||
+                                                                            null,
+                                                                        "request"
+                                                                    );
+                                                                }}
+                                                                isDisabled={
+                                                                    !!requestState[
+                                                                        swapData
+                                                                            .swap
+                                                                            .swapId
+                                                                    ]
+                                                                }
+                                                            >
+                                                                {requestState[
+                                                                    swapData
+                                                                        .swap
+                                                                        .swapId
+                                                                ] || "Request"}
+                                                            </Button>
+                                                        )
+                                                    }
                                                 />
                                             )
                                     )}
@@ -678,7 +712,7 @@ const Swap = (
                         )}
 
                         {/* The below section should be visible when filtering. We do not infinite-scroll when filtering. */}
-                        {selectedModuleCodeLessonType && (
+                        {/* {selectedModuleCodeLessonType && (
                             <SimpleGrid
                                 columns={{ base: 1, md: 1 }}
                                 spacing={3}
@@ -699,7 +733,7 @@ const Swap = (
                                         )
                                 )}
                             </SimpleGrid>
-                        )}
+                        )} */}
                     </TabPanel>
                     {user && (
                         <TabPanel>
@@ -717,11 +751,25 @@ const Swap = (
                                         // />
                                         <SwapCard
                                             key={index}
-                                            hasRequestedSwap={hasRequestedSwap}
-                                            requestSwap={requestSwap}
                                             swap={swapData.swap}
                                             swapData={swapData}
                                             user={user}
+                                            RequestButton={
+                                                <Button
+                                                    ml={3}
+                                                    size="xs"
+                                                    colorScheme={"red"}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        promptDelete(
+                                                            swapData.swap.swapId
+                                                        );
+                                                    }}
+                                                >
+                                                    {" "}
+                                                    Delete{" "}
+                                                </Button>
+                                            }
                                         />
                                     )
                                 )}

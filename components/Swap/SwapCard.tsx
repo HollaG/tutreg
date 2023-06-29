@@ -43,14 +43,23 @@ const CustomCardProps = {
 const SwapCard: React.FC<{
     swap: ClassSwapRequest;
     user: TelegramUser | null | undefined;
-    requestSwap: (
-        swapId: number,
-        user: TelegramUser | null,
-        type: "request" | "remove"
-    ) => any;
-    hasRequestedSwap: string;
+    // requestSwap: (
+    //     swapId: number,
+    //     user: TelegramUser | null,
+    //     type: "request" | "remove"
+    // ) => any;
+    // hasRequestedSwap: string;
     swapData: GetSwapClassesData;
-}> = ({ swap, user, requestSwap, hasRequestedSwap, swapData }) => {
+
+    RequestButton: React.ReactElement;
+}> = ({
+    swap,
+    user,
+    // requestSwap,
+    // hasRequestedSwap,
+    swapData,
+    RequestButton,
+}) => {
     const state = useSelector((state: RootState) => state);
     const highlightedColor = useColorModeValue("green.200", "green.700");
 
@@ -64,7 +73,10 @@ const SwapCard: React.FC<{
                 }}
             >
                 <Flex justifyContent={"space-between"}>
-                    <UserDisplay swap={swap} />
+                    <Flex alignItems={"center"}>
+                        <UserDisplay swap={swap} />
+                        {RequestButton}
+                    </Flex>
                     <Text fontSize="sm" fontWeight="semibold">
                         {formatTimeElapsed(swap.createdAt.toString())}
                     </Text>

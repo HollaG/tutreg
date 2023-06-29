@@ -57,7 +57,7 @@ const SwapCodeIndicator = ({
             c.lessonType === currentClassInfo.lessonType &&
             c.classNo === currentClassInfo.classNo
     );
-
+    const borderColor = useColorModeValue("black", "white");
     return !desiredModulesInfo ? (
         <Heading fontSize="2xl" display="flex" alignItems="center">
             <Icon viewBox="0 0 200 200" color={`orange.500`} mr={1}>
@@ -71,11 +71,12 @@ const SwapCodeIndicator = ({
     ) : (
         <Flex justifyContent={"left"}>
             <Stack flexWrap="wrap">
-                <Flex display="flex" alignItems="center">
+                <Flex display="flex" alignItems="center" flexWrap={"wrap"}>
                     <Icon
                         viewBox="0 0 200 200"
                         color={`${"orange.500"}`}
                         mr={1}
+                        fontSize="2xl"
                     >
                         <path
                             fill="currentColor"
@@ -97,10 +98,7 @@ const SwapCodeIndicator = ({
                                 }
                                 onMouseLeave={() => onHover && onHover(null)}
                                 borderBottom="1px dotted"
-                                borderBottomColor={useColorModeValue(
-                                    "black",
-                                    "white"
-                                )}
+                                borderBottomColor={borderColor}
                                 cursor="help"
                                 fontSize="2xl"
                             >
@@ -194,10 +192,9 @@ const SwapCodeIndicator = ({
                                                                 onHover(null)
                                                             }
                                                             borderBottom="1px dotted"
-                                                            borderBottomColor={useColorModeValue(
-                                                                "black",
-                                                                "white"
-                                                            )}
+                                                            borderBottomColor={
+                                                                borderColor
+                                                            }
                                                             cursor="help"
                                                         >
                                                             {dc.classNo}

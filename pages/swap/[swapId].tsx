@@ -86,7 +86,6 @@ export const getServerSideProps: GetServerSideProps<{
     const userData = await sendPOST(`${ROOT_URL}api/swap/${swapId}`, {});
     const safeUsers = userData.data;
 
-    console.log({ data });
     return {
         props: {
             response: data,
@@ -98,7 +97,6 @@ export const getServerSideProps: GetServerSideProps<{
 const SpecificSwap = (
     props: InferGetServerSidePropsType<typeof getServerSideProps>
 ) => {
-    console.log(props);
     const router = useRouter();
     const { swapId } = router.query as { swapId: string };
 
@@ -274,7 +272,7 @@ const SpecificSwap = (
 
     // handle the expansion of the desired modules
     const [hoveredClass, setHoveredClass] = useState<null | FullInfo>(null);
-    console.log({ hoveredClass });
+
     const getClassNames = (class_: TimetableLessonEntry) => {
         if (
             class_.classNo === hoveredClass?.classNo &&
@@ -318,7 +316,12 @@ const SpecificSwap = (
                             {user?.id === swap.from_t_id &&
                                 cleanArrayString(swap.requestors).length && (
                                     <>
-                                        <TbArrowsDownUp fontSize={"1.75em"} />
+                                        <Flex alignItems={"center"}>
+                                            <TbArrowsDownUp
+                                                fontSize={"1.75em"}
+                                            />
+                                            <Text ml={2}> requested </Text>
+                                        </Flex>
                                         <Wrap>
                                             {swap.requestors
                                                 .trim()
