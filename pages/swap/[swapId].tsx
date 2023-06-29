@@ -473,6 +473,7 @@ const SpecificSwap = (
                     desiredModulesInfo={desiredModules}
                     currentClassInfo={currentClassInfo}
                     perspective={user?.id === swap.from_t_id ? "self" : "other"}
+                    desiredClassesInfo={desiredClasses}
                 />
                 <Timetable
                     classesToDraw={drawnClasses}

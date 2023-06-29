@@ -76,9 +76,18 @@ export default async function handler(
 
             const uniqueDesiredModules = new Set<string>();
             for (const moduleCodeLessonType of moduleCodeLessonTypes) {
-                uniqueDesiredModules.add(
-                    `${moduleCodeLessonType.moduleCode}: ${moduleCodeLessonType.lessonType}`
-                );
+                // only add it to desiredModules if it's not the class that they have
+                if (
+                    !(
+                        moduleCodeLessonType.moduleCode === swap.moduleCode &&
+                        moduleCodeLessonType.lessonType === swap.lessonType &&
+                        moduleCodeLessonType.classNo === swap.classNo
+                    )
+                ) {
+                    uniqueDesiredModules.add(
+                        `${moduleCodeLessonType.moduleCode}: ${moduleCodeLessonType.lessonType}`
+                    );
+                }
                 const { moduleCode, lessonType, classNo } =
                     moduleCodeLessonType;
 
