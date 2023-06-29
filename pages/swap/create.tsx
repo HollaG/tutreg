@@ -490,6 +490,7 @@ const ModuleSelectStep2: React.FC<{
                 currentClassInfo={currentClassInfo}
                 desiredClassesInfo={desiredClasses}
                 onHover={setHoveredClass}
+                drawnClasses={possibleClasses}
             />
             <Timetable
                 classesToDraw={possibleClasses}
@@ -616,6 +617,7 @@ const Step3: React.FC<{
                 currentClassInfo={currentClassInfo}
                 desiredClassesInfo={desiredClasses}
                 onHover={setHoveredClass}
+                drawnClasses={displayedClasses}
             />
             <Timetable
                 classesToDraw={displayedClasses}

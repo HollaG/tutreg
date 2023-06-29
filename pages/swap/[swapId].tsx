@@ -485,6 +485,7 @@ const SpecificSwap = (
                     currentClassInfo={currentClassInfo}
                     desiredClassesInfo={desiredClasses}
                     onHover={setHoveredClass}
+                    drawnClasses={drawnClasses}
                 />
                 <Timetable
                     classesToDraw={drawnClasses}

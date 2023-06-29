@@ -450,3 +450,13 @@ export const keepAndCapFirstThree = (str: string) => {
     if (words.length <= 3) return str;
     else return words.slice(0, 3).join("").toUpperCase();
 };
+
+/**
+ * Converts a full date (e.g. Thursday) to a 3-letter abbreviation (e.g. Thu)
+ *
+ * @param day Full day of the week (e.g. Thursday)
+ * @returns 3-letter abbreviation of the day e.g. Thu
+ */
+export const convertDayToAbbrev = (day: string) => {
+    return day.slice(0, 3);
+};
