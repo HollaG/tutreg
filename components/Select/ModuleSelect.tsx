@@ -14,9 +14,10 @@ const ModuleSelect: React.FC<{
     onSelect?: (option: Option[]) => void;
     isMulti?: boolean;
 
-    setModuleCodeLessonTypeValue: Dispatch<SetStateAction<string>>;
-    moduleCodeLessonTypeValue: string;
-}> = ({ onSelect, isMulti = true }) => {
+    setModuleCodeLessonTypeValue?: Dispatch<SetStateAction<string>>;
+    moduleCodeLessonTypeValue?: string;
+    defaultValue?: Option;
+}> = ({ onSelect, isMulti = true, defaultValue }) => {
     // fetch the list of modules from nusmods
     const [moduleList, setModuleList] = useState<ModuleCondensed[]>();
     const data = useSelector((state: RootState) => state.classesInfo);
@@ -129,6 +130,7 @@ const ModuleSelect: React.FC<{
                 loadOptions={loadOptions}
                 onInputChange={handleInputChange}
                 onChange={(newValue: any) => handleSelectChange(newValue)}
+                defaultValue={defaultValue}
             />
             <FormHelperText>Search for a course (min. 3 chars)</FormHelperText>
             <FormHelperText>

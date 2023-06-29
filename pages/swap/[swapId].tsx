@@ -1,5 +1,5 @@
 import { ArrowDownIcon, ExternalLinkIcon, TimeIcon } from "@chakra-ui/icons";
-import { TbArrowsDownUp } from "react-icons/tb";
+import { TbArrowsDownUp, TbArrowsUpRight } from "react-icons/tb";
 import {
     Alert,
     AlertIcon,
@@ -9,10 +9,21 @@ import {
     Box,
     Button,
     Center,
+    Collapse,
     Flex,
+    Heading,
     HStack,
+    Icon,
     Link,
+    Popover,
+    PopoverArrow,
+    PopoverBody,
+    PopoverCloseButton,
+    PopoverContent,
+    PopoverHeader,
+    PopoverTrigger,
     SimpleGrid,
+    Slide,
     Stack,
     Tag,
     Text,
@@ -22,7 +33,11 @@ import {
     Wrap,
     WrapItem,
 } from "@chakra-ui/react";
-import type { NextPage } from "next";
+import type {
+    GetServerSideProps,
+    InferGetServerSidePropsType,
+    NextPage,
+} from "next";
 import { useRouter } from "next/router";
 import { useEffect, useState, MouseEvent } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -45,12 +60,43 @@ import { requestSwapHelper } from "../../lib/helpers";
 import { miscActions } from "../../store/misc";
 import { ModuleWithClassDB } from "../../types/db";
 import { ClassOverview, ClassSwapRequest, RootState } from "../../types/types";
-import { SpecificSwapData } from "../api/swap/[swapId]";
+import {
+    GetSwapClassesData,
+    SpecificSwapResponseData,
+} from "../api/swap/[swapId]";
 import UserAvatar from "../../components/User/UserAvatar";
 import { TimetableLessonEntry } from "../../types/timetable";
 import Timetable from "../../components/ReusableTimetable/Timetable";
+import { GetSwapDataResponse, SwapData } from "../api/swap";
+import SwapCodeIndicator from "../../components/Swap/SwapModuleCodeIndicator";
 
-const SpecificSwap: NextPage = () => {
+const ROOT_URL = process.env.NEXT_PUBLIC_ROOT_URL;
+
+export const getServerSideProps: GetServerSideProps<{
+    response: GetSwapClassesData;
+    users: TelegramUser[];
+}> = async (ctx) => {
+    // get the data about this swap
+    const { swapId } = ctx.query;
+    const res = await fetch(`${ROOT_URL}api/swap/${swapId}`);
+    const data: GetSwapClassesData = (await res.json()).data;
+
+    const userData = await sendPOST(`${ROOT_URL}api/swap/${swapId}`, {});
+    const safeUsers = userData.data;
+
+    console.log({ data });
+    return {
+        props: {
+            response: data,
+            users: safeUsers,
+        },
+    };
+};
+
+const SpecificSwap = (
+    props: InferGetServerSidePropsType<typeof getServerSideProps>
+) => {
+    console.log(props);
     const router = useRouter();
     const { swapId } = router.query as { swapId: string };
 
@@ -58,25 +104,38 @@ const SpecificSwap: NextPage = () => {
     // const [swap, setSwap] = useState<ClassSwapRequest>();
     // const [classData, setClassData] = useState<ModuleWithClassDB[]>();
 
-    const [swapData, setSwapData] = useState<SpecificSwapData>();
-    const [users, setUsers] = useState<TelegramUser[]>([]);
-    const { swap, groupedByClassNo, requestedClassNos } = swapData || {};
+    const [swapData, setSwapData] = useState<GetSwapClassesData | undefined>(
+        props.response
+    );
+    const [users, setUsers] = useState<TelegramUser[]>(props.users || []);
+    const {
+        swap,
+        drawnClasses,
+        currentClassInfo,
+        desiredClasses,
+        isInternalSwap,
+        desiredModules,
+    } = swapData || {
+        swap: undefined,
+        drawnClasses: [],
+        currentClassInfo: {
+            classNo: "",
+            lessonType: "Lecture",
+            moduleCode: "",
+        },
+        desiredClasses: [],
+        desiredModules: [],
+    };
 
-    const user = useSelector((state: RootState) => state.user);
-    const misc = useSelector((state: RootState) => state.misc);
+    // prevent hydration errors with user
+    const _user = useSelector((state: RootState) => state.user);
+    const [user, setUser] = useState<TelegramUser | null>(null);
 
     useEffect(() => {
-        if (swapId) {
-            fetch(`/api/swap/${swapId}`)
-                .then((res) => res.json())
-                .then((data) => {
-                    // setSwap(data);
-                    if (data.success && data.data) {
-                        setSwapData(data.data);
-                    }
-                });
-        }
-    }, [swapId]);
+        setUser(_user);
+    }, [_user]);
+
+    const misc = useSelector((state: RootState) => state.misc);
 
     useEffect(() => {
         if (!swapId) return;
@@ -84,11 +143,6 @@ const SpecificSwap: NextPage = () => {
             // make a fetch request to find the users who have requested this swap
             // only if you are the creator of the swap
             sendPOST(`/api/swap/${swapId}`, user).then((data) =>
-                setUsers(data.data)
-            );
-        } else {
-            // the fetch request should not return the users' usernames and id, only the profile picture and first_name if not the creator of the swap
-            sendPOST(`/api/swap/${swapId}`, {}).then((data) =>
                 setUsers(data.data)
             );
         }
@@ -203,55 +257,34 @@ const SpecificSwap: NextPage = () => {
         }
     };
 
-    const toggleNotification = () => {
-        if (user) {
-            sendPOST("/api/users/toggleNotification", {
-                id: user.id,
-                hash: user.hash,
-            }).then((res) => {
-                dispatch(miscActions.updateNotificationStatus(res.data));
-                toast({
-                    title: `Notifications ${res.data ? "enabled" : "disabled"}`,
-
-                    status: "success",
-                    duration: 3000,
-                    isClosable: true,
-                });
-            });
-        }
-    };
-
-    const lst: ClassOverview[] = Object.keys(groupedByClassNo || []).map(
-        (classNo) => {
-            const classes_ = groupedByClassNo![classNo];
-            return {
-                classNo,
-                moduleCode: classes_[0].moduleCode,
-                lessonType: classes_[0].lessonType,
-                moduleName: classes_[0].moduleName,
-                size: classes_[0].size,
-                classes: classes_,
-            };
-        }
-    );
-
     const getProperty = (class_: TimetableLessonEntry) => {
-        if (requestedClassNos?.includes(class_.classNo)) return "selected";
-        else return "readonly";
+        // if (requestedClassNos?.includes(class_.classNo)) return "selected";
+        // else return "readonly";
+
+        if (
+            currentClassInfo.classNo === class_.classNo &&
+            currentClassInfo.moduleCode === class_.moduleCode &&
+            currentClassInfo.lessonType === class_.lessonType
+        ) {
+            return "readonly";
+        } else return "selected";
     };
 
-    if (swap && groupedByClassNo && requestedClassNos && swapId)
-        return (
-            <Stack spacing={5} alignItems="center" h="100%">
-                {user && user.id === swap.from_t_id && !misc.notify && (
-                    <Alert status="info">
-                        <AlertIcon />
-                        To receive notifications on Telegram when someone
-                        requests your swap, click the bell in the top-right
-                        corner.
-                    </Alert>
-                )}
-                <Card>
+    // handle the expansion of the desired modules
+    const [hoveredIndex, setHoveredIndex] = useState(-1);
+
+    if (!swap) return <> Missing info </>;
+    return (
+        <Stack spacing={5} alignItems="center" h="100%">
+            {user && user.id === swap.from_t_id && !misc.notify && (
+                <Alert status="info">
+                    <AlertIcon />
+                    To receive notifications on Telegram when someone requests
+                    your swap, click the bell in the top-right corner.
+                </Alert>
+            )}
+            <Card>
+                <Stack>
                     <HStack alignItems="center" justifyContent="center">
                         <TimeIcon />
                         <Text>
@@ -426,66 +459,34 @@ const SpecificSwap: NextPage = () => {
                             </Button>
                         )}
                     </Flex>
-                </Card>
-
-                {/* <SwapEntry
-                    badge={swap.moduleCode}
-                    classNo={swap.classNo}
-                    classes={groupedByClassNo[swap.classNo]}
-                    title={`${swap.moduleCode}
-                                ${encodeLessonTypeToShorthand(
-                                    swap.lessonType
-                                )} [${swap.classNo}]`}
-                    link={`https://nusmods.com/modules/${swap.moduleCode}`}
-                />
-
-                <SwapArrows />
-                {requestedClassNos.map((classNo, index) => (
-                    <SwapEntry
-                        key={index}
-                        classNo={classNo}
-                        classes={groupedByClassNo[classNo]}
-                        title={`${encodeLessonTypeToShorthand(
-                            swap.lessonType
-                        )} [${classNo}]`}
-                    />
-                ))} */}
-                {/* {classData.map((classSel, index) => (
-                    <SwapEntry classNo={classSel.classNo} classes={classSel.}/>
-                ))} */}
-                <Box w="full">
-                    <Flex
-                        justifyContent={"space-between"}
-                        alignItems="center"
-                        flexWrap="wrap"
-                    >
-                        <Badge
-                            fontSize={"2xl"}
-                            colorScheme="orange"
-                            // variant="solid"
-                            mb={2}
-                        >
-                            {swap.moduleCode}: {swap.lessonType}
-                        </Badge>
-                        {/* <Text fontSize={"3xl"} fontWeight="semibold"> {swap.moduleCode}: {swap.lessonType}</Text> */}
+                    {swap.comments && (
                         <Box>
-                            <Stack direction={{ base: "row", sm: "row" }}>
-                                <Tag colorScheme="red">Class they have</Tag>
-                                <Tag colorScheme="teal">Classes they want</Tag>
-                            </Stack>
+                            <Heading fontSize="lg">Comments</Heading>
+                            <Text>{swap.comments}</Text>
                         </Box>
-                    </Flex>
-                    <Timetable
-                        classesToDraw={lst}
-                        onSelected={() => {}}
-                        property={getProperty}
-                    />
-                </Box>
+                    )}
+                </Stack>
+            </Card>
 
-                <ConfirmDelete {...deleteDisclosure} cb={handleDelete} />
-                <ConfirmComplete {...completeDisclosure} cb={handleComplete} />
-            </Stack>
-        );
+            <Box w="full">
+                <SwapCodeIndicator
+                    desiredModulesInfo={desiredModules}
+                    currentClassInfo={currentClassInfo}
+                    perspective={user?.id === swap.from_t_id ? "self" : "other"}
+                />
+                <Timetable
+                    classesToDraw={drawnClasses}
+                    onSelected={() => {}}
+                    property={getProperty}
+                    showLessonType={!isInternalSwap}
+                    showModuleCode={!isInternalSwap}
+                />
+            </Box>
+
+            <ConfirmDelete {...deleteDisclosure} cb={handleDelete} />
+            <ConfirmComplete {...completeDisclosure} cb={handleComplete} />
+        </Stack>
+    );
 
     return <></>;
 };

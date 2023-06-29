@@ -30,11 +30,22 @@ const TimetableSelectable: React.FC<{
     property?: string;
     onSelected: (class_: TimetableLessonEntry, selected: boolean) => void;
     tinyMode?: boolean;
-}> = ({ class_, property, onSelected, tinyMode = false }) => {
+    selectedColor?: string; // possibility to override
+    showModuleCode?: boolean;
+    showLessonType?: boolean;
+}> = ({
+    class_,
+    property,
+    onSelected,
+    tinyMode = false,
+    selectedColor: BTN_COLOR_SCHEME = "teal",
+    showModuleCode = false,
+    showLessonType = false,
+}) => {
     // console.log("timetable selectable rendering");
     const GRAY_BACKGROUND = useColorModeValue("gray.100", "gray.900");
-    const HOVER_COLOR = useColorModeValue("green.100", "green.800");
-    const BTN_COLOR_SCHEME = "green";
+    const HOVER_COLOR = useColorModeValue("teal.100", "teal.800");
+    // const BTN_COLOR_SCHEME = "purple";
     const TEXT_COLOR = useColorModeValue("black", "white");
 
     const [sel, setSel] = useBoolean(property === "selected");
@@ -80,44 +91,56 @@ const TimetableSelectable: React.FC<{
                         textAlign="left"
                         opacity={1}
                         cursor="not-allowed"
-                        colorScheme="red"
+                        colorScheme={"orange"}
                     >
-                        <Flex flexWrap={"wrap"} alignItems="center">
-                            <Text
-                                // fontSize={{
-                                //     base: "xs",
-                                //     md: "md",
-                                // }}
-                                fontSize={{
-                                    base: "sm",
-                                    md: tinyMode ? "sm" : "2xl",
-                                }}
-                                fontWeight="semibold"
-                                mr={2}
-                            >
-                                {class_.classNo}
-                            </Text>
-                            <Stack spacing={0}>
-                                <Text
-                                    fontSize={{
-                                        base: "0.65rem",
-                                        md: tinyMode ? "0.65rem" : "xs",
-                                    }}
-                                    fontWeight="light"
-                                >
-                                    {class_.venue}
+                        <Stack spacing={0}>
+                            {(showModuleCode || showLessonType) && (
+                                <Text fontSize={{ base: "xs", md: "sm" }}>
+                                    {showModuleCode ? class_.moduleCode : ""}{" "}
+                                    {showLessonType
+                                        ? encodeLessonTypeToShorthand(
+                                              class_.lessonType
+                                          )
+                                        : ""}
                                 </Text>
+                            )}
+                            <Flex flexWrap={"wrap"} alignItems="center">
                                 <Text
+                                    // fontSize={{
+                                    //     base: "xs",
+                                    //     md: "md",
+                                    // }}
                                     fontSize={{
-                                        base: "0.65rem",
-                                        md: tinyMode ? "0.65rem" : "xs",
+                                        base: "sm",
+                                        md: tinyMode ? "sm" : "2xl",
                                     }}
-                                    fontWeight="light"
+                                    fontWeight="semibold"
+                                    mr={2}
                                 >
-                                    Wks {weeksDisplay}{" "}
+                                    {class_.classNo}
                                 </Text>
-                            </Stack>
-                        </Flex>
+                                <Stack spacing={0}>
+                                    <Text
+                                        fontSize={{
+                                            base: "0.65rem",
+                                            md: tinyMode ? "0.65rem" : "xs",
+                                        }}
+                                        fontWeight="light"
+                                    >
+                                        {class_.venue}
+                                    </Text>
+                                    <Text
+                                        fontSize={{
+                                            base: "0.65rem",
+                                            md: tinyMode ? "0.65rem" : "xs",
+                                        }}
+                                        fontWeight="light"
+                                    >
+                                        Wks {weeksDisplay}{" "}
+                                    </Text>
+                                </Stack>
+                            </Flex>
+                        </Stack>
                     </Button>
                 </Flex>{" "}
             </Center>
@@ -158,85 +181,54 @@ const TimetableSelectable: React.FC<{
                           })}
                     onClick={() => toggleHandler()}
                 >
-                    <Flex flexWrap={"wrap"}>
-                        <Text
-                            // fontSize={{
-                            //     base: "xs",
-                            //     md: "md",
-                            // }}
-                            fontSize={{
-                                base: "sm",
-                                md: tinyMode ? "sm" : "2xl",
-                            }}
-                            fontWeight="semibold"
-                            mr={2}
-                        >
-                            {class_.classNo}
-                        </Text>
-                        <Stack spacing={0}>
-                            <Text
-                                fontSize={{
-                                    base: "0.65rem",
-                                    md: tinyMode ? "0.65rem" : "xs",
-                                }}
-                                // fontWeight="light"
-                            >
-                                {class_.venue}
+                    <Stack spacing={0}>
+                        {(showModuleCode || showLessonType) && (
+                            <Text fontSize={{ base: "xs", md: "sm" }}>
+                                {showModuleCode ? class_.moduleCode : ""}{" "}
+                                {showLessonType
+                                    ? encodeLessonTypeToShorthand(
+                                          class_.lessonType
+                                      )
+                                    : ""}
                             </Text>
+                        )}
+                        <Flex flexWrap={"wrap"}>
                             <Text
+                                // fontSize={{
+                                //     base: "xs",
+                                //     md: "md",
+                                // }}
                                 fontSize={{
-                                    base: "0.65rem",
-                                    md: tinyMode ? "0.65rem" : "xs",
+                                    base: "sm",
+                                    md: tinyMode ? "sm" : "2xl",
                                 }}
-                                // fontWeight="light"
+                                fontWeight="semibold"
+                                mr={2}
                             >
-                                Wks {weeksDisplay}{" "}
+                                {class_.classNo}
                             </Text>
-                        </Stack>
-                    </Flex>
-                    {/* <Stack
-                        direction={{
-                            base: "column",
-                            md: tinyMode ? "column" : "row",
-                        }}
-                        spacing={{
-                            base: 0,
-                            md: tinyMode ? 0 : 2,
-                        }}
-                        flexWrap="wrap"
-                    >
-                        <Text
-                            // fontSize={{
-                            //     base: "xs",
-                            //     md: "md",
-                            // }}
-                            fontSize={{
-                                base: "sm",
-                                md: tinyMode ? "sm" : "2xl",
-                            }}
-                            fontWeight="semibold"
-                        >
-                            {class_.classNo}
-                        </Text>
-                        <Stack spacing={0}>
-                            <Text
-                                fontSize={{
-                                    base: "0.65rem",
-                                    md: tinyMode ? "0.65rem" : "sm",
-                                }}
-                            >
-                                {class_.venue}
-                            </Text>
-                            <Text
-                                fontSize={{
-                                    base: "0.65rem",
-                                    md: tinyMode ? "0.65rem" : "sm",
-                                }}
-                            >
-                                Wks {weeksDisplay}{" "}
-                            </Text>
-                        </Stack>
-                    </Stack> */}
+                            <Stack spacing={0}>
+                                <Text
+                                    fontSize={{
+                                        base: "0.65rem",
+                                        md: tinyMode ? "0.65rem" : "xs",
+                                    }}
+                                    // fontWeight="light"
+                                >
+                                    {class_.venue}
+                                </Text>
+                                <Text
+                                    fontSize={{
+                                        base: "0.65rem",
+                                        md: tinyMode ? "0.65rem" : "xs",
+                                    }}
+                                    // fontWeight="light"
+                                >
+                                    Wks {weeksDisplay}{" "}
+                                </Text>
+                            </Stack>
+                        </Flex>
+                    </Stack>
                 </Button>
             </Flex>{" "}
         </Center>

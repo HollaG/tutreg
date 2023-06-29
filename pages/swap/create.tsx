@@ -7,6 +7,8 @@ import {
     Flex,
     FormControl,
     FormHelperText,
+    Heading,
+    Icon,
     Input,
     InputGroup,
     InputLeftAddon,
@@ -40,6 +42,7 @@ import {
     ReactNode,
     SetStateAction,
     useEffect,
+    useMemo,
     useState,
 } from "react";
 import ModuleSelect from "../../components/Select/ModuleSelect";
@@ -63,6 +66,8 @@ import React from "react";
 import { classesActions } from "../../store/classesReducer";
 import { TimetableLessonEntry } from "../../types/timetable";
 import { Steps } from "chakra-ui-steps";
+import { TbArrowDown, TbArrowNarrowRight } from "react-icons/tb";
+import SwapCodeIndicator from "../../components/Swap/SwapModuleCodeIndicator";
 
 const steps = [
     {
@@ -92,6 +97,34 @@ const generateOptionsForModule = (classes: ClassDB[]) => {
         label: lessonText,
     };
 };
+
+const CURRENT_CLASS_COLOR = "orange.500";
+const DESIRED_CLASS_COLOR = "teal.500";
+
+/**
+ * Converts the result of the API call into an array to be
+ * displayed in the timetable, with each element being an objecty
+ * representing the class, containing an array of the possible classes
+ * per moduleCode/LessonType/ClassNo.
+ *
+ * (Some classNos might have more than 1 class / lesson)
+ *
+ * @param param0
+ * @returns
+ */
+export const convertToTimetableList = (data: GroupedByClassNo) => {
+    return Object.keys(data).map((classNo) => {
+        const classes = data[classNo];
+        return {
+            classNo,
+            moduleCode: classes[0].moduleCode,
+            lessonType: classes[0].lessonType,
+            moduleName: classes[0].moduleName,
+            size: classes[0].size,
+            classes,
+        };
+    });
+};
 const Step1: React.FC<{
     nextStep: () => void;
     prevStep: () => void;
@@ -112,11 +145,13 @@ const Step1: React.FC<{
         }>
     >;
 
-    classes: GroupedByClassNo;
-    setClasses: Dispatch<SetStateAction<GroupedByClassNo>>;
+    setDesiredClasses: Dispatch<SetStateAction<FullInfo[]>>;
 
-    values: (string | number)[];
-    setValues: Dispatch<SetStateAction<(string | number)[]>>;
+    setDesiredModulesInfo: Dispatch<SetStateAction<HalfInfo[]>>;
+
+    possibleClasses: ClassOverview[];
+    setPossibleClasses: Dispatch<SetStateAction<ClassOverview[]>>;
+    setPossibleStep2Classes: Dispatch<SetStateAction<ClassOverview[]>>;
 }> = ({
     nextStep,
     prevStep,
@@ -124,28 +159,28 @@ const Step1: React.FC<{
 
     activeStep,
     setCurrentClassInfo,
-    classes,
-    setClasses,
-    currentClassInfo,
-    values,
-    setValues,
-}) => {
-    useEffect(() => {
-        setCurrentClassInfo({
-            moduleCode: "",
-            lessonType: "Lecture",
-            classNo: "",
-        });
-    }, []);
-    useEffect(() => {
-        setValues([]);
-    }, [currentClassInfo.moduleCode]);
-    const [moduleCodeLessonTypeValue, setModuleCodeLessonTypeValue] =
-        useState("");
 
-    const [availableClassList, setAvailableClassList] = useState<
-        ClassOverview[]
-    >([]);
+    currentClassInfo,
+
+    setDesiredClasses: setDesiredClassNos,
+
+    setDesiredModulesInfo: setDesiredModulesInfo,
+
+    possibleClasses,
+    setPossibleClasses,
+    setPossibleStep2Classes,
+}) => {
+    // useEffect(() => {
+    //     setCurrentClassInfo({
+    //         moduleCode: "",
+    //         lessonType: "Lecture",
+    //         classNo: "",
+    //     });
+    // }, []);
+
+    // const [moduleCodeLessonTypeValue, setModuleCodeLessonTypeValue] =
+    //     useState("");
+
     const selectHandler = async (option: Option[]) => {
         console.log(option, "-----------");
 
@@ -164,41 +199,35 @@ const Step1: React.FC<{
         );
 
         if (response.success && response.data) {
-            console.log({ response });
-            setClasses(response.data);
+            // update the main component
+
+            // update the current selected module and lessontype and
+            // remove the current selected classNo
             setCurrentClassInfo({
                 moduleCode,
                 lessonType,
                 classNo: "",
             });
 
-            const lst: ClassOverview[] = Object.keys(response.data).map(
-                (classNo) => {
-                    // @ts-ignore
-                    const classes = response.data[classNo];
-                    return {
-                        classNo,
-                        moduleCode: classes[0].moduleCode,
-                        lessonType: classes[0].lessonType,
-                        moduleName: classes[0].moduleName,
-                        size: classes[0].size,
-                        classes,
-                    };
-                }
-            );
-            setAvailableClassList(lst);
+            // by default: set the desiredModule to be the same
+            setDesiredModulesInfo([
+                {
+                    moduleCode,
+                    lessonType,
+                },
+            ]);
+
+            // set what is displayed in the timetable
+            const lst: ClassOverview[] = convertToTimetableList(response.data);
+            setPossibleClasses(lst);
+            setPossibleStep2Classes(lst);
+
+            // reset the desiredClasses when module changes
+            setDesiredClassNos([]);
         }
     };
 
-    const selectCurrentClassHandler = (option: Option) => {
-        console.log(option, "selectcurclasshandler");
-        setCurrentClassInfo((prevState) => ({
-            ...prevState,
-            classNo: option.value,
-        }));
-    };
-
-    const selectCurrentClassHandler2 = (
+    const selectCurrentClassHandler = (
         class_: TimetableLessonEntry,
         selected: boolean
     ) => {
@@ -239,40 +268,13 @@ const Step1: React.FC<{
                     Next
                 </Button>
             </Center>
-            <ModuleSelect
-                isMulti={false}
-                onSelect={selectHandler}
-                moduleCodeLessonTypeValue={moduleCodeLessonTypeValue}
-                setModuleCodeLessonTypeValue={setModuleCodeLessonTypeValue}
-            />
-            {/* <FormControl>
-                <Select
-                    options={Object.keys(classes)
-                        .sort()
-                        .map((classNo) =>
-                            generateOptionsForModule(classes[classNo])
-                        )}
-                    onChange={(option) =>
-                        selectCurrentClassHandler({
-                            value: option?.value || "",
-                            label: option?.label || "",
-                        })
-                    }
-                    value={{
-                        value: currentClassInfo.classNo,
-                        label: currentClassInfo.classNo,
-                    }}
-                    classNamePrefix="lp-copy-sel"
-                />
-                <FormHelperText>
-                    Select your class that you don&apos;t want
-                </FormHelperText>
-            </FormControl> */}
-
+            <ModuleSelect isMulti={false} onSelect={selectHandler} />
+            <SwapCodeIndicator currentClassInfo={currentClassInfo} />
             <Timetable
-                classesToDraw={availableClassList}
-                onSelected={selectCurrentClassHandler2}
+                classesToDraw={possibleClasses}
+                onSelected={selectCurrentClassHandler}
                 property={getProperty}
+                selectedColor="orange"
             />
             <Center>
                 <Button
@@ -292,31 +294,33 @@ const Step1: React.FC<{
         </Stack>
     );
 };
-const MemoStep1 = React.memo(Step1);
 
-const Step2: React.FC<{
+const ModuleSelectStep2: React.FC<{
     nextStep: () => void;
     prevStep: () => void;
 
     setStep: (step: number) => void;
     activeStep: number;
-    classes: GroupedByClassNo;
-    setClasses: Dispatch<SetStateAction<GroupedByClassNo>>;
 
     currentClassInfo: {
         moduleCode: string;
         lessonType: LessonType;
         classNo: string;
     };
-    setCurrentClassInfo: Dispatch<
-        SetStateAction<{
-            moduleCode: string;
-            lessonType: LessonType;
-            classNo: string;
-        }>
-    >;
-    values: (string | number)[];
-    setValues: Dispatch<SetStateAction<(string | number)[]>>;
+    setCurrentClassInfo: Dispatch<SetStateAction<FullInfo>>;
+    desiredClasses: FullInfo[];
+    setDesiredClasses: Dispatch<SetStateAction<FullInfo[]>>;
+
+    setDesiredModulesInfo: Dispatch<SetStateAction<HalfInfo[]>>;
+    desiredModulesInfo: {
+        moduleCode: string;
+        lessonType: LessonType;
+    }[];
+
+    possibleClasses: ClassOverview[];
+    setPossibleClasses: Dispatch<SetStateAction<ClassOverview[]>>;
+
+    isInternalSwap: boolean;
 }> = ({
     nextStep,
     prevStep,
@@ -324,41 +328,125 @@ const Step2: React.FC<{
 
     activeStep,
     setCurrentClassInfo,
-    classes,
-    setClasses,
+
     currentClassInfo,
 
-    values,
-    setValues,
-}) => {
-    const lst: ClassOverview[] = Object.keys(classes).map((classNo) => {
-        const classes_ = classes[classNo];
-        return {
-            classNo,
-            moduleCode: classes_[0].moduleCode,
-            lessonType: classes_[0].lessonType,
-            moduleName: classes_[0].moduleName,
-            size: classes_[0].size,
-            classes: classes_,
-        };
-    });
+    desiredClasses,
+    setDesiredClasses,
 
+    setDesiredModulesInfo,
+    desiredModulesInfo,
+
+    possibleClasses,
+    setPossibleClasses,
+
+    isInternalSwap,
+}) => {
+    // provide another select if the user wants to select a different module code lesson type
+    const selectHandler = async (options: Option[]) => {
+        console.log(options, "-----------");
+
+        let possibleDesiredClasses: ClassOverview[] = [];
+        let desiredModules: HalfInfo[] = [];
+        for (const option of options) {
+            // Send request to find the classes available for this moduleCodeLessonType
+            const moduleCodeLessonType = option.value;
+            const moduleCode = moduleCodeLessonType.split(": ")[0];
+            const lessonType = moduleCodeLessonType.split(
+                ": "
+            )[1] as LessonType;
+
+            // todo change to fetch
+            const response: GetClassesResponse = await sendPOST(
+                "/api/swap/getClasses",
+                {
+                    moduleCode,
+                    lessonType,
+                }
+            );
+
+            if (response.success && response.data) {
+                // update the main component
+
+                // update the desiredModuleInfo for the seelction
+                desiredModules.push({
+                    moduleCode,
+                    lessonType,
+                });
+
+                // set what is displayed in the timetable
+                const lst: ClassOverview[] = convertToTimetableList(
+                    response.data
+                );
+                // setPossibleClasses(lst);
+                possibleDesiredClasses.push(...lst);
+
+                // reset the desiredClasses when module changes
+            }
+        }
+        setPossibleClasses(possibleDesiredClasses);
+        console.log("setting desired modulesinfo", desiredModules);
+        setDesiredModulesInfo(desiredModules);
+
+        // set desired classes to only classes that are IN desiredModulesInfo
+        // (aka remove classes that are no longer selected)
+        setDesiredClasses((prev) =>
+            prev.filter((v) =>
+                desiredModules.find(
+                    (e) =>
+                        e.moduleCode === v.moduleCode &&
+                        e.lessonType === v.lessonType
+                )
+            )
+        );
+    };
+
+    console.log({ desiredClasses });
     const onSelected = (class_: TimetableLessonEntry, selected: boolean) => {
         if (selected) {
-            setValues((prevState) => [...prevState, class_.classNo]);
+            setDesiredClasses((prevState) => [
+                ...prevState,
+                {
+                    moduleCode: class_.moduleCode,
+                    lessonType: class_.lessonType,
+                    classNo: class_.classNo,
+                },
+            ]);
         } else {
-            setValues((prevState) =>
-                prevState.filter((v) => v !== class_.classNo)
+            // remove this specific class
+            setDesiredClasses((prevState) =>
+                prevState.filter(
+                    (v) =>
+                        !(
+                            v.classNo === class_.classNo &&
+                            v.moduleCode === class_.moduleCode &&
+                            v.lessonType === class_.lessonType
+                        )
+                )
             );
         }
     };
 
     const getProperty = (class_: TimetableLessonEntry) => {
-        if (values.includes(class_.classNo)) return "selected";
-        else if (class_.classNo === currentClassInfo.classNo) return "readonly";
+        if (
+            desiredClasses.find(
+                (e) =>
+                    e.classNo === class_.classNo &&
+                    e.lessonType === class_.lessonType &&
+                    e.moduleCode === class_.moduleCode
+            )
+        )
+            return "selected";
+        else if (
+            class_.classNo === currentClassInfo.classNo &&
+            class_.moduleCode === currentClassInfo.moduleCode &&
+            class_.lessonType === currentClassInfo.lessonType
+        )
+            // possiblility to have different modules entirely
+            return "readonly";
         else return "";
     };
-    console.log({ values });
+
     return (
         <Stack spacing={3} width="100%">
             <Center>
@@ -367,65 +455,34 @@ const Step2: React.FC<{
                     colorScheme="blue"
                     onClick={() => nextStep()}
                     ml={3}
-                    disabled={!values.length}
+                    disabled={!setDesiredClasses.length}
                 >
                     {" "}
                     Next{" "}
                 </Button>
             </Center>
-            {/* <SwapEntry
-                classNo={currentClassInfo.classNo}
-                classes={classes[currentClassInfo.classNo]}
-                title={`${
-                    currentClassInfo.moduleCode
-                } ${encodeLessonTypeToShorthand(
-                    currentClassInfo.lessonType
-                )} [${currentClassInfo.classNo}]`}
-            />
 
-            <Center>
-                <ArrowDownIcon w={12} h={12} />
-            </Center>
-            <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }}>
-                <CheckboxGroup
-                    value={values}
-                    onChange={(value) => setValues(value)}
-                >
-                    {Object.keys(classes)
-                        .sort()
-                        .filter(
-                            (classNo) => classNo !== currentClassInfo.classNo
-                        )
-                        .map((classNo, index) => (
-                            <Entry key={index} whiteSpace="pre-line">
-                                <Checkbox width="100%" value={classNo}>
-                                    <Box>
-                                        {generateLessonText(classes[classNo])}
-                                    </Box>
-                                    {classes[classNo][0].venue}
-                                </Checkbox>
-                            </Entry>
-                        ))}
-                </CheckboxGroup>
-            </SimpleGrid> */}
-            <Flex justifyContent={"right"}>
-                <Stack direction={{ base: "row", sm: "row" }}>
-                    <Tag colorScheme="red">Class you have</Tag>
-                    <Tag colorScheme="teal">Classes you want</Tag>
-                </Stack>
-            </Flex>
+            <ModuleSelect isMulti={true} onSelect={selectHandler} />
+
+            <SwapCodeIndicator
+                desiredModulesInfo={desiredModulesInfo}
+                currentClassInfo={currentClassInfo}
+            />
             <Timetable
-                classesToDraw={lst}
+                classesToDraw={possibleClasses}
                 onSelected={onSelected}
                 property={getProperty}
+                showLessonType={!isInternalSwap}
+                showModuleCode={!isInternalSwap}
             />
+
             <Center>
                 <Button onClick={() => prevStep()}> Back </Button>
                 <Button
                     colorScheme="blue"
                     onClick={() => nextStep()}
                     ml={3}
-                    disabled={!values.length}
+                    disabled={!setDesiredClasses.length}
                 >
                     {" "}
                     Next{" "}
@@ -441,73 +498,65 @@ const Step3: React.FC<{
 
     setStep: (step: number) => void;
     activeStep: number;
-    classes: GroupedByClassNo;
 
-    currentClassInfo: {
-        moduleCode: string;
-        lessonType: LessonType;
-        classNo: string;
-    };
+    currentClassInfo: FullInfo;
 
-    setDesiredClasses: Dispatch<SetStateAction<(string | number)[]>>;
-    desiredClasses: (string | number)[];
+    desiredModulesInfo: HalfInfo[];
 
-    // isEqualRank: boolean;
-    // setIsEqualRank: {
-    //     on: () => void;
-    //     off: () => void;
-    //     toggle: () => void;
-    // };
+    displayedClasses: ClassOverview[];
+
     submitHandler: () => void;
     comments: string;
     setComments: Dispatch<SetStateAction<string>>;
+
+    desiredClasses: FullInfo[];
+
+    isInternalSwap: boolean;
 }> = ({
-    classes,
     prevStep,
-    setDesiredClasses,
-    desiredClasses,
+
     submitHandler,
     currentClassInfo,
     // isEqualRank,
     // setIsEqualRank,
     comments,
     setComments,
+    displayedClasses,
+    desiredClasses,
+    desiredModulesInfo,
+    isInternalSwap,
 }) => {
     const deleteIconColor = useColorModeValue("red.500", "red.500");
 
-    const deleteHandler = (desiredClassNo: string | number) => {
-        setDesiredClasses((prevState) =>
-            prevState.filter((classNo) => classNo !== desiredClassNo)
-        );
-    };
-    useEffect(() => {
-        if (!desiredClasses.length) prevStep();
-    }, [desiredClasses, prevStep]);
-
-    const lst: ClassOverview[] = Object.keys(classes)
-        .filter(
-            (classNo) =>
-                desiredClasses.includes(classNo) ||
-                currentClassInfo.classNo === classNo
-        )
-        .map((classNo) => {
-            const classes_ = classes[classNo];
-            return {
-                classNo,
-                moduleCode: classes_[0].moduleCode,
-                lessonType: classes_[0].lessonType,
-                moduleName: classes_[0].moduleName,
-                size: classes_[0].size,
-                classes: classes_,
-            };
-        });
+    // const deleteHandler = (desiredClassNo: string | number) => {
+    //     setDesiredClasses((prevState) =>
+    //         prevState.filter((classNo) => classNo !== desiredClassNo)
+    //     );
+    // };
+    // useEffect(() => {
+    //     if (!desiredClasses.length) prevStep();
+    // }, [desiredClasses, prevStep]);
 
     const getProperty = (class_: TimetableLessonEntry) => {
-        if (desiredClasses.includes(class_.classNo)) return "selected";
-        else if (class_.classNo === currentClassInfo.classNo) return "readonly";
-        else return "";
+        if (
+            desiredClasses.find(
+                (e) =>
+                    e.classNo === class_.classNo &&
+                    e.lessonType === class_.lessonType &&
+                    e.moduleCode === class_.moduleCode
+            )
+        ) {
+            return "selected";
+        } else if (
+            currentClassInfo.lessonType === class_.lessonType &&
+            currentClassInfo.moduleCode === class_.moduleCode &&
+            class_.classNo === currentClassInfo.classNo
+        ) {
+            return "readonly";
+        } else return "";
     };
 
+    console.log(displayedClasses, "----------------");
     return (
         <Stack spacing={3} width="100%">
             {/* <Box textAlign="right">
@@ -527,42 +576,16 @@ const Step3: React.FC<{
                 </Button>
             </Center>
 
-            {/* <SwapEntry
-                classNo={currentClassInfo.classNo}
-                classes={classes[currentClassInfo.classNo]}
-                title={`${
-                    currentClassInfo.moduleCode
-                } ${encodeLessonTypeToShorthand(
-                    currentClassInfo.lessonType
-                )} [${currentClassInfo.classNo}]`}
+            <SwapCodeIndicator
+                desiredModulesInfo={desiredModulesInfo}
+                currentClassInfo={currentClassInfo}
             />
-
-            <Center>
-                <ArrowDownIcon w={12} h={12} />
-            </Center>
-
-            {desiredClasses.map((desiredClassNo, index) => (
-                <SwapEntry
-                    key={index}
-                    classNo={currentClassInfo.classNo}
-                    classes={classes[desiredClassNo]}
-                    title={`${(index || 0) + 1}. ${encodeLessonTypeToShorthand(
-                        currentClassInfo.lessonType
-                    )} [${desiredClassNo}]`}
-                    canDelete
-                    deleteHandler={() => deleteHandler(desiredClassNo)}
-                />
-            ))} */}
-            <Flex justifyContent={"right"}>
-                <Stack direction={{ base: "row", sm: "row" }}>
-                    <Tag colorScheme="red">Class you have</Tag>
-                    <Tag colorScheme="teal">Classes you want</Tag>
-                </Stack>
-            </Flex>
             <Timetable
-                classesToDraw={lst}
+                classesToDraw={displayedClasses}
                 onSelected={(_, __) => null}
                 property={getProperty}
+                showLessonType={!isInternalSwap}
+                showModuleCode={!isInternalSwap}
             />
             <FormControl>
                 <Stack>
@@ -596,11 +619,21 @@ const Step3: React.FC<{
         </Stack>
     );
 };
+
+export type HalfInfo = {
+    moduleCode: string;
+    lessonType: LessonType;
+};
+export type FullInfo = HalfInfo & {
+    classNo: string;
+};
 const CreateSwap: NextPage = () => {
+    // Stepper control
     const stepsControl = useSteps({
         count: 3,
         index: 0,
     });
+
     const {
         goToNext: nextStep,
         goToPrevious: prevStep,
@@ -608,40 +641,109 @@ const CreateSwap: NextPage = () => {
         activeStep,
     } = stepsControl;
 
-    const [currentClassInfo, setCurrentClassInfo] = useState<{
-        moduleCode: string;
-        lessonType: LessonType;
-        classNo: string;
-    }>({
-        moduleCode: "",
-        lessonType: "Lecture",
-        classNo: "",
-    });
-
-    // All the available classes for user-selected moduleCode and lessonType
-    const [classes, setClasses] = useState<GroupedByClassNo>({});
-
-    // Handle checkboxes for step 2
-    const [desiredClasses, setDesiredClasses] = useState<(string | number)[]>(
-        []
-    );
-    console.log({ desiredClasses });
-    // const [isEqualRank, setIsEqualRank] = useBoolean(false);
-
+    // hooks
     const user = useSelector((state: RootState) => state.user);
     const router = useRouter();
     const dispatch = useDispatch();
     const toast = useToast();
 
+    // Information on the user's class that they have
+    const [currentClassInfo, setCurrentClassInfo] = useState<FullInfo>({
+        moduleCode: "",
+        lessonType: "Lecture",
+        classNo: "",
+    });
+
+    // The module that the user wants to swap to
+    // might be more than 1
+    const [desiredModulesInfo, setDesiredModulesInfo] = useState<HalfInfo[]>([
+        { moduleCode: "", lessonType: "Lecture" },
+    ]);
+
+    // The user's desired classes
+    const [desiredClasses, setDesiredClasses] = useState<FullInfo[]>([
+        {
+            moduleCode: "",
+            lessonType: "Lecture",
+            classNo: "",
+        },
+    ]);
+
+    // whether the user is swapping internally (within the same module and lesson type)
+    const isInternalSwap =
+        desiredModulesInfo[0].lessonType === currentClassInfo.lessonType &&
+        desiredModulesInfo[0].moduleCode === currentClassInfo.moduleCode;
+
+    // State handlers that hold the info of the possible classes for both step 1 and 2
+    const [possibleStep1Classes, setPossibleStep1Classes] = useState<
+        ClassOverview[]
+    >([]);
+    const [_possibleStep2Classes, setPossibleStep2Classes] = useState<
+        ClassOverview[]
+    >([]);
+
+    // the possible step2 classes should include the class that is selected from step1.
+    // imagine this scenario:
+    // step 1 classes for MOD1, choose one
+    // step 2 classes for MOD2 --> the timetable won't show the MOD1 classes
+    // so we need always ensure that step 2 classes always include the step 1 class
+    let possibleStep2Classes = _possibleStep2Classes;
+    // if the list of desired modules doesn't include the current module...
+    if (
+        !desiredModulesInfo.find(
+            (desiredModule) =>
+                desiredModule.lessonType === currentClassInfo.lessonType &&
+                desiredModule.moduleCode === currentClassInfo.moduleCode
+        )
+    ) {
+        const currentClassTimetableEntry = possibleStep1Classes.find(
+            (c) => c.classNo === currentClassInfo.classNo
+        );
+        if (currentClassTimetableEntry) {
+            possibleStep2Classes = [
+                currentClassTimetableEntry,
+                ...possibleStep2Classes,
+            ];
+        }
+    }
+
+    // get the classes that are displayed, i.e. the unique set of classes including 1) selected class from step 1,
+    // 2) selected classes from step 2
+    const reviewClassesList: ClassOverview[] = [
+        // note: the currentClass is ALREADY in possible step 2 classes!!! no need to find it again
+        possibleStep1Classes.find(
+            (c) => c.classNo === currentClassInfo.classNo
+        ),
+        ...possibleStep2Classes.filter((c) =>
+            desiredClasses.find(
+                (ds) =>
+                    ds.classNo === c.classNo &&
+                    ds.moduleCode === c.moduleCode &&
+                    ds.lessonType === c.lessonType
+            )
+        ),
+    ].filter(Boolean) as ClassOverview[];
+
+    // User comments
     const [comments, setComments] = useState("");
 
+    // Submit swap request
     const submitHandler = async () => {
         console.log(desiredClasses);
         console.log(currentClassInfo);
 
+        // const response = await sendPOST("/api/swap/create", {
+        //     desiredClassNos: desiredClasses,
+        //     currentClassInfo,
+        //     user,
+        //     comments,
+        //     desiredModulesInfo,
+        // });
         const response = await sendPOST("/api/swap/create", {
-            desiredClasses,
             currentClassInfo,
+
+            desiredClasses,
+
             user,
             comments,
         });
@@ -672,6 +774,12 @@ const CreateSwap: NextPage = () => {
         }
     }, [user, dispatch]);
 
+    console.log({
+        currentClassInfo,
+        desiredModulesInfo,
+        desiredClassNos: desiredClasses,
+        comments,
+    });
     return (
         user && (
             <Stack spacing={5} alignItems="center" h="100%">
@@ -698,37 +806,36 @@ const CreateSwap: NextPage = () => {
                     ))}
                 </Stepper>
 
-                {/* <Steps activeStep={activeStep}>
-                    {steps.map(({ label }) => (
-                        <Step label={label} key={label}></Step>
-                    ))}
-                </Steps> */}
                 {activeStep === 0 && (
-                    <MemoStep1
+                    <Step1
                         activeStep={activeStep}
                         nextStep={nextStep}
                         prevStep={prevStep}
                         setStep={setStep}
                         setCurrentClassInfo={setCurrentClassInfo}
-                        classes={classes}
-                        setClasses={setClasses}
                         currentClassInfo={currentClassInfo}
-                        values={desiredClasses}
-                        setValues={setDesiredClasses}
+                        setDesiredClasses={setDesiredClasses}
+                        setDesiredModulesInfo={setDesiredModulesInfo}
+                        possibleClasses={possibleStep1Classes}
+                        setPossibleClasses={setPossibleStep1Classes}
+                        setPossibleStep2Classes={setPossibleStep2Classes}
                     />
                 )}
                 {activeStep === 1 && (
-                    <Step2
+                    <ModuleSelectStep2
                         activeStep={activeStep}
                         nextStep={nextStep}
                         prevStep={prevStep}
                         setStep={setStep}
                         currentClassInfo={currentClassInfo}
                         setCurrentClassInfo={setCurrentClassInfo}
-                        classes={classes}
-                        setClasses={setClasses}
-                        values={desiredClasses}
-                        setValues={setDesiredClasses}
+                        desiredClasses={desiredClasses}
+                        setDesiredClasses={setDesiredClasses}
+                        setDesiredModulesInfo={setDesiredModulesInfo}
+                        desiredModulesInfo={desiredModulesInfo}
+                        possibleClasses={possibleStep2Classes}
+                        setPossibleClasses={setPossibleStep2Classes}
+                        isInternalSwap={isInternalSwap}
                     />
                 )}
                 {activeStep === 2 && (
@@ -738,14 +845,13 @@ const CreateSwap: NextPage = () => {
                         prevStep={prevStep}
                         setStep={setStep}
                         currentClassInfo={currentClassInfo}
-                        classes={classes}
+                        desiredModulesInfo={desiredModulesInfo}
+                        displayedClasses={reviewClassesList}
                         desiredClasses={desiredClasses}
-                        setDesiredClasses={setDesiredClasses}
-                        // isEqualRank={isEqualRank}
-                        // setIsEqualRank={setIsEqualRank}
                         submitHandler={submitHandler}
                         comments={comments}
                         setComments={setComments}
+                        isInternalSwap={isInternalSwap}
                     />
                 )}
             </Stack>

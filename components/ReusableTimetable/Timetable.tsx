@@ -27,15 +27,26 @@ const order = [
     "Sunday",
 ];
 
-const GRID_ITEM_HEIGHT_BIG = 75;
-const GRID_ITEM_HEIGHT_SMALL = 50;
+const GRID_ITEM_HEIGHT_BIG = 85;
+const GRID_ITEM_HEIGHT_SMALL = 75;
 
 const Timetable: React.FC<{
     classesToDraw: ClassOverview[];
     property: (class_: TimetableLessonEntry) => string | undefined;
     onSelected: (class_: TimetableLessonEntry, selected: boolean) => void;
     tinyMode?: boolean;
-}> = ({ classesToDraw, property, onSelected, tinyMode = false }) => {
+    selectedColor?: string; // possibility to override
+    showModuleCode?: boolean;
+    showLessonType?: boolean;
+}> = ({
+    classesToDraw,
+    property,
+    onSelected,
+    tinyMode = false,
+    selectedColor,
+    showModuleCode,
+    showLessonType,
+}) => {
     const GRID_ITEM_HEIGHT_RESPONSIVE = useBreakpointValue({
         base: GRID_ITEM_HEIGHT_SMALL,
         md: tinyMode ? GRID_ITEM_HEIGHT_SMALL : GRID_ITEM_HEIGHT_BIG,
@@ -352,6 +363,15 @@ const Timetable: React.FC<{
                                                                     }
                                                                     tinyMode={
                                                                         tinyMode
+                                                                    }
+                                                                    selectedColor={
+                                                                        selectedColor
+                                                                    }
+                                                                    showLessonType={
+                                                                        showLessonType
+                                                                    }
+                                                                    showModuleCode={
+                                                                        showModuleCode
                                                                     }
                                                                 />
                                                             </Box>

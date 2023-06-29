@@ -1,11 +1,21 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from "next";
+import { TelegramUser } from "telegram-login-button";
 import executeQuery from "../../../lib/db";
+import { LessonType } from "../../../types/modules";
+import { FullInfo } from "../../swap/create";
 
 type Data = {
-    success: boolean,
-    data?: string
-    error?: string
+    success: boolean;
+    data?: string;
+    error?: string;
+};
+
+type RequestBody = {
+    user: TelegramUser | null;
+    currentClassInfo: FullInfo;
+    desiredClasses: FullInfo[];
+    comments?: string;
 };
 
 export default async function handler(
@@ -20,26 +30,32 @@ export default async function handler(
             currentClassInfo: { moduleCode, lessonType, classNo },
             desiredClasses,
             comments,
-        } = req.body;
+        } = req.body as RequestBody;
 
-        if (!user || !moduleCode || !lessonType || !classNo || !desiredClasses) {
+        if (
+            !user ||
+            !moduleCode ||
+            !lessonType ||
+            !classNo ||
+            !desiredClasses
+        ) {
             return res.status(400).json({
                 success: false,
-                error: "Missing required info!"
-            })
+                error: "Missing required info!",
+            });
         }
 
         // ensure user exists in database
         const userDb = await executeQuery({
             query: "SELECT * FROM users WHERE id = ?",
-            values: [user.id]
-        })
+            values: [user.id],
+        });
 
         if (!userDb.length) {
             return res.status(400).json({
                 success: false,
-                error: "User does not exist in database!"
-            })
+                error: "User does not exist in database!",
+            });
         }
         // create swap
         const swapObj = {
@@ -52,30 +68,39 @@ export default async function handler(
             ay: process.env.NEXT_PUBLIC_AY,
             semester: process.env.NEXT_PUBLIC_SEM,
             notified: true,
-            comments: comments || ""
-        }
+            comments: comments || "",
+        };
 
         const inserted = await executeQuery({
             query: `INSERT INTO swaps SET ?`,
-            values: [swapObj]
-        })
+            values: [swapObj],
+        });
         const insertId = inserted.insertId;
-        console.log(insertId)
+        console.log(insertId);
         // insert into swaps_list
-      
-        for (const desiredClassNo of desiredClasses) {
+        for (const desiredClass of desiredClasses) {
+            const {
+                moduleCode: desiredModuleCode,
+                lessonType: desiredLessonType,
+                classNo: desiredClassNo,
+            } = desiredClass;
             const result = await executeQuery({
-                query: `INSERT INTO swaps_list (wantedClassNo, swapId) VALUES (?)`,
-                values: [[desiredClassNo, insertId]]
-            })
-            console.log(result)
+                query: `INSERT INTO swaps_list (wantedModuleCode, wantedLessonType, wantedClassNo, swapId) VALUES (?)`,
+                values: [
+                    [
+                        desiredModuleCode,
+                        desiredLessonType,
+                        desiredClassNo,
+                        insertId,
+                    ],
+                ],
+            });
+            console.log(result);
         }
 
         res.status(200).json({
             success: true,
-            data: insertId
-        })
+            data: insertId,
+        });
     }
-
-   
 }

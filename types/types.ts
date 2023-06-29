@@ -9,7 +9,7 @@ export type RootState = {
     classesInfo: ClassState;
     user: TelegramUser | null | null;
     misc: MiscState;
-    timetable: any
+    timetable: any;
 };
 
 export type ClassOverview = {
@@ -42,6 +42,7 @@ export interface ClassSwapRequest extends TelegramUser {
     ay: string;
     semester: number;
     createdAt: Date;
+    comments: string;
 }
 
 export interface ClassSwapRequestDB {
@@ -58,17 +59,16 @@ export interface ClassSwapRequestDB {
     createdAt: Date;
 }
 
-
 export type ClassSwapFor = {
     rowId: number;
+    wantedModuleCode: string;
+    wantedLessonType: LessonType;
     wantedClassNo: string;
     swapId: number;
 };
 
-
 export interface BasicResponse {
-    success: boolean,
+    success: boolean;
     error?: any;
-    data?: any
+    data?: any;
 }
-
