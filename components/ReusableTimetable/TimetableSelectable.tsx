@@ -33,6 +33,8 @@ const TimetableSelectable: React.FC<{
     selectedColor?: string; // possibility to override
     showModuleCode?: boolean;
     showLessonType?: boolean;
+
+    getClassNames?: (class_: TimetableLessonEntry) => string;
 }> = ({
     class_,
     property,
@@ -41,6 +43,7 @@ const TimetableSelectable: React.FC<{
     selectedColor: BTN_COLOR_SCHEME = "teal",
     showModuleCode = false,
     showLessonType = false,
+    getClassNames,
 }) => {
     // console.log("timetable selectable rendering");
     const GRAY_BACKGROUND = useColorModeValue("gray.100", "gray.900");
@@ -92,6 +95,9 @@ const TimetableSelectable: React.FC<{
                         opacity={1}
                         cursor="not-allowed"
                         colorScheme={"orange"}
+                        // infinitely growing and shrinking
+                        // className="pulse"
+                        className={getClassNames ? getClassNames(class_) : ""}
                     >
                         <Stack spacing={0}>
                             {(showModuleCode || showLessonType) && (
@@ -180,6 +186,7 @@ const TimetableSelectable: React.FC<{
                               },
                           })}
                     onClick={() => toggleHandler()}
+                    className={getClassNames ? getClassNames(class_) : ""}
                 >
                     <Stack spacing={0}>
                         {(showModuleCode || showLessonType) && (

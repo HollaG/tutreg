@@ -21,11 +21,13 @@ const SwapCodeIndicator = ({
     currentClassInfo,
     desiredClassesInfo,
     perspective = "self",
+    onHover,
 }: {
     desiredModulesInfo?: HalfInfo[];
     desiredClassesInfo?: FullInfo[];
     currentClassInfo: FullInfo;
     perspective?: "self" | "other";
+    onHover?: (class_: FullInfo | null) => void;
 }) => {
     return !desiredModulesInfo ? (
         <Heading fontSize="2xl" display="flex" alignItems="center">
@@ -72,43 +74,64 @@ const SwapCodeIndicator = ({
                         </Tag> */}
                     </Box>
                     <Flex flexWrap={"wrap"}>
-                        {desiredModulesInfo.map((desiredModule, i) => (
-                            <Box mb={2} mr={3}>
-                                <Text
-                                    display="flex"
-                                    alignItems="center"
-                                    key={i}
-                                >
-                                    <Icon
-                                        viewBox="0 0 200 200"
-                                        color={`${"teal"}`}
-                                        mr={1}
+                        {desiredModulesInfo.map((desiredModule, i) => {
+                            const desiredClasses = desiredClassesInfo?.filter(
+                                (desiredClass) =>
+                                    desiredClass.lessonType ===
+                                        desiredModule.lessonType &&
+                                    desiredClass.moduleCode ===
+                                        desiredModule.moduleCode
+                            );
+                            return (
+                                <Box mb={2} mr={3}>
+                                    <Text
+                                        display="flex"
+                                        alignItems="center"
+                                        key={i}
                                     >
-                                        <path
-                                            fill="currentColor"
-                                            d="M 100, 100 m -75, 0 a 75,75 0 1,0 150,0 a 75,75 0 1,0 -150,0"
-                                        />
-                                    </Icon>
-                                    {desiredModule.moduleCode}:{" "}
-                                    {desiredModule.lessonType}
-                                </Text>
-                                <Flex ml={0.5} alignItems="center">
-                                    <TbChevronDownLeft />
-                                    <Text ml={1}>
-                                        {desiredClassesInfo
-                                            ?.filter(
-                                                (desiredClass) =>
-                                                    desiredClass.lessonType ===
-                                                        desiredModule.lessonType &&
-                                                    desiredClass.moduleCode ===
-                                                        desiredModule.moduleCode
-                                            )
-                                            .map((c) => c.classNo)
-                                            .join(", ")}
+                                        <Icon
+                                            viewBox="0 0 200 200"
+                                            color={`${"teal"}`}
+                                            mr={1}
+                                        >
+                                            <path
+                                                fill="currentColor"
+                                                d="M 100, 100 m -75, 0 a 75,75 0 1,0 150,0 a 75,75 0 1,0 -150,0"
+                                            />
+                                        </Icon>
+                                        {desiredModule.moduleCode}:{" "}
+                                        {desiredModule.lessonType}
                                     </Text>
-                                </Flex>
-                            </Box>
-                        ))}
+                                    <Flex
+                                        ml={0.5}
+                                        alignItems="center"
+                                        flexWrap={"wrap"}
+                                    >
+                                        <TbChevronDownLeft />
+
+                                        {desiredClasses?.map((c, i) => (
+                                            <Text
+                                                mr={1}
+                                                onMouseEnter={() =>
+                                                    onHover && onHover(c)
+                                                }
+                                                onMouseLeave={() =>
+                                                    onHover && onHover(null)
+                                                }
+                                                borderBottom="1px dotted black"
+                                                cursor="help"
+                                            >
+                                                {c.classNo}
+                                                {desiredClasses?.length ===
+                                                i + 1
+                                                    ? ""
+                                                    : ", "}{" "}
+                                            </Text>
+                                        ))}
+                                    </Flex>
+                                </Box>
+                            );
+                        })}
                     </Flex>
                 </Flex>
             </Stack>

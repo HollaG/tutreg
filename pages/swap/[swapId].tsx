@@ -69,6 +69,7 @@ import { TimetableLessonEntry } from "../../types/timetable";
 import Timetable from "../../components/ReusableTimetable/Timetable";
 import { GetSwapDataResponse, SwapData } from "../api/swap";
 import SwapCodeIndicator from "../../components/Swap/SwapModuleCodeIndicator";
+import { FullInfo } from "./create";
 
 const ROOT_URL = process.env.NEXT_PUBLIC_ROOT_URL;
 
@@ -271,7 +272,17 @@ const SpecificSwap = (
     };
 
     // handle the expansion of the desired modules
-    const [hoveredIndex, setHoveredIndex] = useState(-1);
+    const [hoveredClass, setHoveredClass] = useState<null | FullInfo>(null);
+    console.log({ hoveredClass });
+    const getClassNames = (class_: TimetableLessonEntry) => {
+        if (
+            class_.classNo === hoveredClass?.classNo &&
+            class_.moduleCode === hoveredClass.moduleCode &&
+            class_.lessonType === hoveredClass.lessonType
+        )
+            return "pulse";
+        else return "";
+    };
 
     if (!swap) return <> Missing info </>;
     return (
@@ -474,6 +485,7 @@ const SpecificSwap = (
                     currentClassInfo={currentClassInfo}
                     perspective={user?.id === swap.from_t_id ? "self" : "other"}
                     desiredClassesInfo={desiredClasses}
+                    onHover={setHoveredClass}
                 />
                 <Timetable
                     classesToDraw={drawnClasses}
@@ -481,6 +493,7 @@ const SpecificSwap = (
                     property={getProperty}
                     showLessonType={!isInternalSwap}
                     showModuleCode={!isInternalSwap}
+                    getClassNames={getClassNames}
                 />
             </Box>
 

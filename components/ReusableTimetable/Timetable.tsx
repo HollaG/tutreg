@@ -38,6 +38,7 @@ const Timetable: React.FC<{
     selectedColor?: string; // possibility to override
     showModuleCode?: boolean;
     showLessonType?: boolean;
+    getClassNames?: (class_: TimetableLessonEntry) => string;
 }> = ({
     classesToDraw,
     property,
@@ -46,6 +47,7 @@ const Timetable: React.FC<{
     selectedColor,
     showModuleCode,
     showLessonType,
+    getClassNames,
 }) => {
     const GRID_ITEM_HEIGHT_RESPONSIVE = useBreakpointValue({
         base: GRID_ITEM_HEIGHT_SMALL,
@@ -372,6 +374,9 @@ const Timetable: React.FC<{
                                                                     }
                                                                     showModuleCode={
                                                                         showModuleCode
+                                                                    }
+                                                                    getClassNames={
+                                                                        getClassNames
                                                                     }
                                                                 />
                                                             </Box>
