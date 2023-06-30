@@ -537,6 +537,7 @@ const Swap = (
                                     rightIcon={<ChevronDownIcon />}
                                     size="sm"
                                     ml={2}
+                                    flexShrink={0}
                                 >
                                     Type
                                 </MenuButton>
