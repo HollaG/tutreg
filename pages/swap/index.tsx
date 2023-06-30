@@ -247,7 +247,7 @@ const Swap = (
                 ...prev,
 
                 selfSwaps: prev.selfSwaps.filter(
-                    (swapData) => swapData.swap.id !== deletingSwapId
+                    (swapData) => swapData.swap.swapId !== deletingSwapId
                 ),
             }));
         } else {

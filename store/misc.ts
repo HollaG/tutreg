@@ -22,8 +22,19 @@ export interface MiscState {
         changedTo2023S1: boolean;
     };
 }
+let loadedState = loadState();
 
-const initialState: MiscState = {
+// if no notifications key, add it
+if (loadedState && !("notifications" in loadedState)) {
+    loadedState = {
+        ...loadedState,
+        notifications: {
+            changedTo2023S1: false,
+        },
+    };
+}
+
+const initialState: MiscState = loadedState || {
     needsLogIn: false,
     notify: false,
     highlightedClassNos: [],
@@ -46,7 +57,7 @@ const miscSlice = createSlice({
             state.highlightedClassNos = action.payload;
         },
         setAcadYearNotificationDismissed: (state) => {
-            state.notifications.changedTo2023S1 = false;
+            state.notifications.changedTo2023S1 = true;
         },
     },
 });

@@ -39,6 +39,7 @@ import UserAvatar from "./User/UserAvatar";
 import useKeyPress from "../hooks/useKeyPress";
 import Mousetrap from "mousetrap";
 import { StringifyOptions } from "querystring";
+import { classesActions } from "../store/classesReducer";
 const NavLink = ({ children }: { children: ReactNode }) => (
     <Link
         px={2}
@@ -161,6 +162,18 @@ export default function Nav() {
     const goBack = () => {
         router.back();
     };
+
+    // reset the user's selections if they are visiting for the first time since a new academic year
+    const misc = useSelector((state: RootState) => state.misc);
+    useEffect(() => {
+        if (
+            misc.notifications &&
+            misc.notifications.changedTo2023S1 === false
+        ) {
+            dispatch(miscActions.setAcadYearNotificationDismissed());
+            dispatch(classesActions.removeAll());
+        }
+    }, [misc.notifications]);
 
     return (
         <Box
