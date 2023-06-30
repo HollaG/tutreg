@@ -410,6 +410,7 @@ const Order: NextPage = () => {
                 variant={showAdditionalDetails ? "solid" : "ghost"}
                 onClick={toggle}
                 width="90px"
+                ml={2}
             >
                 {" "}
                 {showAdditionalDetails ? "Hide" : "View"} details{" "}
@@ -510,12 +511,15 @@ const Order: NextPage = () => {
                                 {DetailsButton}
                             </Flex>
 
-                            <Stack p={3}>
+                            <Stack p={1}>
                                 <form onSubmit={handleSubmit}>
                                     <Flex>
                                         <FormControl isInvalid={isError}>
-                                            <Flex>
-                                                <Box flexGrow={1} mr={3}>
+                                            <Flex
+                                                // alignItems={"center"}
+                                                justifyContent="space-between"
+                                            >
+                                                <Box mr={3} flexGrow={1}>
                                                     <Input
                                                         placeholder="https://nusmods.com/timetable/sem-1/share?..."
                                                         value={link}
@@ -540,26 +544,29 @@ const Order: NextPage = () => {
                                                         </FormErrorMessage>
                                                     )}
                                                 </Box>
-                                                <Tooltip
-                                                    hasArrow
-                                                    label="Importing a new timetable will clear your previously selected courses, if any!"
-                                                    textAlign="center"
+                                                <Box
+                                                    width="85px"
+                                                    minWidth={"85px"}
+                                                    flexShrink={0}
                                                 >
-                                                    <Button
-                                                        type="submit"
-                                                        colorScheme="blue"
-                                                        isDisabled={
-                                                            isSubmitting ||
-                                                            !link
-                                                        }
-                                                        width="85px"
+                                                    <Tooltip
+                                                        hasArrow
+                                                        label="Importing a new timetable will clear your previously selected courses, if any!"
+                                                        textAlign="center"
                                                     >
-                                                        {" "}
-                                                        {isSubmitting
-                                                            ? "Importing..."
-                                                            : "Import"}{" "}
-                                                    </Button>
-                                                </Tooltip>
+                                                        <Button
+                                                            type="submit"
+                                                            colorScheme="blue"
+                                                            isDisabled={!link}
+                                                            isLoading={
+                                                                isSubmitting
+                                                            }
+                                                        >
+                                                            {" "}
+                                                            Import
+                                                        </Button>
+                                                    </Tooltip>
+                                                </Box>
                                             </Flex>
                                         </FormControl>
                                     </Flex>
@@ -661,7 +668,7 @@ const Order: NextPage = () => {
                                 </Box>
                                 {DetailsButton}
                             </Flex>
-                            <Stack p={3}>
+                            <Stack p={1}>
                                 <ClassSortContainer
                                     showAdditionalDetails={
                                         showAdditionalDetails
@@ -696,7 +703,7 @@ const Order: NextPage = () => {
                                 </Box>
                                 {DetailsButton}
                             </Flex>
-                            <Stack p={3}>
+                            <Stack p={1}>
                                 <ResultContainer
                                     showAdditionalDetails={
                                         showAdditionalDetails
@@ -738,9 +745,15 @@ const Order: NextPage = () => {
                     </Step>
                 </Box>
             </Stepper>
-            <Stack p={3}>
+            <Stack p={1}>
                 <Box>
-                    <Flex fontWeight="semibold" mb={2} ml={2} display="flex">
+                    <Flex
+                        fontWeight="semibold"
+                        mb={2}
+                        ml={2}
+                        display="flex"
+                        flexWrap={"wrap"}
+                    >
                         {" "}
                         Export link
                         <Popover>

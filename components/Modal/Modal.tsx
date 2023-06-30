@@ -23,7 +23,7 @@ const BasicModal: React.FC<{
     return (
         <>
             {/* https://github.com/chakra-ui/chakra-ui/issues/844#issuecomment-643733445 */}
-            <Modal {...props} blockScrollOnMount preserveScrollBarGap>
+            <Modal {...props} blockScrollOnMount>
                 <ModalOverlay />
                 <ModalContent bgColor={bgColor}>
                     <ModalHeader>{title}</ModalHeader>
