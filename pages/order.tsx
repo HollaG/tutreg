@@ -696,9 +696,9 @@ const Order: NextPage = () => {
                                 justifyContent="space-between"
                             >
                                 <Box>
-                                    <StepTitle>{steps[0].title}</StepTitle>
+                                    <StepTitle>{steps[2].title}</StepTitle>
                                     <StepDescription>
-                                        {steps[0].description}
+                                        {steps[2].description}
                                     </StepDescription>
                                 </Box>
                                 {DetailsButton}
