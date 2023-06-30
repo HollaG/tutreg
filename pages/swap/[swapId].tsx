@@ -323,6 +323,8 @@ const SpecificSwap = (
         else return "";
     };
 
+    const textColor = useColorModeValue("gray.700", "gray.300");
+
     if (!swap) return <> Missing info </>;
     return (
         <Stack spacing={5} alignItems="center" h="100%">
@@ -338,12 +340,7 @@ const SpecificSwap = (
                 <Stack>
                     <HStack alignItems="center" justifyContent="left">
                         <TimeIcon />
-                        <Text
-                            textColor={useColorModeValue(
-                                "gray.700",
-                                "gray.300"
-                            )}
-                        >
+                        <Text textColor={textColor}>
                             Created{" "}
                             {formatTimeElapsed(swap.createdAt.toString())}, on{" "}
                             {formatDate(new Date(swap.createdAt))}
