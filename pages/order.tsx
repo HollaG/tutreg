@@ -57,6 +57,7 @@ import {
     PopoverTrigger,
     PopoverFooter,
     InputLeftElement,
+    Kbd,
 } from "@chakra-ui/react";
 import { AnyARecord } from "dns";
 import { NextPage } from "next";
@@ -88,6 +89,9 @@ import Image from "next/image";
 import OrderImage from "../public/assets/order_illustration.svg";
 import CTA_GENERAL from "../components/CTA_general";
 import ModuleSelect from "../components/Select/ModuleSelect";
+import Mousetrap from "mousetrap";
+import { Keybind } from "../components/Navbar";
+import { isMobile } from "react-device-detect";
 const ay = process.env.NEXT_PUBLIC_AY;
 const Order: NextPage = () => {
     const toast = useToast();
@@ -412,6 +416,46 @@ const Order: NextPage = () => {
             </Button>
         </Tooltip>
     );
+
+    // I appreciate NUSMods for giving the code for this section.
+    // Code located in: src/views/components/KeyboardShortcuts.tsx
+    // to let the user scroll to each step easily
+    const shortcuts = useRef<Keybind[]>([]);
+    useEffect(() => {
+        function bind(
+            key: string,
+            description: string,
+            action: (e: Event) => void
+        ) {
+            shortcuts.current.push({ key, description });
+            Mousetrap.bind(key, action);
+        }
+        bind("`", "Go to top of page", () => {
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        });
+        bind("1", "Go to step 1", () => {
+            step1Ref.current?.scrollIntoView({ behavior: "smooth" });
+        });
+        bind("2", "Go to step 2", () => {
+            step2Ref.current?.scrollIntoView({ behavior: "smooth" });
+        });
+        bind("3", "Go to step 3", () => {
+            step3Ref.current?.scrollIntoView({ behavior: "smooth" });
+        });
+        bind("4", "Go to step 4", () => {
+            step4Ref.current?.scrollIntoView({ behavior: "smooth" });
+        });
+        return () => {
+            shortcuts.current.forEach(({ key }) => Mousetrap.unbind(key));
+            shortcuts.current = [];
+        };
+    }, []);
+
+    const [showShortcuts, setShowShortcuts] = useState(false);
+
+    useEffect(() => {
+        setShowShortcuts(!isMobile);
+    }, [isMobile]);
 
     return (
         <>
@@ -789,6 +833,19 @@ const Order: NextPage = () => {
                     </InputGroup>
                 </Box>
             </Stack>
+
+            {showShortcuts && (
+                <Text
+                    mt={10}
+                    fontWeight="light"
+                    textAlign={"right"}
+                    fontSize="sm"
+                >
+                    {" "}
+                    Pst, did you know you can press <Kbd>1</Kbd> <Kbd> 2</Kbd>{" "}
+                    <Kbd> 3</Kbd> <Kbd>4</Kbd> to jump steps?{" "}
+                </Text>
+            )}
         </>
     );
 };

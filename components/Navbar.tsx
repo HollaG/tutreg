@@ -55,7 +55,7 @@ const NavLink = ({ children }: { children: ReactNode }) => (
 );
 
 type Shortcut = string | string[];
-type Keybind = {
+export type Keybind = {
     key: string;
     description: string;
 };
@@ -98,6 +98,7 @@ export default function Nav() {
         bind("n", "Toggle notifications", () => {
             toggleNotification();
         });
+        bind("c", "Go to create swap page", () => router.push("/swap/create"));
         return () => {
             shortcuts.current.forEach(({ key }) => Mousetrap.unbind(key));
             shortcuts.current = [];

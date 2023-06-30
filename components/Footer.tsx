@@ -48,6 +48,9 @@ const Footer = () => {
                             <Text fontSize="xs">
                                 <Kbd>s</Kbd> : Swap page
                             </Text>
+                            <Text fontSize="xs">
+                                <Kbd>c</Kbd> : Create swap
+                            </Text>
                         </Stack>
                     )}
                 </Flex>
