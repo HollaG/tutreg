@@ -24,7 +24,7 @@ import user from "../../store/user";
 import Card from "../Card/Card";
 import UserDisplay from "../User/UserDisplay";
 import SwapArrows from "./SwapArrows";
-import SwapEntry from "./SwapEntry";
+
 import NextLink from "next/link";
 import { ClassOverview, ClassSwapRequest, RootState } from "../../types/types";
 import { TelegramUser } from "telegram-login-button";

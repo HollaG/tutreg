@@ -48,7 +48,7 @@ import ConfirmComplete from "../../components/Dialogs/ConfirmComplete";
 import ConfirmDelete from "../../components/Dialogs/ConfirmDelete";
 import Entry from "../../components/Sortables/Entry";
 import SwapArrows from "../../components/Swap/SwapArrows";
-import SwapEntry from "../../components/Swap/SwapEntry";
+
 import UserDisplay from "../../components/User/UserDisplay";
 import { sendDELETE, sendPATCH, sendPOST } from "../../lib/fetcher";
 import {

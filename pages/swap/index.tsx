@@ -61,7 +61,7 @@ import ConfirmDelete from "../../components/Dialogs/ConfirmDelete";
 import ModuleSelect from "../../components/Select/ModuleSelect";
 import Entry from "../../components/Sortables/Entry";
 import SwapArrows from "../../components/Swap/SwapArrows";
-import SwapEntry from "../../components/Swap/SwapEntry";
+
 import LoginButton from "../../components/User/LoginButton";
 import UserDisplay from "../../components/User/UserDisplay";
 import { sendDELETE, sendPOST } from "../../lib/fetcher";
@@ -84,7 +84,7 @@ import InfiniteScroll from "react-infinite-scroll-component";
 import SwapCard from "../../components/Swap/SwapCard";
 import Loading from "../../components/Indicators/Loading";
 import Ended from "../../components/Indicators/Ended";
-import SelfSwapCard from "../../components/Swap/SelfSwapCard";
+
 import { GetSwapClassesData } from "../api/swap/[swapId]";
 import { TbCheck, TbChevronDown, TbNewSection, TbPlus } from "react-icons/tb";
 import { LessonType } from "../../types/modules";

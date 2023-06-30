@@ -54,11 +54,11 @@ import { GetClassesResponse, GroupedByClassNo } from "../api/swap/getClasses";
 
 import { ClassOverview, Option, RootState } from "../../types/types";
 import Entry from "../../components/Sortables/Entry";
-import OrderSwapPriorityList from "../../components/Swap/OrderSwapPriorityList";
+
 import { ArrowDownIcon, DeleteIcon } from "@chakra-ui/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/router";
-import SwapEntry from "../../components/Swap/SwapEntry";
+
 import { miscActions } from "../../store/misc";
 import { LessonType } from "../../types/modules";
 import Timetable from "../../components/ReusableTimetable/Timetable";
