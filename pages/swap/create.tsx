@@ -667,6 +667,7 @@ const CreateSwap: NextPage = () => {
     } = stepsControl;
 
     // hooks
+    const misc = useSelector((state: RootState) => state.misc);
     const stateUser = useSelector((state: RootState) => state.user);
     const [user, setUser] = useState<TelegramUser | null>(null);
     useEffect(() => {
@@ -794,8 +795,11 @@ const CreateSwap: NextPage = () => {
                 toast({
                     title: "Swap created",
                     status: "success",
-                    description:
-                        "Swap created! If you have enabled notifications, you will be notified on Telegram if someone requests to swap with you.\nYou can toggle this function by clicking the notification bell in the top right corner of the page.",
+                    description: `${
+                        misc.notify
+                            ? "You will be notified on Telegram when someone requests your swap."
+                            : "To receive notifications on Telegram for this swap, click the bell icon on the top right corner."
+                    }`,
                     duration: 10000,
                     isClosable: true,
                 });
