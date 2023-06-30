@@ -325,6 +325,14 @@ const SpecificSwap = (
 
     const textColor = useColorModeValue("gray.700", "gray.300");
 
+    // to prevent errors from the time elapsed function
+    // text content did not match
+    const [timeAgoString, setTimeAgoString] = useState("");
+    useEffect(() => {
+        if (swap)
+            setTimeAgoString(formatTimeElapsed(swap.createdAt.toString()));
+    }, [swap?.createdAt]);
+
     if (!swap) return <> Missing info </>;
     return (
         <Stack spacing={5} alignItems="center" h="100%">
@@ -341,8 +349,7 @@ const SpecificSwap = (
                     <HStack alignItems="center" justifyContent="left">
                         <TimeIcon />
                         <Text textColor={textColor}>
-                            Created{" "}
-                            {formatTimeElapsed(swap.createdAt.toString())}, on{" "}
+                            Created {timeAgoString}, on{" "}
                             {formatDate(new Date(swap.createdAt))}
                         </Text>
                     </HStack>{" "}

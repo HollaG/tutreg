@@ -33,6 +33,7 @@ import { SwapData } from "../../pages/api/swap";
 import Timetable from "../ReusableTimetable/Timetable";
 import SwapCodeIndicator from "./SwapModuleCodeIndicator";
 import { GetSwapClassesData } from "../../pages/api/swap/[swapId]";
+import { useEffect, useState } from "react";
 const CustomCardProps = {
     _hover: {
         boxShadow: "lg",
@@ -63,6 +64,13 @@ const SwapCard: React.FC<{
     const state = useSelector((state: RootState) => state);
     const highlightedColor = useColorModeValue("green.200", "green.700");
 
+    // to prevent errors from the time elapsed function
+    // text content did not match
+    const [timeAgoString, setTimeAgoString] = useState("");
+    useEffect(() => {
+        if (swap)
+            setTimeAgoString(formatTimeElapsed(swap.createdAt.toString()));
+    }, [swap?.createdAt]);
     if (!swapData) return null;
 
     return (
@@ -78,7 +86,7 @@ const SwapCard: React.FC<{
                         {RequestButton}
                     </Flex>
                     <Text fontSize="sm" fontWeight="semibold">
-                        {formatTimeElapsed(swap.createdAt.toString())}
+                        {timeAgoString}
                     </Text>
                 </Flex>
                 <Box p={4}>
