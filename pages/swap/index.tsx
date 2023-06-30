@@ -1,4 +1,5 @@
 import {
+    AddIcon,
     ArrowDownIcon,
     ArrowUpDownIcon,
     ArrowUpIcon,
@@ -87,6 +88,10 @@ import SelfSwapCard from "../../components/Swap/SelfSwapCard";
 import { GetSwapClassesData } from "../api/swap/[swapId]";
 import { TbCheck, TbChevronDown, TbNewSection, TbPlus } from "react-icons/tb";
 import { LessonType } from "../../types/modules";
+import CTA_GENERAL from "../../components/CTA_general";
+
+import SwapImage from "../../public/assets/swap_illustration.svg";
+
 const SWAP_VISIBLE_AMOUNT = 20;
 const CustomCardProps = {
     _hover: {
@@ -469,29 +474,24 @@ const Swap = (
 
     return (
         <Stack spacing={5} h="100%">
-            <Center>
-                <Heading> 👀 Swap classes with others </Heading>
-            </Center>
-            <Center>
-                <Image
-                    src="/assets/swap_illustration.svg"
-                    maxWidth={"750px"}
-                    width="100%"
-                ></Image>
-            </Center>
-
-            <Center
-                transform={{ base: "unset", md: "translateY(-100px)" }}
-                float="left"
-                height={{ base: "unset", md: "0" }}
-            >
-                <Button
-                    colorScheme="blue"
-                    onClick={() => router.push("/swap/create")}
-                >
-                    Create new swap request
-                </Button>
-            </Center>
+            <CTA_GENERAL
+                title="🤝 Swap classes with others"
+                description="Got CourseRekt? Need to swap a class? Find someone to swap with here! Create a swap request and get notified through Telegram when another person requests your class."
+                image={SwapImage}
+                ButtonLeft={
+                    <Button
+                        // rounded={"full"}
+                        // size={"lg"}
+                        fontWeight={"normal"}
+                        px={6}
+                        colorScheme={"blue"}
+                        onClick={() => router.push("/swap/create")}
+                        leftIcon={<AddIcon />}
+                    >
+                        Create request
+                    </Button>
+                }
+            />
 
             <Tabs
                 variant="soft-rounded"

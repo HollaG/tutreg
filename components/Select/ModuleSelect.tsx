@@ -18,7 +18,14 @@ const ModuleSelect: React.FC<{
     moduleCodeLessonTypeValue?: string;
     defaultValue?: Option;
     hideNonBiddable?: boolean; // hides modules that are not biddable
-}> = ({ onSelect, isMulti = true, defaultValue, hideNonBiddable = true }) => {
+    additionalFilter?: (option: Option) => boolean;
+}> = ({
+    onSelect,
+    isMulti = true,
+    defaultValue,
+    hideNonBiddable = true,
+    additionalFilter,
+}) => {
     // fetch the list of modules from nusmods
     const [moduleList, setModuleList] = useState<ModuleCondensed[]>();
     const data = useSelector((state: RootState) => state.classesInfo);
@@ -74,11 +81,14 @@ const ModuleSelect: React.FC<{
                 if (!result.success || !result.data)
                     return console.log("error");
 
-                const options = Object.keys(result.data).map((key) => ({
+                let options = Object.keys(result.data).map((key) => ({
                     value: key,
                     label: key,
                 }));
 
+                if (additionalFilter) {
+                    options = options.filter(additionalFilter);
+                }
                 // filter the options to remove a) already selected b) already in classesSelected
                 // TODO: Filter the options or not?
                 // const filteredOptions = options.filter(

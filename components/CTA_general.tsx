@@ -93,7 +93,7 @@ export default function CTA_GENERAL({
                                 Get started
                             </Button>
                         )}
-                        <Button
+                        {/* <Button
                             // rounded={"full"}
                             // size={"lg"}
                             fontWeight={"normal"}
@@ -103,7 +103,7 @@ export default function CTA_GENERAL({
                             }
                         >
                             How It Works
-                        </Button>
+                        </Button> */}
                     </Stack>
                 </Stack>
                 {showGraphics && (
