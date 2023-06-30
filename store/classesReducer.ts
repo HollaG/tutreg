@@ -1,3 +1,4 @@
+import { getInitialState } from "@dnd-kit/core/dist/store";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 import { canBeBidFor } from "../lib/functions";
@@ -8,8 +9,24 @@ import { ModuleCodeLessonType, ClassOverview } from "../types/types";
 const loadState = () => {
     try {
         const serializedState = localStorage.getItem("classesInfo");
+
         if (!serializedState) return undefined;
-        else return JSON.parse(serializedState);
+        else {
+            // because we update the site, we need to update the state
+            // some people might not have colorMap yet.
+            const parsedState = JSON.parse(serializedState);
+
+            if (!("colorMap" in parsedState) || !parsedState.colorMap.length) {
+                console.log("updating colorMap");
+                parsedState.colorMap = parsedState.moduleOrder;
+                localStorage.setItem(
+                    "classesInfo",
+                    JSON.stringify(parsedState)
+                );
+            }
+
+            return JSON.parse(serializedState);
+        }
     } catch (err) {
         return undefined;
     }
@@ -21,8 +38,16 @@ export interface ClassState extends Data {
     changedClasses: string[];
     disabledClasses: string[];
     unmodifyableClasses: string[];
+
+    // for color mapping
+    // colorMap: {
+    //     [moduleCodeLessonType: string]: string;
+    // };
+
+    colorMap: (string | null)[];
 }
-const initialState: ClassState = loadState() || {
+
+const init: ClassState = {
     selectedClasses: {},
     totalModuleCodeLessonTypeMap: {},
     moduleOrder: [],
@@ -30,7 +55,9 @@ const initialState: ClassState = loadState() || {
     changedClasses: [],
     disabledClasses: [],
     unmodifyableClasses: [],
+    colorMap: [],
 };
+const initialState: ClassState = { ...init, ...loadState() };
 
 const classesSlice = createSlice({
     name: "classesInfo",
@@ -70,6 +97,8 @@ const classesSlice = createSlice({
                 changedClasses: [],
                 disabledClasses: [],
                 unmodifyableClasses: [],
+                // colorMap: {},
+                colorMap: Object.keys(selectedBiddableClasses),
             };
 
             state.selectedClasses = selectedBiddableClasses;
@@ -91,9 +120,22 @@ const classesSlice = createSlice({
             };
         },
         addModules(state, action: PayloadAction<string[]>) {
+            // for the colormap, the new moduleCodeLessonType must be added to either the end of the
+            // array, or the first undefined element
+            const newColorMap: (string | null)[] = [...state.colorMap];
+            action.payload.forEach((moduleCodeLessonType) => {
+                const index = newColorMap.indexOf(null);
+                if (index === -1) {
+                    newColorMap.push(moduleCodeLessonType);
+                } else {
+                    newColorMap[index] = moduleCodeLessonType;
+                }
+            });
+
             return {
                 ...state,
                 moduleOrder: [...state.moduleOrder, ...action.payload],
+                colorMap: newColorMap,
             };
         },
 
@@ -121,6 +163,12 @@ const classesSlice = createSlice({
             // state.totalModuleCodeLessonTypeMap =
             //     newTotalModuleCodeLessonTypeMap;
 
+            // todo: set colors
+            // set this moduleCodeLessonType to be undefined in the colorMap
+            const index = state.colorMap.indexOf(action.payload);
+            const newColorMap = [...state.colorMap];
+            newColorMap[index] = null;
+
             return {
                 moduleOrder: newModuleOrder,
                 selectedClasses: newSelectedClasses,
@@ -129,6 +177,8 @@ const classesSlice = createSlice({
                 changedClasses: [...state.changedClasses],
                 disabledClasses: [...state.disabledClasses],
                 unmodifyableClasses: [...state.unmodifyableClasses],
+                // colorMap: { ...state.colorMap },
+                colorMap: newColorMap,
             };
         },
         addAvailableClasses(
@@ -199,10 +249,17 @@ const classesSlice = createSlice({
                 const newState: ModuleCodeLessonType = {
                     ...state.selectedClasses,
                 };
+
+                // set this moduleCodeLessonType to be undefined in the colorMap
+                // const index = state.colorMap.indexOf(moduleCodeLessonType);
+                // const newColorMap = [...state.colorMap];
+                // newColorMap[index] = null;
+
                 delete newState[moduleCodeLessonType];
                 return {
                     ...state,
                     selectedClasses: newState,
+                    // colorMap: newColorMap,
                 };
             }
         },
@@ -231,6 +288,8 @@ const classesSlice = createSlice({
                 changedClasses: [],
                 disabledClasses: [],
                 unmodifyableClasses: [],
+                colorMap: [],
+                // colorMap: {},
             };
         },
         setChangedClasses(state, action: PayloadAction<string[]>) {

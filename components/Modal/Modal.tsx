@@ -22,9 +22,10 @@ const BasicModal: React.FC<{
     const bgColor = useColorModeValue("gray.50", "gray.700");
     return (
         <>
-            <Modal {...props}>
+            {/* https://github.com/chakra-ui/chakra-ui/issues/844#issuecomment-643733445 */}
+            <Modal {...props} blockScrollOnMount preserveScrollBarGap>
                 <ModalOverlay />
-                <ModalContent bgColor={bgColor} my={0}>
+                <ModalContent bgColor={bgColor}>
                     <ModalHeader>{title}</ModalHeader>
                     <ModalCloseButton />
                     <ModalBody>{children}</ModalBody>

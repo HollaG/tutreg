@@ -2,8 +2,10 @@ import {
     Box,
     Button,
     Center,
+    Divider,
     Flex,
     Heading,
+    Icon,
     Modal,
     SimpleGrid,
     Stack,
@@ -25,13 +27,16 @@ import {
     combineNumbers,
     getVacanciesForAllLessons,
     encodeLessonTypeToShorthand,
+    getModuleColor,
 } from "../../../lib/functions";
 import { Data } from "../../../pages/api/import";
 import { LessonType } from "../../../types/modules";
 import BasicModal from "../../Modal/Modal";
 import TimetableModal from "../../Timetable/TimetableModal";
 
-const ClassSortContainer: React.FC<{ showAdd: boolean }> = ({ showAdd }) => {
+const ClassSortContainer: React.FC<{ showAdditionalDetails: boolean }> = ({
+    showAdditionalDetails,
+}) => {
     const data = useSelector((state: RootState) => state.classesInfo);
     const dispatch = useDispatch();
 
@@ -79,42 +84,6 @@ const ClassSortContainer: React.FC<{ showAdd: boolean }> = ({ showAdd }) => {
         [moduleCodeLessonType: string]: Option[]; // classNo
     }>({});
 
-    const selectClassHandler = useCallback(
-        (opt: Option[], moduleCodeLessonType: string) => {
-            setSelectClassContainer((prevState) => ({
-                ...prevState,
-                [moduleCodeLessonType]: opt,
-            }));
-        },
-        []
-    );
-
-    const addClassHandler = useCallback(
-        (moduleCodeLessonType: string) => {
-            const selectedClasses = selectClassContainer[moduleCodeLessonType];
-            if (!selectedClasses) return;
-
-            for (const selectedClass of selectedClasses) {
-                if (!selectedClass) continue;
-                const classNo = selectedClass.value;
-                dispatch(
-                    classesActions.addSelectedClass({
-                        moduleCodeLessonType,
-                        classNo,
-                    })
-                );
-            }
-            // reset the selectClassContainer
-            setSelectClassContainer((prevState) => {
-                const newState = { ...prevState };
-
-                newState[moduleCodeLessonType] = [];
-                return newState;
-            });
-        },
-        [dispatch, selectClassContainer]
-    );
-
     // Handle adding modal
     const { isOpen, onOpen, onClose } = useDisclosure();
     const [selectedModuleCodeLessonType, setSelectedModuleCodeLessonType] =
@@ -142,74 +111,107 @@ const ClassSortContainer: React.FC<{ showAdd: boolean }> = ({ showAdd }) => {
                 onClose={onClose}
                 selectedModuleCodeLessonType={selectedModuleCodeLessonType}
             ></TimetableModal>
-            <SimpleGrid
+            {/* <SimpleGrid
                 columns={{
                     base: 1,
-                    md: loadedData?.moduleOrder.length === 1 ? 1 : 2,
+                    // md: loadedData?.moduleOrder.length === 1 ? 1 : 2,
+                    md: 2,
                 }}
                 spacing={5}
-            >
+                w="100%"
+            > */}
+            <Stack spacing={6} divider={<Divider />}>
                 {loadedData &&
                     loadedData.moduleOrder.map(
                         (moduleCodeLessonType, index) => (
-                            <Card key={index}>
-                                <Stack spacing={3}>
-                                    <Box textAlign="center">
-                                        <Heading size="sm" mb={1}>
+                            // <Card key={index}>
+                            <Stack spacing={3} key={index}>
+                                <Box textAlign="left">
+                                    <Flex
+                                        key={index}
+                                        justifyContent="space-between"
+                                        alignItems="center"
+                                        mb={1}
+                                    >
+                                        <Text
+                                            size="sm"
+                                            fontWeight="semibold"
+                                            display="flex"
+                                            alignItems={"center"}
+                                        >
+                                            <Icon
+                                                viewBox="0 0 200 200"
+                                                color={getModuleColor(
+                                                    data.colorMap,
+                                                    moduleCodeLessonType
+                                                )}
+                                                mr={2}
+                                            >
+                                                <path
+                                                    fill="currentColor"
+                                                    d="M 100, 100 m -75, 0 a 75,75 0 1,0 150,0 a 75,75 0 1,0 -150,0"
+                                                />
+                                            </Icon>
                                             {index + 1}. {moduleCodeLessonType}
-                                        </Heading>
-                                        {showAdd && (
-                                            <>
-                                                <Text>
-                                                    {getVacanciesForAllLessons(
-                                                        loadedData.totalModuleCodeLessonTypeMap[
-                                                            moduleCodeLessonType
-                                                        ]?.map((e) => e.size)
-                                                    )}{" "}
-                                                    vacancies / slot (Rd 1)
-                                                </Text>
-                                                <Text>
-                                                    Weeks{" "}
-                                                    {/* If there are multiple different weeks for different classes in the module, show that the weeks vary by class */}
-                                                    {checkMultipleDifferentWeeks(
-                                                        loadedData.totalModuleCodeLessonTypeMap[
-                                                            moduleCodeLessonType
-                                                        ]?.map(
-                                                            (e) =>
-                                                                e.classes[0]
-                                                                    .weeks
-                                                        )
+                                        </Text>
+                                        <Button
+                                            colorScheme="blue"
+                                            onClick={() =>
+                                                handleOpen(moduleCodeLessonType)
+                                            }
+                                            size="xs"
+                                        >
+                                            Add classes
+                                        </Button>
+                                    </Flex>
+
+                                    {showAdditionalDetails && (
+                                        <>
+                                            <Text>
+                                                {getVacanciesForAllLessons(
+                                                    loadedData.totalModuleCodeLessonTypeMap[
+                                                        moduleCodeLessonType
+                                                    ]?.map((e) => e.size)
+                                                )}{" "}
+                                                vacancies / slot (Rd 1)
+                                            </Text>
+                                            <Text>
+                                                Weeks{" "}
+                                                {/* If there are multiple different weeks for different classes in the module, show that the weeks vary by class */}
+                                                {checkMultipleDifferentWeeks(
+                                                    loadedData.totalModuleCodeLessonTypeMap[
+                                                        moduleCodeLessonType
+                                                    ]?.map(
+                                                        (e) =>
+                                                            e.classes[0].weeks
                                                     )
-                                                        ? "vary by class"
-                                                        : combineNumbers(
-                                                              loadedData.totalModuleCodeLessonTypeMap[
-                                                                  moduleCodeLessonType
-                                                              ]?.[0].classes[0].weeks
-                                                                  .toString()
-                                                                  .replace(
-                                                                      /\[|\]/g,
-                                                                      ""
-                                                                  )
-                                                                  .split(",")
-                                                          )}
-                                                </Text>{" "}
-                                            </>
-                                        )}
-                                    </Box>
-
-                                    <ClassList
-                                        moduleCodeLessonType={
-                                            moduleCodeLessonType
-                                        }
-                                        showAdd={showAdd}
-                                    />
-                                    {!loadedData.selectedClasses[
-                                        moduleCodeLessonType
-                                    ] && (
-                                        <Text> No classes selected yet! </Text>
+                                                )
+                                                    ? "vary by class"
+                                                    : combineNumbers(
+                                                          loadedData.totalModuleCodeLessonTypeMap[
+                                                              moduleCodeLessonType
+                                                          ]?.[0].classes[0].weeks
+                                                              .toString()
+                                                              .replace(
+                                                                  /\[|\]/g,
+                                                                  ""
+                                                              )
+                                                              .split(",")
+                                                      )}
+                                            </Text>{" "}
+                                        </>
                                     )}
+                                </Box>
 
-                                    {/* <Entry>
+                                <ClassList
+                                    moduleCodeLessonType={moduleCodeLessonType}
+                                    showAdd={true}
+                                />
+                                {!loadedData.selectedClasses[
+                                    moduleCodeLessonType
+                                ] && <Text> No classes selected yet! </Text>}
+
+                                {/* <Entry>
                                         <Flex>
                                             <Box flex={1} mr={3}>
                                                 <Select
@@ -252,23 +254,13 @@ const ClassSortContainer: React.FC<{ showAdd: boolean }> = ({ showAdd }) => {
                                             </Button>
                                         </Flex>
                                     </Entry> */}
+                            </Stack>
 
-                                    <Center>
-                                        <Button
-                                            colorScheme="blue"
-                                            onClick={() =>
-                                                handleOpen(moduleCodeLessonType)
-                                            }
-                                            size="sm"
-                                        >
-                                            Add / remove classes
-                                        </Button>
-                                    </Center>
-                                </Stack>
-                            </Card>
+                            // </Card>
                         )
                     )}
-            </SimpleGrid>
+                {/* </SimpleGrid> */}
+            </Stack>
         </>
     );
 };

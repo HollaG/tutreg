@@ -309,7 +309,8 @@ export const checkMultipleDifferentWeeks = (weeks: Weeks[]) => {
 // Output:
 //    "25"
 
-export const getVacanciesForAllLessons = (vacancies: number[]) => {
+export const getVacanciesForAllLessons = (vacancies?: number[]) => {
+    if (!vacancies) return "N/A";
     const min = Math.min(...vacancies);
     const max = Math.max(...vacancies);
     if (min === max) return min;
@@ -459,4 +460,41 @@ export const keepAndCapFirstThree = (str: string) => {
  */
 export const convertDayToAbbrev = (day: string) => {
     return day.slice(0, 3);
+};
+
+const colorIndex = [
+    "red.500",
+    "cyan.500",
+    "yellow.500",
+    "purple.500",
+    "green.500",
+    "teal.500",
+    "orange.500",
+    "blue.500",
+    "pink.500",
+];
+
+/**
+ * Generate colors
+ */
+const generateColors = (moduleCodeLessonTypeList: string[]) => {
+    const colorMap: { [key: string]: string } = {};
+    moduleCodeLessonTypeList.forEach((moduleCodeLessonType, index) => {
+        colorMap[moduleCodeLessonType] = colorMap[index];
+    });
+    return colorMap;
+};
+
+/**
+ * get the color
+ */
+export const getModuleColor = (
+    colorMap: (string | null)[],
+    moduleCodeLessonType: string
+) => {
+    const index = colorMap.indexOf(moduleCodeLessonType);
+
+    const color = colorIndex[index % colorIndex.length];
+
+    return color;
 };

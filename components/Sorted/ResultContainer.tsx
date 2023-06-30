@@ -6,6 +6,7 @@ import {
     Container,
     Flex,
     Heading,
+    Icon,
     Input,
     InputGroup,
     InputLeftAddon,
@@ -24,6 +25,7 @@ import {
     encodeRank,
     getAlphabet,
     encodeLessonTypeToShorthand,
+    getModuleColor,
 } from "../../lib/functions";
 import { classesActions } from "../../store/classesReducer";
 import { LessonTypeAbbrevMap } from "../../types/modules";
@@ -42,8 +44,11 @@ const options = [
     },
 ];
 
-const ResultContainer: React.FC<{ showAdd: boolean }> = ({ showAdd }) => {
-    const { moduleOrder, selectedClasses } = useSelector(
+const ResultContainer: React.FC<{
+    showAdditionalDetails: boolean;
+    setShareLink: React.Dispatch<React.SetStateAction<string>>;
+}> = ({ showAdditionalDetails, setShareLink }) => {
+    const { moduleOrder, selectedClasses, colorMap } = useSelector(
         (state: RootState) => state.classesInfo
     );
     const copiedModuleOrder = useMemo(() => [...moduleOrder], [moduleOrder]);
@@ -60,7 +65,6 @@ const ResultContainer: React.FC<{ showAdd: boolean }> = ({ showAdd }) => {
         if (value.value === "selected") {
             // rank according to selection
 
-            
             // find the highest number of selected classes in each selected module
 
             // highest number is the number of rows of the 2d matrix
@@ -96,10 +100,7 @@ const ResultContainer: React.FC<{ showAdd: boolean }> = ({ showAdd }) => {
                         tempHolderArray.push(selectedClasses[module_][reverse]);
                 }
             }
-     
         } else if (value.value === "vacancy") {
-            
-
             const vacancyModuleOrder = copiedModuleOrder.sort(
                 (a, b) =>
                     selectedClasses?.[a]?.[0]?.size -
@@ -139,16 +140,9 @@ const ResultContainer: React.FC<{ showAdd: boolean }> = ({ showAdd }) => {
                         tempHolderArray.push(selectedClasses[module_][reverse]);
                 }
             }
-
-         
         }
         setHolderArray(tempHolderArray);
-    
-        
-
     }, [copiedModuleOrder, selectedClasses, decouple, value]);
-
-
 
     const toggleDecouple = () => setDecouple(!decouple);
 
@@ -185,20 +179,14 @@ const ResultContainer: React.FC<{ showAdd: boolean }> = ({ showAdd }) => {
         }
     };
 
-    
-    
-    // Generate a sharable link
-    const [shareLink, setShareLink] = useState("")
-    
-    const { hasCopied, onCopy } = useClipboard(shareLink);
     // update the link whenever holderarray changes
     useEffect(() => {
-        setShareLink(encodeRank(holderArray, moduleOrder, selectedClasses))
-    }, [holderArray])
+        setShareLink(encodeRank(holderArray, moduleOrder, selectedClasses));
+    }, [holderArray]);
 
     return (
         <Stack spacing={3}>
-            <Flex alignItems="center">                
+            <Flex alignItems="center">
                 <Box flex={1}>
                     <Select
                         size="sm"
@@ -227,78 +215,103 @@ const ResultContainer: React.FC<{ showAdd: boolean }> = ({ showAdd }) => {
                 values={holderArray}
                 onChange={dragHandler}
                 renderList={({ children, props, isDragged }) => (
-                    <Box {...props} cursor={isDragged ? "grabbing" : "inherit"}>
+                    <Box
+                        {...props}
+                        cursor={isDragged ? "grabbing" : "inherit"}
+                        className={isDragged ? "drag" : "static"}
+                    >
                         {children}
                     </Box>
                 )}
-                renderItem={({ value, index, props, isDragged }) => (
-                    <Entry
-                        key={index}
-                        {...props}
-                        pointerEvents={decouple ? undefined : "none"}
-                    >
-                        <Flex alignItems="center">
-                            {decouple && (
-                                <DragHandleIcon
-                                    data-movable-handle
-                                    cursor={isDragged ? "grabbing" : "grab"}
-                                    tabIndex={-1}
-                                />
-                            )}
-                            <Box flex={1} mx={3}>
-                                <Text fontWeight={"semibold"}>
-                                    {(index || 0) + 1}. {value.moduleCode}{" "}
-                                    {encodeLessonTypeToShorthand(
-                                        value.lessonType as keyof LessonTypeAbbrevMap || ""
-                                    )}{" "}
-                                    [{value.classNo}]
-                                </Text>
-                                {showAdd && (
-                                    <>
-                                        <Text>{value.moduleName}</Text>
-                                        <Text>
-                                            {value.classes[0].size} vacancies
-                                        </Text>
-                                        <Text mb={2}>
-                                            {" "}
-                                            Weeks{" "}
-                                            {combineNumbers(
-                                                value.classes[0].weeks
-                                                    .toString()
-                                                    .replace(/\[|\]/g, "")
-                                                    .split(",")
-                                            )}
-                                        </Text>
-                                        {(value?.classes || []).map(
-                                            (classSel, index) => (
-                                                <Box key={index}>
-                                                    <Text>
-                                                        {classSel.day}{" "}
-                                                        {classSel.startTime}-
-                                                        {classSel.endTime} (
-                                                        {classSel.venue})
-                                                    </Text>
-                                                </Box>
-                                            )
-                                        )}
-                                    </>
+                renderItem={({
+                    value,
+                    index,
+                    props,
+                    isDragged,
+                    isSelected,
+                    isOutOfBounds,
+                }) => (
+                    <Box {...props} key={index} borderRadius="md">
+                        <Entry
+                            key={index}
+                            dragProps={{
+                                isSelected,
+                                isDragged,
+                                isOutOfBounds,
+                            }}
+                            pointerEvents={decouple ? undefined : "none"}
+                        >
+                            <Flex alignItems="center">
+                                {decouple && (
+                                    <DragHandleIcon
+                                        data-movable-handle
+                                        cursor={isDragged ? "grabbing" : "grab"}
+                                        tabIndex={-1}
+                                    />
                                 )}
-                            </Box>
-                        </Flex>
-                    </Entry>
+                                <Box flex={1} mx={3}>
+                                    <Text
+                                        fontWeight={"semibold"}
+                                        display="flex"
+                                        alignItems={"center"}
+                                    >
+                                        <Icon
+                                            viewBox="0 0 200 200"
+                                            color={getModuleColor(
+                                                colorMap,
+                                                `${value.moduleCode}: ${value.lessonType}`
+                                            )}
+                                            mr={2}
+                                        >
+                                            <path
+                                                fill="currentColor"
+                                                d="M 100, 100 m -75, 0 a 75,75 0 1,0 150,0 a 75,75 0 1,0 -150,0"
+                                            />
+                                        </Icon>
+                                        {(index || 0) + 1}. {value.moduleCode}{" "}
+                                        {encodeLessonTypeToShorthand(
+                                            (value.lessonType as keyof LessonTypeAbbrevMap) ||
+                                                ""
+                                        )}{" "}
+                                        [{value.classNo}]
+                                    </Text>
+                                    {showAdditionalDetails && (
+                                        <>
+                                            <Text>{value.moduleName}</Text>
+                                            <Text>
+                                                {value.classes[0].size}{" "}
+                                                vacancies
+                                            </Text>
+                                            <Text mb={2}>
+                                                {" "}
+                                                Weeks{" "}
+                                                {combineNumbers(
+                                                    value.classes[0].weeks
+                                                        .toString()
+                                                        .replace(/\[|\]/g, "")
+                                                        .split(",")
+                                                )}
+                                            </Text>
+                                            {(value?.classes || []).map(
+                                                (classSel, index) => (
+                                                    <Box key={index}>
+                                                        <Text>
+                                                            {classSel.day}{" "}
+                                                            {classSel.startTime}
+                                                            -{classSel.endTime}{" "}
+                                                            ({classSel.venue})
+                                                        </Text>
+                                                    </Box>
+                                                )
+                                            )}
+                                        </>
+                                    )}
+                                </Box>
+                            </Flex>
+                        </Entry>{" "}
+                    </Box>
                 )}
             />
-            <Box>
-                <InputGroup>
-                    <InputLeftAddon>Export link</InputLeftAddon>
-                    <Input readOnly value={shareLink} />
-                    <InputRightElement width="4.5rem">
-                        <Button h="1.75rem" size="sm" onClick={onCopy}>
-                            {hasCopied ? "Copied!" : "Copy"}
-                        </Button>
-                    </InputRightElement>
-                </InputGroup>
-            </Box>
         </Stack>
     );
 };
@@ -307,4 +320,3 @@ export default ResultContainer;
 function dispatch(arg0: any) {
     throw new Error("Function not implemented.");
 }
-

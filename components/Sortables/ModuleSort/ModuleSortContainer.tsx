@@ -5,6 +5,7 @@ import {
     Container,
     Flex,
     Heading,
+    Icon,
     SimpleGrid,
     Stack,
     Text,
@@ -12,16 +13,21 @@ import {
 } from "@chakra-ui/react";
 
 import { useEffect, useState } from "react";
-import { arrayMove, List } from "react-movable";
+import { arrayMove, arrayRemove, List } from "react-movable";
 import { useDispatch, useSelector } from "react-redux";
 import { ReactSortable } from "react-sortablejs";
-import { getVacanciesForAllLessons } from "../../../lib/functions";
+import {
+    getModuleColor,
+    getVacanciesForAllLessons,
+} from "../../../lib/functions";
 import { classesActions } from "../../../store/classesReducer";
 import { RootState } from "../../../types/types";
 import Card from "../../Card/Card";
 import Entry from "../Entry";
 
-const ModuleSortContainer: React.FC<{ showAdd: boolean }> = ({ showAdd }) => {
+const ModuleSortContainer: React.FC<{ showAdditionalDetails: boolean }> = ({
+    showAdditionalDetails,
+}) => {
     const data = useSelector((state: RootState) => state.classesInfo);
 
     const dispatch = useDispatch();
@@ -35,6 +41,7 @@ const ModuleSortContainer: React.FC<{ showAdd: boolean }> = ({ showAdd }) => {
         }[]
     >([]);
 
+    const [initialPop, setInitialPop] = useState<boolean>(false);
     useEffect(() => {
         if (!data.moduleOrder?.length) return setModulesList([]);
         const modulesList = (data.moduleOrder || []).map((selClass, index) => ({
@@ -42,7 +49,11 @@ const ModuleSortContainer: React.FC<{ showAdd: boolean }> = ({ showAdd }) => {
             name: selClass,
         }));
         setModulesList(modulesList);
-    }, [data.moduleOrder]);
+
+        if (!initialPop) {
+            setInitialPop(true);
+        }
+    }, [data.moduleOrder, initialPop]);
 
     const dragHandler = ({
         oldIndex,
@@ -67,9 +78,10 @@ const ModuleSortContainer: React.FC<{ showAdd: boolean }> = ({ showAdd }) => {
         dispatch(classesActions.removeModule(moduleCodeLessonType));
     };
 
-    const dragColor = useColorModeValue("gray.100", "gray.400");
+    const dragColor = useColorModeValue("gray.100", "gray.700");
     const deleteColor = useColorModeValue("red.300", "red.500");
     const deleteIconColor = useColorModeValue("red.500", "red.500");
+
     return (
         <Stack spacing={3}>
             <List
@@ -77,7 +89,7 @@ const ModuleSortContainer: React.FC<{ showAdd: boolean }> = ({ showAdd }) => {
                 values={modulesList.map((module) => module.name)}
                 onChange={dragHandler}
                 renderList={({ children, props, isDragged }) => (
-                    <Box {...props}>
+                    <Box {...props} className={isDragged ? "drag" : "static"}>
                         {children}
                     </Box>
                 )}
@@ -89,45 +101,69 @@ const ModuleSortContainer: React.FC<{ showAdd: boolean }> = ({ showAdd }) => {
                     isSelected,
                     isOutOfBounds,
                 }) => (
-                    <Entry
-                        bgColor={
-                            isSelected || isDragged
-                                ? isOutOfBounds
-                                    ? deleteColor
-                                    : dragColor
-                                : undefined
-                        }
-                        key={value}
-                        {...props}
-                    >
-                        <Flex alignItems="center">
-                            <DragHandleIcon
-                                data-movable-handle
-                                cursor={isDragged ? "grabbing" : "grab"}
-                                tabIndex={-1}
-                            />
-                            <Box flex={1} mx={3}>
-                                <Text fontWeight="semibold">
-                                    {(index || 0) + 1}. {value}
-                                </Text>
-                                {showAdd && (
-                                    <Text>                                        
-                                        {getVacanciesForAllLessons(
-                                            data.totalModuleCodeLessonTypeMap[
+                    <Box {...props} key={value} borderRadius="md">
+                        <Entry
+                            key={value}
+                            // boxShadow={
+                            //     isSelected || isDragged
+                            //         ? "rgba(0, 0, 0, 0.2) 0px 4px 13px -3px"
+                            //         : ""
+                            // }
+                            // key={value}
+                            dragProps={{
+                                isSelected,
+                                isDragged,
+                                isOutOfBounds,
+                            }}
+                        >
+                            <Flex alignItems="center">
+                                <DragHandleIcon
+                                    data-movable-handle
+                                    cursor={isDragged ? "grabbing" : "grab"}
+                                    tabIndex={-1}
+                                />
+                                <Box flex={1} mx={3}>
+                                    <Text
+                                        fontWeight="semibold"
+                                        display="flex"
+                                        alignItems={"center"}
+                                        verticalAlign={"center"}
+                                    >
+                                        <Icon
+                                            viewBox="0 0 200 200"
+                                            color={getModuleColor(
+                                                data.colorMap,
                                                 value
-                                            ]?.map((e) => e.size)
-                                        )}{" "}
-                                        vacancies / slot (Rd 1)
+                                            )}
+                                            mr={2}
+                                        >
+                                            <path
+                                                fill="currentColor"
+                                                d="M 100, 100 m -75, 0 a 75,75 0 1,0 150,0 a 75,75 0 1,0 -150,0"
+                                            />
+                                        </Icon>
+                                        {/* {(index || 0) + 1}. */}
+                                        {value}
                                     </Text>
-                                )}
-                            </Box>
-                            <DeleteIcon
-                                cursor="pointer"
-                                onClick={() => deleteModule(value)}
-                                color={deleteIconColor}
-                            />
-                        </Flex>
-                    </Entry>
+                                    {showAdditionalDetails && (
+                                        <Text>
+                                            {getVacanciesForAllLessons(
+                                                data.totalModuleCodeLessonTypeMap[
+                                                    value
+                                                ]?.map((e) => e.size)
+                                            )}{" "}
+                                            vacancies / slot (Rd 1)
+                                        </Text>
+                                    )}
+                                </Box>
+                                <DeleteIcon
+                                    cursor="pointer"
+                                    onClick={() => deleteModule(value)}
+                                    color={deleteIconColor}
+                                />
+                            </Flex>
+                        </Entry>{" "}
+                    </Box>
                 )}
             />
         </Stack>

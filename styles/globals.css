@@ -56,3 +56,25 @@ a {
 .pulse {
     animation: pulse 1s infinite;
 }
+
+/* For dragging */
+.drag .entry::before {
+    opacity: 0;
+    /* animation: "0.3s ease-in fadein"; */
+    /* background-color: red; */
+}
+
+/* Only apply animation to the items in the list. The visible dragged element is portaled out, so it won't have the class */
+.static .entry::before {
+    /* animation: "0.3s ease-in fadein"; */
+}
+
+/* For animation of opacity fade in */
+@keyframes fadein {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}

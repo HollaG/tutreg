@@ -3,14 +3,17 @@ import { Box, Flex, Text, useColorModeValue } from "@chakra-ui/react";
 import { useCallback, useEffect } from "react";
 import { arrayMove, arrayRemove, List } from "react-movable";
 import { useDispatch, useSelector } from "react-redux";
-import { getAlphabet, encodeLessonTypeToShorthand } from "../../../lib/functions";
+import {
+    getAlphabet,
+    encodeLessonTypeToShorthand,
+} from "../../../lib/functions";
 import { classesActions } from "../../../store/classesReducer";
 import { ClassOverview, RootState } from "../../../types/types";
 import Entry from "../Entry";
 
 const ClassList: React.FC<{
     moduleCodeLessonType: string;
-    showAdd: boolean
+    showAdd: boolean;
 }> = ({ moduleCodeLessonType, showAdd }) => {
     const data = useSelector((state: RootState) => state.classesInfo);
     const dispatch = useDispatch();
@@ -76,18 +79,16 @@ const ClassList: React.FC<{
 
     //     const takenClasses = {...data.selectedClasses, ...data.nonBiddable}
     //     if (!takenClasses) return
-       
 
-    //     for (const moduleCodeLessonType in takenClasses) { 
+    //     for (const moduleCodeLessonType in takenClasses) {
     //         let classesSelected = takenClasses[moduleCodeLessonType]
     //         for (const classes_ of classesSelected) {
-    //             for (const class_ of classes_.classes) { 
+    //             for (const class_ of classes_.classes) {
     //                 timings[class_.day].push(class_)
     //             }
     //         }
     //     }
 
-        
     //     // check if any classes are conflicting
 
     // }, [data])
@@ -95,11 +96,10 @@ const ClassList: React.FC<{
     return (
         <List
             removableByMove
-            
             values={data.selectedClasses[moduleCodeLessonType] || []}
             onChange={dragHandler}
             renderList={({ children, props, isDragged }) => (
-                <Box cursor={isDragged ? "grabbing" : "inherit"} {...props}>
+                <Box {...props} className={isDragged ? "drag" : "static"}>
                     {children}
                 </Box>
             )}
@@ -111,48 +111,60 @@ const ClassList: React.FC<{
                 isSelected,
                 isOutOfBounds,
             }) => (
-                <Entry
-                    bgColor={
-                        isSelected || isDragged
-                            ? isOutOfBounds
-                                ? deleteColor
-                                : dragColor
-                            : undefined
-                    }
-                    key={index}
-                    {...props}
-                >
-                    <Flex alignItems="center">
-                        <DragHandleIcon
-                            data-movable-handle
-                            cursor={isDragged ? "grabbing" : "grab"}
-                            tabIndex={-1}
-                        />
-                        <Box flex={1} mx={3}>
-                            <Text fontWeight={"semibold"}>
-                                {/* {getAlphabet(index || 0)}.{" "} */}
-                                {(index||0)+1}.{" "}
-                                {encodeLessonTypeToShorthand(moduleData?.lessonType || "")} [
-                                {moduleData?.classNo}]
-                            </Text>
-                            {(moduleData?.classes || []).map(
-                                (classSel, index) => (
-                                    <Box key={index}>
-                                        <Text>
-                                            {classSel.day} {classSel.startTime}-
-                                            {classSel.endTime} {showAdd && `(${classSel.venue})`}
-                                        </Text>
-                                    </Box>
-                                )
-                            )}
-                        </Box>
-                        <DeleteIcon
-                            cursor="pointer"
-                            onClick={() => deleteHandler(moduleData)}
-                            color={deleteIconColor}
-                        />
-                    </Flex>
-                </Entry>
+                <Box {...props} key={index} borderRadius="md">
+                    <Entry
+                        // bgColor={
+                        //     isSelected || isDragged
+                        //         ? isOutOfBounds
+                        //             ? deleteColor
+                        //             : dragColor
+                        //         : undefined
+                        // }
+                        // key={index}
+                        // {...props}
+                        dragProps={{
+                            isSelected,
+                            isDragged,
+                            isOutOfBounds,
+                        }}
+                    >
+                        <Flex alignItems="center">
+                            <DragHandleIcon
+                                data-movable-handle
+                                cursor={isDragged ? "grabbing" : "grab"}
+                                tabIndex={-1}
+                            />
+                            <Box flex={1} mx={3}>
+                                <Text fontWeight={"semibold"}>
+                                    {/* {getAlphabet(index || 0)}.{" "} */}
+                                    {/* {(index || 0) + 1}.{" "} */}
+                                    {encodeLessonTypeToShorthand(
+                                        moduleData?.lessonType || ""
+                                    )}{" "}
+                                    [{moduleData?.classNo}]
+                                </Text>
+                                {(moduleData?.classes || []).map(
+                                    (classSel, index) => (
+                                        <Box key={index}>
+                                            <Text>
+                                                {classSel.day}{" "}
+                                                {classSel.startTime}-
+                                                {classSel.endTime}{" "}
+                                                {showAdd &&
+                                                    `@ ${classSel.venue}`}
+                                            </Text>
+                                        </Box>
+                                    )
+                                )}
+                            </Box>
+                            <DeleteIcon
+                                cursor="pointer"
+                                onClick={() => deleteHandler(moduleData)}
+                                color={deleteIconColor}
+                            />
+                        </Flex>
+                    </Entry>
+                </Box>
             )}
         />
     );

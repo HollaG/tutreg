@@ -604,14 +604,14 @@ const Order: NextPage = () => {
                     </Flex>
                     <Box display={activeStep === 0 ? "unset" : "none"}>
                         {" "}
-                        <ModuleSortContainer showAdd={showAdd} />
+                        <ModuleSortContainer showAdditionalDetails={showAdd} />
                     </Box>
                     <Box display={activeStep === 1 ? "unset" : "none"}>
                         {" "}
-                        <ClassSortContainer showAdd={showAdd} />
+                        <ClassSortContainer showAdditionalDetails={showAdd} />
                     </Box>
                     <Box display={activeStep === 2 ? "unset" : "none"}>
-                        <ResultContainer showAdd={showAdd} />
+                        <ResultContainer showAdditionalDetails={showAdd} />
                     </Box>
                 </Stack>
                 {/* </Collapse> */}
