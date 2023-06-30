@@ -128,7 +128,11 @@ const ClassList: React.FC<{
                             isOutOfBounds,
                         }}
                     >
-                        <Flex alignItems="center">
+                        <Flex
+                            alignItems="center"
+                            data-movable-handle
+                            cursor={isDragged ? "grabbing" : "grab"}
+                        >
                             <DragHandleIcon
                                 data-movable-handle
                                 cursor={isDragged ? "grabbing" : "grab"}

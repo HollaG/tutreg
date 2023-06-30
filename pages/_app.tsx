@@ -171,6 +171,7 @@ function MyApp({ Component, pageProps }: AppProps) {
                             pb="48px"
                             height={"calc(100% - 64px)"}
                             flexGrow={1}
+                            overflow="none"
                         >
                             <Component {...pageProps} />
                         </Container>

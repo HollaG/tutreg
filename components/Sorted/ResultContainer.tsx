@@ -202,7 +202,7 @@ const ResultContainer: React.FC<{
                 <Box>
                     <Tooltip
                         hasArrow
-                        label="When unlocked, you can make changes to your final class priority."
+                        label="When unlocked, you can make changes to your final class priority, if you don't like how the system calculated the ranking."
                         textAlign="center"
                     >
                         <Button size="sm" onClick={() => toggleDecouple()}>
@@ -231,7 +231,12 @@ const ResultContainer: React.FC<{
                     isSelected,
                     isOutOfBounds,
                 }) => (
-                    <Box {...props} key={index} borderRadius="md">
+                    <Box
+                        {...props}
+                        key={index}
+                        borderRadius="md"
+                        pointerEvents={decouple ? undefined : "none"}
+                    >
                         <Entry
                             key={index}
                             dragProps={{
@@ -239,12 +244,14 @@ const ResultContainer: React.FC<{
                                 isDragged,
                                 isOutOfBounds,
                             }}
-                            pointerEvents={decouple ? undefined : "none"}
                         >
-                            <Flex alignItems="center">
+                            <Flex
+                                alignItems="center"
+                                data-movable-handle
+                                cursor={isDragged ? "grabbing" : "grab"}
+                            >
                                 {decouple && (
                                     <DragHandleIcon
-                                        data-movable-handle
                                         cursor={isDragged ? "grabbing" : "grab"}
                                         tabIndex={-1}
                                     />
