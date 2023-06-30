@@ -100,7 +100,7 @@ export const getSwapData = async (
 
         const possiblyDrawnClassesForThisModule: ModuleWithClassDB[] =
             await executeQuery({
-                query: `SELECT * FROM classlist LEFT JOIN moduleList ON classlist.moduleCode = modulelist.moduleCode WHERE classlist.moduleCode = ? AND classlist.lessonType = ? AND classlist.classNo = ? AND ay = ? AND semester = ?`,
+                query: `SELECT * FROM classlist LEFT JOIN modulelist ON classlist.moduleCode = modulelist.moduleCode WHERE classlist.moduleCode = ? AND classlist.lessonType = ? AND classlist.classNo = ? AND ay = ? AND semester = ?`,
                 values: [
                     moduleCode,
                     lessonType,
