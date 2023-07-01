@@ -116,50 +116,50 @@ const ModuleSortContainer: React.FC<{ showAdditionalDetails: boolean }> = ({
                                 isOutOfBounds,
                             }}
                         >
-                            <Flex
-                                alignItems="center"
-                                data-movable-handle
-                                cursor={isDragged ? "grabbing" : "grab"}
-                            >
-                                <DragHandleIcon
+                            <Flex alignItems="center">
+                                <Flex
+                                    alignItems={"center"}
                                     data-movable-handle
                                     cursor={isDragged ? "grabbing" : "grab"}
-                                    tabIndex={-1}
-                                />
-                                <Box flex={1} mx={3}>
-                                    <Text
-                                        fontWeight="semibold"
-                                        display="flex"
-                                        alignItems={"center"}
-                                        verticalAlign={"center"}
-                                    >
-                                        <Icon
-                                            viewBox="0 0 200 200"
-                                            color={getModuleColor(
-                                                data.colorMap,
-                                                value
-                                            )}
-                                            mr={2}
+                                    flex={1}
+                                >
+                                    <DragHandleIcon tabIndex={-1} />
+                                    <Box mx={3}>
+                                        <Text
+                                            fontWeight="semibold"
+                                            display="flex"
+                                            alignItems={"center"}
+                                            verticalAlign={"center"}
                                         >
-                                            <path
-                                                fill="currentColor"
-                                                d="M 100, 100 m -75, 0 a 75,75 0 1,0 150,0 a 75,75 0 1,0 -150,0"
-                                            />
-                                        </Icon>
-                                        {/* {(index || 0) + 1}. */}
-                                        {value}
-                                    </Text>
-                                    {showAdditionalDetails && (
-                                        <Text>
-                                            {getVacanciesForAllLessons(
-                                                data.totalModuleCodeLessonTypeMap[
+                                            <Icon
+                                                viewBox="0 0 200 200"
+                                                color={getModuleColor(
+                                                    data.colorMap,
                                                     value
-                                                ]?.map((e) => e.size)
-                                            )}{" "}
-                                            vacancies / slot (Rd 1)
+                                                )}
+                                                mr={2}
+                                            >
+                                                <path
+                                                    fill="currentColor"
+                                                    d="M 100, 100 m -75, 0 a 75,75 0 1,0 150,0 a 75,75 0 1,0 -150,0"
+                                                />
+                                            </Icon>
+                                            {/* {(index || 0) + 1}. */}
+                                            {value}
                                         </Text>
-                                    )}
-                                </Box>
+                                        {showAdditionalDetails && (
+                                            <Text>
+                                                {getVacanciesForAllLessons(
+                                                    data.totalModuleCodeLessonTypeMap[
+                                                        value
+                                                    ]?.map((e) => e.size)
+                                                )}{" "}
+                                                vacancies / slot (Rd 1)
+                                            </Text>
+                                        )}
+                                    </Box>
+                                </Flex>
+
                                 <DeleteIcon
                                     cursor="pointer"
                                     onClick={() => deleteModule(value)}

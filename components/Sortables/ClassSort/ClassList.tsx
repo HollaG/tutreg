@@ -128,43 +128,51 @@ const ClassList: React.FC<{
                             isOutOfBounds,
                         }}
                     >
-                        <Flex
-                            alignItems="center"
-                            data-movable-handle
-                            cursor={isDragged ? "grabbing" : "grab"}
-                        >
-                            <DragHandleIcon
+                        <Flex alignItems="center">
+                            <Flex
+                                flex={1}
                                 data-movable-handle
                                 cursor={isDragged ? "grabbing" : "grab"}
-                                tabIndex={-1}
-                            />
-                            <Box flex={1} mx={3}>
-                                <Text fontWeight={"semibold"}>
-                                    {/* {getAlphabet(index || 0)}.{" "} */}
-                                    {/* {(index || 0) + 1}.{" "} */}
-                                    {encodeLessonTypeToShorthand(
-                                        moduleData?.lessonType || ""
-                                    )}{" "}
-                                    [{moduleData?.classNo}]
-                                </Text>
-                                {(moduleData?.classes || []).map(
-                                    (classSel, index) => (
-                                        <Box key={index}>
-                                            <Text>
-                                                {classSel.day}{" "}
-                                                {classSel.startTime}-
-                                                {classSel.endTime}{" "}
-                                                {showAdd &&
-                                                    `@ ${classSel.venue}`}
-                                            </Text>
-                                        </Box>
-                                    )
-                                )}
-                            </Box>
+                                alignItems="center"
+                            >
+                                <DragHandleIcon tabIndex={-1} />
+                                <Box
+                                    flex={1}
+                                    mx={3}
+                                    data-movable-handle
+                                    cursor={isDragged ? "grabbing" : "grab"}
+                                >
+                                    <Text fontWeight={"semibold"}>
+                                        {/* {getAlphabet(index || 0)}.{" "} */}
+                                        {/* {(index || 0) + 1}.{" "} */}
+                                        {encodeLessonTypeToShorthand(
+                                            moduleData?.lessonType || ""
+                                        )}{" "}
+                                        [{moduleData?.classNo}]
+                                    </Text>
+                                    {(moduleData?.classes || []).map(
+                                        (classSel, index) => (
+                                            <Box key={index}>
+                                                <Text>
+                                                    {classSel.day}{" "}
+                                                    {classSel.startTime}-
+                                                    {classSel.endTime}{" "}
+                                                    {showAdd &&
+                                                        `@ ${classSel.venue}`}
+                                                </Text>
+                                            </Box>
+                                        )
+                                    )}
+                                </Box>
+                            </Flex>
                             <DeleteIcon
                                 cursor="pointer"
-                                onClick={() => deleteHandler(moduleData)}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    deleteHandler(moduleData);
+                                }}
                                 color={deleteIconColor}
+                                focusable
                             />
                         </Flex>
                     </Entry>

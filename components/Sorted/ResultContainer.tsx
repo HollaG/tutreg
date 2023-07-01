@@ -245,75 +245,86 @@ const ResultContainer: React.FC<{
                                 isOutOfBounds,
                             }}
                         >
-                            <Flex
-                                alignItems="center"
-                                data-movable-handle
-                                cursor={isDragged ? "grabbing" : "grab"}
-                            >
-                                {decouple && (
-                                    <DragHandleIcon
-                                        cursor={isDragged ? "grabbing" : "grab"}
-                                        tabIndex={-1}
-                                    />
-                                )}
-                                <Box flex={1} mx={3}>
-                                    <Text
-                                        fontWeight={"semibold"}
-                                        display="flex"
-                                        alignItems={"center"}
-                                    >
-                                        <Icon
-                                            viewBox="0 0 200 200"
-                                            color={getModuleColor(
-                                                colorMap,
-                                                `${value.moduleCode}: ${value.lessonType}`
-                                            )}
-                                            mr={2}
-                                        >
-                                            <path
-                                                fill="currentColor"
-                                                d="M 100, 100 m -75, 0 a 75,75 0 1,0 150,0 a 75,75 0 1,0 -150,0"
-                                            />
-                                        </Icon>
-                                        {(index || 0) + 1}. {value.moduleCode}{" "}
-                                        {encodeLessonTypeToShorthand(
-                                            (value.lessonType as keyof LessonTypeAbbrevMap) ||
-                                                ""
-                                        )}{" "}
-                                        [{value.classNo}]
-                                    </Text>
-                                    {showAdditionalDetails && (
-                                        <>
-                                            <Text>{value.moduleName}</Text>
-                                            <Text>
-                                                {value.classes[0].size}{" "}
-                                                vacancies
-                                            </Text>
-                                            <Text mb={2}>
-                                                {" "}
-                                                Weeks{" "}
-                                                {combineNumbers(
-                                                    value.classes[0].weeks
-                                                        .toString()
-                                                        .replace(/\[|\]/g, "")
-                                                        .split(",")
-                                                )}
-                                            </Text>
-                                            {(value?.classes || []).map(
-                                                (classSel, index) => (
-                                                    <Box key={index}>
-                                                        <Text>
-                                                            {classSel.day}{" "}
-                                                            {classSel.startTime}
-                                                            -{classSel.endTime}{" "}
-                                                            ({classSel.venue})
-                                                        </Text>
-                                                    </Box>
-                                                )
-                                            )}
-                                        </>
+                            <Flex alignItems="center">
+                                <Flex
+                                    alignItems={"center"}
+                                    flex={1}
+                                    data-movable-handle
+                                    cursor={isDragged ? "grabbing" : "grab"}
+                                >
+                                    {decouple && (
+                                        <DragHandleIcon tabIndex={-1} />
                                     )}
-                                </Box>
+                                    <Box flex={1} mx={3}>
+                                        <Text
+                                            fontWeight={"semibold"}
+                                            display="flex"
+                                            alignItems={"center"}
+                                        >
+                                            <Icon
+                                                viewBox="0 0 200 200"
+                                                color={getModuleColor(
+                                                    colorMap,
+                                                    `${value.moduleCode}: ${value.lessonType}`
+                                                )}
+                                                mr={2}
+                                            >
+                                                <path
+                                                    fill="currentColor"
+                                                    d="M 100, 100 m -75, 0 a 75,75 0 1,0 150,0 a 75,75 0 1,0 -150,0"
+                                                />
+                                            </Icon>
+                                            {(index || 0) + 1}.{" "}
+                                            {value.moduleCode}{" "}
+                                            {encodeLessonTypeToShorthand(
+                                                (value.lessonType as keyof LessonTypeAbbrevMap) ||
+                                                    ""
+                                            )}{" "}
+                                            [{value.classNo}]
+                                        </Text>
+                                        {showAdditionalDetails && (
+                                            <>
+                                                <Text>{value.moduleName}</Text>
+                                                <Text>
+                                                    {value.classes[0].size}{" "}
+                                                    vacancies
+                                                </Text>
+                                                <Text mb={2}>
+                                                    {" "}
+                                                    Weeks{" "}
+                                                    {combineNumbers(
+                                                        value.classes[0].weeks
+                                                            .toString()
+                                                            .replace(
+                                                                /\[|\]/g,
+                                                                ""
+                                                            )
+                                                            .split(",")
+                                                    )}
+                                                </Text>
+                                                {(value?.classes || []).map(
+                                                    (classSel, index) => (
+                                                        <Box key={index}>
+                                                            <Text>
+                                                                {classSel.day}{" "}
+                                                                {
+                                                                    classSel.startTime
+                                                                }
+                                                                -
+                                                                {
+                                                                    classSel.endTime
+                                                                }{" "}
+                                                                (
+                                                                {classSel.venue}
+                                                                )
+                                                            </Text>
+                                                        </Box>
+                                                    )
+                                                )}
+                                            </>
+                                        )}
+                                    </Box>
+                                </Flex>
                             </Flex>
                         </Entry>{" "}
                     </Box>
