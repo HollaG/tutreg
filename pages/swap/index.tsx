@@ -7,6 +7,13 @@ import {
     TimeIcon,
 } from "@chakra-ui/icons";
 import {
+    AlertDialog,
+    AlertDialogBody,
+    AlertDialogContent,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogOverlay,
+    AspectRatio,
     Avatar,
     Badge,
     Box,
@@ -88,7 +95,7 @@ import Ended from "../../components/Indicators/Ended";
 import { GetSwapClassesData } from "../api/swap/[swapId]";
 import { TbCheck, TbChevronDown, TbNewSection, TbPlus } from "react-icons/tb";
 import { LessonType } from "../../types/modules";
-import CTA_GENERAL from "../../components/CTA_general";
+import CTA_GENERAL, { PlayIcon } from "../../components/CTA_general";
 
 import SwapImage from "../../public/assets/swap_illustration.svg";
 
@@ -472,6 +479,57 @@ const Swap = (
 
     const infiniteScrollRef = useRef<HTMLDivElement>(null);
 
+    // "How It Works"
+    const { isOpen, onOpen, onClose } = useDisclosure();
+    const cancelRef = useRef<HTMLButtonElement>(null);
+    const HOW_IT_WORKS = (
+        <>
+            <Button
+                // rounded={"full"}
+                // size={"lg"}
+                fontWeight={"normal"}
+                px={6}
+                leftIcon={<PlayIcon h={4} w={4} color={"gray.300"} />}
+                onClick={onOpen}
+            >
+                How It Works
+            </Button>
+            <AlertDialog
+                isOpen={isOpen}
+                leastDestructiveRef={cancelRef}
+                onClose={onClose}
+                size={"6xl"}
+            >
+                <AlertDialogOverlay>
+                    <AlertDialogContent>
+                        <AlertDialogHeader fontSize="lg" fontWeight="bold">
+                            Swap Tutorial Video
+                        </AlertDialogHeader>
+
+                        <AlertDialogBody>
+                            <AspectRatio ratio={16 / 9}>
+                                <iframe
+                                    width="560"
+                                    height="315"
+                                    src="https://www.youtube.com/embed/_enpuIZKPl8"
+                                    title="YouTube video player"
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                    allowFullScreen
+                                ></iframe>
+                            </AspectRatio>
+                        </AlertDialogBody>
+
+                        <AlertDialogFooter>
+                            <Button ref={cancelRef} onClick={onClose}>
+                                Close
+                            </Button>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialogOverlay>
+            </AlertDialog>
+        </>
+    );
+
     return (
         <Stack spacing={5} h="100%">
             <CTA_GENERAL
@@ -491,6 +549,7 @@ const Swap = (
                         Create request
                     </Button>
                 }
+                ButtonRight={HOW_IT_WORKS}
             />
 
             <Tabs

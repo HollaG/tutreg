@@ -58,6 +58,14 @@ import {
     PopoverFooter,
     InputLeftElement,
     Kbd,
+    useDisclosure,
+    AspectRatio,
+    AlertDialog,
+    AlertDialogBody,
+    AlertDialogContent,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogOverlay,
 } from "@chakra-ui/react";
 import { AnyARecord } from "dns";
 import { NextPage } from "next";
@@ -87,7 +95,7 @@ import { miscActions } from "../store/misc";
 import { CopyIcon, InfoOutlineIcon } from "@chakra-ui/icons";
 import Image from "next/image";
 import OrderImage from "../public/assets/order_illustration.svg";
-import CTA_GENERAL from "../components/CTA_general";
+import CTA_GENERAL, { PlayIcon } from "../components/CTA_general";
 import ModuleSelect from "../components/Select/ModuleSelect";
 import Mousetrap from "mousetrap";
 import { Keybind } from "../components/Navbar";
@@ -458,6 +466,57 @@ const Order: NextPage = () => {
         setShowShortcuts(!isMobile);
     }, [isMobile]);
 
+    // "How It Works"
+    const { isOpen, onOpen, onClose } = useDisclosure();
+    const cancelRef = useRef<HTMLButtonElement>(null);
+    const HOW_IT_WORKS = (
+        <>
+            <Button
+                // rounded={"full"}
+                // size={"lg"}
+                fontWeight={"normal"}
+                px={6}
+                leftIcon={<PlayIcon h={4} w={4} color={"gray.300"} />}
+                onClick={onOpen}
+            >
+                How It Works
+            </Button>
+            <AlertDialog
+                isOpen={isOpen}
+                leastDestructiveRef={cancelRef}
+                onClose={onClose}
+                size={"6xl"}
+            >
+                <AlertDialogOverlay>
+                    <AlertDialogContent>
+                        <AlertDialogHeader fontSize="lg" fontWeight="bold">
+                            Rank Tutorial Video
+                        </AlertDialogHeader>
+
+                        <AlertDialogBody>
+                            <AspectRatio ratio={16 / 9}>
+                                <iframe
+                                    width="560"
+                                    height="315"
+                                    src="https://www.youtube.com/embed/aE4eNiOIm4M"
+                                    title="YouTube video player"
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                    allowFullScreen
+                                ></iframe>
+                            </AspectRatio>
+                        </AlertDialogBody>
+
+                        <AlertDialogFooter>
+                            <Button ref={cancelRef} onClick={onClose}>
+                                Close
+                            </Button>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialogOverlay>
+            </AlertDialog>
+        </>
+    );
+
     return (
         <>
             {/* <Center mb={5}>
@@ -485,6 +544,7 @@ const Order: NextPage = () => {
                         Get started
                     </Button>
                 }
+                ButtonRight={HOW_IT_WORKS}
             />
             <Stepper index={activeStep} orientation="vertical" w="full">
                 <Box width="100%" ref={step1Ref}>

@@ -94,7 +94,7 @@ export default function CallToAction() {
                                     />
                                 }
                             >
-                                Order Classes
+                                Rank Classes
                             </Button>
                         </NextLink>
 

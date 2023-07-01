@@ -85,7 +85,7 @@ const Extension: NextPage = () => {
                 </Stack>
             </FancyCard>
             <FancyCard
-                content="Select and rank your courses in the Order Classes page. Then, copy the URL given by the website in 'Export link'."
+                content="Select and rank your courses in the Rank Classes page. Then, copy the URL given by the website in 'Export link'."
                 header="Step 1"
                 src="tutorial/1.png"
             ></FancyCard>
