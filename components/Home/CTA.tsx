@@ -45,7 +45,7 @@ export default function CallToAction() {
                             }}
                             fontSize={{ base: "3xl", sm: "4xl", lg: "6xl" }}
                         >
-                            Order & swap your slots,
+                            Rank & swap your classes,
                         </Text>
                         <br />
                         <Text
@@ -59,11 +59,11 @@ export default function CallToAction() {
                     <Box>
                         <Text color={useColorModeValue("gray.700", "gray.300")}>
                             This website helps you easily rank & order the
-                            tutorial / lab slots of each course, giving you an
+                            tutorial / lab classes of each course, giving you an
                             ordered list that you can copy into CourseReg.
                         </Text>
                         <Text color={useColorModeValue("gray.700", "gray.300")}>
-                            You can also request swaps for slots.
+                            You can also request swaps for classes.
                         </Text>
                         <Text color={"gray.500"} mt={2}>
                             This website is not affiliated with NUSMods or NUS.
