@@ -2,6 +2,12 @@ import { ArrowDownIcon, ExternalLinkIcon, TimeIcon } from "@chakra-ui/icons";
 import { TbArrowsDownUp, TbArrowsUpRight } from "react-icons/tb";
 import {
     Alert,
+    AlertDialog,
+    AlertDialogBody,
+    AlertDialogContent,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogOverlay,
     AlertIcon,
     Avatar,
     AvatarGroup,
@@ -40,7 +46,7 @@ import type {
     NextPage,
 } from "next";
 import { useRouter } from "next/router";
-import { useEffect, useState, MouseEvent } from "react";
+import { useEffect, useState, MouseEvent, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { TelegramUser } from "telegram-login-button";
 import Card from "../../components/Card/Card";
@@ -71,6 +77,7 @@ import Timetable from "../../components/ReusableTimetable/Timetable";
 import { GetSwapDataResponse, SwapData } from "../api/swap";
 import SwapCodeIndicator from "../../components/Swap/SwapModuleCodeIndicator";
 import { FullInfo } from "./create";
+import { LessonType } from "../../types/modules";
 
 const ROOT_URL = process.env.NEXT_PUBLIC_ROOT_URL;
 
@@ -206,6 +213,53 @@ const SpecificSwap = (
             }
         };
 
+    // Handle requesting a specific class
+    const { isOpen, onOpen, onClose } = useDisclosure();
+    const cancelRef = useRef<HTMLButtonElement>(null);
+    // what the user HAS (his current class)
+    const [userRequest, setUserRequest] = useState<TimetableLessonEntry | null>(
+        null
+    );
+
+    const liveRequestSwap = () =>
+        // moduleCode: string,
+        // lessonType: LessonType,
+        // classNo: string
+        {
+            if (!user) return console.log("Not signed in!!!");
+            if (!userRequest) return console.log("error: no user request?");
+
+            console.log({ userRequest });
+
+            // send an api request to backend
+            sendPOST(`/api/swap/request-specific`, {
+                swapId,
+                moduleCode: userRequest.moduleCode,
+                lessonType: userRequest.lessonType,
+                classNo: userRequest.classNo,
+                userId: user.id,
+                hash: user.hash,
+            }).then((res) => {
+                if (res.success) {
+                    toast({
+                        title: "Success",
+                        description: res.data,
+                        status: "success",
+                        duration: 3000,
+                    });
+                } else {
+                    toast({
+                        title: "Error",
+                        description: res.error,
+                        status: "error",
+                        duration: 3000,
+                    });
+                }
+            });
+
+            onClose();
+        };
+
     const deleteDisclosure = useDisclosure();
     const completeDisclosure = useDisclosure();
     const promptDelete = (e: MouseEvent<HTMLButtonElement>) => {
@@ -336,6 +390,44 @@ const SpecificSwap = (
     if (!swap) return <> Missing info </>;
     return (
         <Stack spacing={5} alignItems="center" h="100%">
+            <AlertDialog
+                isOpen={isOpen}
+                leastDestructiveRef={cancelRef}
+                onClose={onClose}
+                blockScrollOnMount
+            >
+                <AlertDialogOverlay>
+                    <AlertDialogContent>
+                        <AlertDialogHeader fontSize="lg" fontWeight="bold">
+                            Request swap
+                        </AlertDialogHeader>
+
+                        <AlertDialogBody>
+                            Are you sure you want to request to swap your <br />
+                            <br />
+                            {userRequest?.moduleCode} {userRequest?.lessonType}{" "}
+                            {userRequest?.classNo} <br />
+                            for
+                            <br /> {swap.first_name}'s {swap?.moduleCode}{" "}
+                            {swap?.lessonType} {swap?.classNo}?
+                        </AlertDialogBody>
+
+                        <AlertDialogFooter>
+                            <Button ref={cancelRef} onClick={onClose}>
+                                Cancel
+                            </Button>
+                            <Button
+                                colorScheme="red"
+                                onClick={liveRequestSwap}
+                                ml={3}
+                            >
+                                Request
+                            </Button>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialogOverlay>
+            </AlertDialog>
+
             {user && user.id === swap.from_t_id && !misc.notify && (
                 <Alert status="info">
                     <AlertIcon />
@@ -461,6 +553,14 @@ const SpecificSwap = (
                                 )}
                         </Stack>
 
+                        <Button
+                            size="sm"
+                            colorScheme="blue"
+                            onClick={requestSwap(swap.swapId, user, "request")}
+                            // disabled={hasRequestedSwap === "Requested!"}
+                        >
+                            TEMP "Request"
+                        </Button>
                         {!user ? (
                             <Button
                                 size="sm"
@@ -546,7 +646,11 @@ const SpecificSwap = (
                 />
                 <Timetable
                     classesToDraw={drawnClasses}
-                    onSelected={() => {}}
+                    onSelected={(class_: TimetableLessonEntry) => {
+                        console.log("ONSELECTED", class_);
+                        setUserRequest(class_);
+                        onOpen();
+                    }}
                     property={getProperty}
                     showLessonType={!isInternalSwap}
                     showModuleCode={!isInternalSwap}
