@@ -60,6 +60,27 @@ export default async function handler(
                 values: [swapId],
             });
 
+            // add this swap to the list of swaps he's requested
+
+            const requestIndexDocRef = doc(
+                fireDb,
+                REQUEST_INDEX_COLLECTION_NAME,
+                userId.toString()
+            );
+            const requestIndexDoc = await getDoc(requestIndexDocRef);
+            if (!requestIndexDoc.exists()) {
+                // doc doesn't exist yet, this doc has no requests, so we add it
+                await setDoc(requestIndexDocRef, {
+                    requests: [swapId.toString()],
+                });
+            } else {
+                // not yet
+                const oldRequests = requestIndexDoc.data().requests as string[];
+                await setDoc(requestIndexDocRef, {
+                    requests: [...new Set([...oldRequests, swapId.toString()])],
+                });
+            }
+
             // Try to get the document from the database
             // note: the id HAS to be a string
             // https://stackoverflow.com/questions/66615533/typeerror-u-indexof-is-not-a-function-for-reactjs-and-firebase
@@ -184,3 +205,5 @@ export default async function handler(
         console.log(e);
     }
 }
+
+export const REQUEST_INDEX_COLLECTION_NAME = "requestIndex";

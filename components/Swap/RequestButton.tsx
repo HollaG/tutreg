@@ -1,5 +1,13 @@
 import { ChevronDownIcon } from "@chakra-ui/icons";
-import { Menu, MenuButton, Button, MenuList, MenuItem } from "@chakra-ui/react";
+import {
+    Menu,
+    MenuButton,
+    Button,
+    MenuList,
+    MenuItem,
+    MenuOptionGroup,
+    MenuGroup,
+} from "@chakra-ui/react";
 import { keepAndCapFirstThree } from "../../lib/functions";
 import { FullInfo } from "../../pages/swap/create";
 
@@ -17,18 +25,27 @@ const RequestButton = ({ options, onClick, size }: RequestButtonProps) => {
                 rightIcon={<ChevronDownIcon />}
                 size={size}
                 colorScheme="blue"
+                onClick={(e) => e.stopPropagation()}
             >
                 Request
             </MenuButton>
             <MenuList>
-                {options.map((option, i) => (
-                    <MenuItem key={i} onClick={() => onClick(option)}>
-                        {" "}
-                        {option.moduleCode}{" "}
-                        {keepAndCapFirstThree(option.lessonType)}{" "}
-                        {option.classNo}{" "}
-                    </MenuItem>
-                ))}
+                <MenuGroup title="What class do you have?">
+                    {options.map((option, i) => (
+                        <MenuItem
+                            key={i}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onClick(option);
+                            }}
+                        >
+                            {" "}
+                            {option.moduleCode}{" "}
+                            {keepAndCapFirstThree(option.lessonType)}{" "}
+                            {option.classNo}{" "}
+                        </MenuItem>
+                    ))}
+                </MenuGroup>
             </MenuList>
         </Menu>
     );

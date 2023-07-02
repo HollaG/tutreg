@@ -34,6 +34,7 @@ import Timetable from "../ReusableTimetable/Timetable";
 import SwapCodeIndicator from "./SwapModuleCodeIndicator";
 import { GetSwapClassesData } from "../../pages/api/swap/[swapId]";
 import { useEffect, useState } from "react";
+import { FullInfo } from "../../pages/swap/create";
 const CustomCardProps = {
     _hover: {
         boxShadow: "lg",
@@ -52,7 +53,8 @@ const SwapCard: React.FC<{
     // hasRequestedSwap: string;
     swapData: GetSwapClassesData;
 
-    RequestButton: React.ReactElement;
+    RequestButton?: React.ReactElement;
+    onRequest?: (class_: FullInfo) => void;
 }> = ({
     swap,
     user,
@@ -60,6 +62,7 @@ const SwapCard: React.FC<{
     // hasRequestedSwap,
     swapData,
     RequestButton,
+    onRequest,
 }) => {
     const state = useSelector((state: RootState) => state);
     const highlightedColor = useColorModeValue("green.200", "green.700");
@@ -83,7 +86,7 @@ const SwapCard: React.FC<{
                 <Flex justifyContent={"space-between"}>
                     <Flex alignItems={"center"}>
                         <UserDisplay user={swap} />
-                        {RequestButton}
+                        {RequestButton && <Box ml={3}>{RequestButton}</Box>}
                     </Flex>
                     <Text fontSize="sm" fontWeight="semibold">
                         {timeAgoString}
@@ -95,6 +98,7 @@ const SwapCard: React.FC<{
                         desiredClassesInfo={swapData.desiredClasses}
                         desiredModulesInfo={swapData.desiredModules}
                         drawnClasses={swapData.drawnClasses}
+                        onRequest={onRequest}
                     />
                 </Box>
             </Link>

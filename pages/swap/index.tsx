@@ -98,6 +98,12 @@ import { LessonType } from "../../types/modules";
 import CTA_GENERAL, { PlayIcon } from "../../components/CTA_general";
 
 import SwapImage from "../../public/assets/swap_illustration.svg";
+import RequestButton from "../../components/Swap/RequestButton";
+import { FullInfo } from "./create";
+import RequestAlert from "../../components/Swap/RequestAlert";
+import { doc, onSnapshot } from "firebase/firestore";
+import { fireDb } from "../../firebase";
+import { REQUEST_INDEX_COLLECTION_NAME } from "../api/swap/request-specific";
 
 const SWAP_VISIBLE_AMOUNT = 20;
 const CustomCardProps = {
@@ -143,23 +149,24 @@ const Swap = (
         if (state.user) {
             setUser(state.user);
             // populate the user swaps
-            // const self = props.openSwaps.filter(
-            //     (swapData) => swapData.swap.from_t_id === state.user?.id
-            // );
+            const self = props.openSwaps.filter(
+                (swapData) => swapData.swap.from_t_id === state.user?.id
+            );
 
-            // // remove the user swaps from the open swaps
-            // const open = props.openSwaps.filter(
-            //     (swapData) => swapData.swap.from_t_id !== state.user?.id
-            // );
-            // setAllSwapData({
-            //     openSwaps: open,
-            //     selfSwaps: self,
-            // });
+            // remove the user swaps from the open swaps
+            const open = props.openSwaps.filter(
+                (swapData) => swapData.swap.from_t_id !== state.user?.id
+            );
+            setAllSwapData({
+                openSwaps: open,
+                selfSwaps: self,
+            });
 
-            // setVisibleSwaps(open.slice(0, SWAP_VISIBLE_AMOUNT));
+            setVisibleSwaps(open.slice(0, SWAP_VISIBLE_AMOUNT));
         } else {
             setUser(undefined);
             setRequestState({});
+            setRequestedSwaps([]);
         }
     }, [state.user, props.openSwaps]);
 
@@ -530,6 +537,93 @@ const Swap = (
         </>
     );
 
+    // Requesting a specific swap
+    const {
+        isOpen: isRequestOpen,
+        onOpen: onRequestOpen,
+        onClose: onRequestClose,
+    } = useDisclosure();
+    const cancelRequestRef = useRef<HTMLButtonElement>(null);
+    // what the user HAS (his current class)
+
+    // we actually set it as type TimetableLessonEntry but TimetableLessonEntry <: FullInfo
+    const [userRequest, setUserRequest] = useState<FullInfo | null>(null);
+    const [interactedSwap, setInteractedSwap] =
+        useState<ClassSwapRequest | null>(null);
+
+    const beforeRequestSwap = (info: FullInfo, swap: ClassSwapRequest) => {
+        // don't allow the user to request his own class
+        // if (user && user.id === swap?.from_t_id) {
+        //     return;
+        // }
+
+        if (!user) {
+            dispatch(miscActions.setNeedsLogIn(true));
+        } else {
+            setUserRequest(info);
+            setInteractedSwap(swap);
+            onRequestOpen();
+        }
+    };
+
+    const liveRequestSwap = () => {
+        if (!user) return console.log("Not signed in!!!");
+        if (!userRequest) return console.log("error: no user request?");
+        if (!interactedSwap) return console.log("No swap");
+
+        // send an api request to backend
+        sendPOST(`/api/swap/request-specific`, {
+            swapId: interactedSwap?.swapId,
+            moduleCode: userRequest.moduleCode,
+            lessonType: userRequest.lessonType,
+            classNo: userRequest.classNo,
+            userId: user.id,
+            hash: user.hash,
+        })
+            .then((res) => {
+                if (res.success) {
+                    toast({
+                        title: "Success",
+                        description: res.data,
+                        status: "success",
+                        duration: 3000,
+                    });
+                } else {
+                    toast({
+                        title: "Error",
+                        description: res.error,
+                        status: "error",
+                        duration: 3000,
+                    });
+                }
+            })
+            .finally(() => {
+                onRequestClose();
+                setUserRequest(null);
+            });
+    };
+
+    // Listener to update the list of requested swaps whenever a request changes
+    const [requestedSwaps, setRequestedSwaps] = useState<GetSwapClassesData[]>(
+        []
+    );
+    useEffect(() => {
+        if (!user) return;
+        const docRef = doc(fireDb, "requestIndex", user.id.toString());
+        const unsubscribe = onSnapshot(docRef, {
+            next: (snapshot) => {
+                const ids = snapshot.data()?.requests;
+                console.log(ids, allSwapsData.openSwaps);
+                if (!ids) return;
+                setRequestedSwaps(
+                    allSwapsData.openSwaps.filter((s) =>
+                        ids.includes(s.swap.swapId.toString())
+                    )
+                );
+            },
+        });
+        return () => unsubscribe();
+    }, [user]);
     return (
         <Stack spacing={5} h="100%">
             <CTA_GENERAL
@@ -561,10 +655,11 @@ const Swap = (
                 ref={infiniteScrollRef}
             >
                 <TabList>
-                    <Tab>All swaps ({allSwapsData?.openSwaps.length})</Tab>
+                    <Tab>All ({allSwapsData?.openSwaps.length})</Tab>
                     {user && (
-                        <Tab>Your swaps ({allSwapsData?.selfSwaps.length})</Tab>
+                        <Tab>Created ({allSwapsData?.selfSwaps.length})</Tab>
                     )}
+                    {user && <Tab> Requested ({requestedSwaps.length})</Tab>}
                 </TabList>
 
                 <TabPanels
@@ -601,31 +696,6 @@ const Swap = (
                                     Type
                                 </MenuButton>
                                 <MenuList>
-                                    {/* <Text ml={4} fontWeight="semibold">
-                                        {" "}
-                                        Select type
-                                    </Text>
-                                    <MenuDivider />
-                                    {lessonTypes.map((type, i) => (
-                                        <MenuItem
-                                            icon={
-                                                selectedLessonTypes.includes(
-                                                    type
-                                                ) ? (
-                                                    <TbCheck />
-                                                ) : (
-                                                    <></>
-                                                )
-                                            }
-                                            key={i}
-                                            onClick={() =>
-                                                menuItemClicked(type)
-                                            }
-                                        >
-                                            {" "}
-                                            {type}{" "}
-                                        </MenuItem>
-                                    ))} */}
                                     <MenuOptionGroup
                                         title="Select type"
                                         type="checkbox"
@@ -644,31 +714,20 @@ const Swap = (
                                     </MenuOptionGroup>
                                 </MenuList>
                             </Menu>
-                            {/* <Button
-                                colorScheme="blue"
-                                size="sm"
-                                ml={2}
-                                leftIcon={<TbPlus />}
-                            >
-                                New
-                            </Button> */}
                         </Flex>
 
-                        {!selectedModuleCodeLessonType && (
-                            <InfiniteScroll
-                                dataLength={visibleSwaps?.length || 0}
-                                next={handleLoadMore}
-                                hasMore={
-                                    (allSwapsData?.openSwaps.length || 0) >
-                                    visibleAmount
-                                }
-                                loader={<Loading />}
-                                endMessage={
-                                    <Ended scrollTo={infiniteScrollRef} />
-                                }
-                            >
-                                <Stack spacing={6} divider={<Divider />}>
-                                    {/* {swapData?.openSwaps.map((swap, index) => (
+                        <InfiniteScroll
+                            dataLength={visibleSwaps?.length || 0}
+                            next={handleLoadMore}
+                            hasMore={
+                                (allSwapsData?.openSwaps.length || 0) >
+                                visibleAmount
+                            }
+                            loader={<Loading />}
+                            endMessage={<Ended scrollTo={infiniteScrollRef} />}
+                        >
+                            <Stack spacing={6} divider={<Divider />}>
+                                {/* {swapData?.openSwaps.map((swap, index) => (
                                     <SwapCard
                                         hasRequestedSwap={hasRequestedSwap}
                                         requestSwap={requestSwap}
@@ -677,138 +736,42 @@ const Swap = (
                                         user={user}
                                     />
                                 ))} */}
-                                    {visibleSwaps?.map(
-                                        (swapData, index) =>
-                                            checkIfShouldDisplay(
-                                                swapData.swap
-                                            ) && (
-                                                <SwapCard
-                                                    key={index}
-                                                    swap={swapData.swap}
-                                                    swapData={swapData}
-                                                    user={user}
-                                                    RequestButton={
-                                                        swapData.swap.requestors.includes(
-                                                            (
-                                                                user?.id ||
-                                                                "LONG_STRING_THAT_DOESNT_EXIST"
-                                                            ).toString()
-                                                        ) ? (
-                                                            <Button
-                                                                ml={3}
-                                                                size="xs"
-                                                                colorScheme={
-                                                                    "blue"
-                                                                }
-                                                                onClick={(
-                                                                    e
-                                                                ) => {
-                                                                    e.stopPropagation();
-                                                                    requestSwap(
-                                                                        swapData
-                                                                            .swap
-                                                                            .swapId,
-                                                                        user ||
-                                                                            null,
-                                                                        "remove"
-                                                                    );
-                                                                }}
-                                                                isDisabled={
-                                                                    !!requestState[
-                                                                        swapData
-                                                                            .swap
-                                                                            .swapId
-                                                                    ]
-                                                                }
-                                                            >
-                                                                {requestState[
-                                                                    swapData
-                                                                        .swap
-                                                                        .swapId
-                                                                ] ||
-                                                                    "Remove request"}
-                                                            </Button>
-                                                        ) : (
-                                                            <Button
-                                                                ml={3}
-                                                                size="xs"
-                                                                colorScheme={
-                                                                    "blue"
-                                                                }
-                                                                onClick={(
-                                                                    e
-                                                                ) => {
-                                                                    e.stopPropagation();
-                                                                    requestSwap(
-                                                                        swapData
-                                                                            .swap
-                                                                            .swapId,
-                                                                        user ||
-                                                                            null,
-                                                                        "request"
-                                                                    );
-                                                                }}
-                                                                isDisabled={
-                                                                    !!requestState[
-                                                                        swapData
-                                                                            .swap
-                                                                            .swapId
-                                                                    ]
-                                                                }
-                                                            >
-                                                                {requestState[
-                                                                    swapData
-                                                                        .swap
-                                                                        .swapId
-                                                                ] || "Request"}
-                                                            </Button>
-                                                        )
-                                                    }
-                                                />
-                                            )
-                                    )}
-                                </Stack>
-                            </InfiniteScroll>
-                        )}
-
-                        {/* The below section should be visible when filtering. We do not infinite-scroll when filtering. */}
-                        {/* {selectedModuleCodeLessonType && (
-                            <SimpleGrid
-                                columns={{ base: 1, md: 1 }}
-                                spacing={3}
-                            >
-                                {allSwapsData?.openSwaps.map(
-                                    (swapData, index) =>
-                                        checkIfShouldDisplay(swapData.swap) && (
-                                            <SwapCard
-                                                key={index}
-                                                hasRequestedSwap={
-                                                    hasRequestedSwap
+                                {visibleSwaps?.map((swapData, index) => (
+                                    <SwapCard
+                                        key={index}
+                                        swap={swapData.swap}
+                                        swapData={swapData}
+                                        user={user}
+                                        RequestButton={
+                                            <RequestButton
+                                                size="xs"
+                                                onClick={(option) => {
+                                                    beforeRequestSwap(
+                                                        option,
+                                                        swapData.swap
+                                                    );
+                                                }}
+                                                options={
+                                                    swapData.desiredClasses
                                                 }
-                                                requestSwap={requestSwap}
-                                                swap={swapData.swap}
-                                                swapData={swapData}
-                                                user={user}
                                             />
-                                        )
-                                )}
-                            </SimpleGrid>
-                        )} */}
+                                        }
+                                        onRequest={(option) =>
+                                            beforeRequestSwap(
+                                                option,
+                                                swapData.swap
+                                            )
+                                        }
+                                    />
+                                ))}
+                            </Stack>
+                        </InfiniteScroll>
                     </TabPanel>
                     {user && (
                         <TabPanel>
                             <Stack spacing={6} divider={<Divider />}>
                                 {allSwapsData?.selfSwaps.map(
                                     (swapData, index) => (
-                                        // <SelfSwapCard
-                                        //     key={index}
-                                        //     hasRequestedSwap={hasRequestedSwap}
-                                        //     requestSwap={requestSwap}
-                                        //     swap={swapData.swap}
-                                        //     swapData={allSwapsData}
-                                        //     user={user}
-                                        //     promptDelete={promptDelete}
-                                        // />
                                         <SwapCard
                                             key={index}
                                             swap={swapData.swap}
@@ -816,7 +779,6 @@ const Swap = (
                                             user={user}
                                             RequestButton={
                                                 <Button
-                                                    ml={3}
                                                     size="xs"
                                                     colorScheme={"red"}
                                                     onClick={(e) => {
@@ -836,9 +798,31 @@ const Swap = (
                             </Stack>
                         </TabPanel>
                     )}
+                    {user && (
+                        <TabPanel>
+                            <Stack spacing={6} divider={<Divider />}>
+                                {requestedSwaps.map((swapData, index) => (
+                                    <SwapCard
+                                        key={index}
+                                        swap={swapData.swap}
+                                        swapData={swapData}
+                                        user={user}
+                                    />
+                                ))}
+                            </Stack>
+                        </TabPanel>
+                    )}
                 </TabPanels>
             </Tabs>
             <ConfirmDelete {...disclosure} cb={handleDelete} />
+            <RequestAlert
+                isOpen={isRequestOpen}
+                cancelRef={cancelRequestRef}
+                onClose={onRequestClose}
+                onConfirm={liveRequestSwap}
+                swap={interactedSwap}
+                userRequest={userRequest}
+            />
         </Stack>
     );
 };

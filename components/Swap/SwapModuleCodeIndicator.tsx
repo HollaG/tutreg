@@ -258,11 +258,14 @@ const SwapCodeIndicator = ({
                                                                 }
                                                             >
                                                                 <Button
-                                                                    onClick={() =>
+                                                                    onClick={(
+                                                                        e
+                                                                    ) => {
+                                                                        e.stopPropagation();
                                                                         onRequest(
                                                                             dc
-                                                                        )
-                                                                    }
+                                                                        );
+                                                                    }}
                                                                     size="xs"
                                                                     colorScheme="blue"
                                                                 >

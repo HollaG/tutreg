@@ -82,6 +82,7 @@ import RequestButton from "../../components/Swap/RequestButton";
 import { doc, onSnapshot } from "firebase/firestore";
 import { COLLECTION_NAME, fireDb, SwapReplies } from "../../firebase";
 import { db } from "../../lib/db";
+import RequestAlert from "../../components/Swap/RequestAlert";
 
 const ROOT_URL = process.env.NEXT_PUBLIC_ROOT_URL;
 
@@ -261,25 +262,28 @@ const SpecificSwap = (
                 classNo: userRequest.classNo,
                 userId: user.id,
                 hash: user.hash,
-            }).then((res) => {
-                if (res.success) {
-                    toast({
-                        title: "Success",
-                        description: res.data,
-                        status: "success",
-                        duration: 3000,
-                    });
-                } else {
-                    toast({
-                        title: "Error",
-                        description: res.error,
-                        status: "error",
-                        duration: 3000,
-                    });
-                }
-            });
-
-            onClose();
+            })
+                .then((res) => {
+                    if (res.success) {
+                        toast({
+                            title: "Success",
+                            description: res.data,
+                            status: "success",
+                            duration: 3000,
+                        });
+                    } else {
+                        toast({
+                            title: "Error",
+                            description: res.error,
+                            status: "error",
+                            duration: 3000,
+                        });
+                    }
+                })
+                .finally(() => {
+                    onClose();
+                    setUserRequest(null);
+                });
         };
 
     // Handle live updates of people who selected
@@ -451,55 +455,14 @@ const SpecificSwap = (
     if (!swap) return <> Missing info </>;
     return (
         <Stack spacing={5} alignItems="center" h="100%">
-            <AlertDialog
+            <RequestAlert
                 isOpen={isOpen}
-                leastDestructiveRef={cancelRef}
+                cancelRef={cancelRef}
                 onClose={onClose}
-                blockScrollOnMount
-            >
-                <AlertDialogOverlay>
-                    <AlertDialogContent>
-                        <AlertDialogHeader fontSize="lg" fontWeight="bold">
-                            Request swap
-                        </AlertDialogHeader>
-
-                        <AlertDialogBody>
-                            Are you sure you want to request to swap your <br />
-                            <br />
-                            <span style={{ fontWeight: "bold" }}>
-                                {userRequest?.moduleCode}{" "}
-                                {userRequest?.lessonType} {userRequest?.classNo}
-                            </span>{" "}
-                            <br />
-                            for {swap.first_name}'s
-                            <br />
-                            <span style={{ fontWeight: "bold" }}>
-                                {swap?.moduleCode} {swap?.lessonType}{" "}
-                                {swap?.classNo}
-                            </span>
-                            ?
-                            <br />
-                            <br />
-                            Make sure you have clicked the right slot! You will
-                            not be able to request this swap again.
-                        </AlertDialogBody>
-
-                        <AlertDialogFooter>
-                            <Button ref={cancelRef} onClick={onClose}>
-                                Cancel
-                            </Button>
-                            <Button
-                                colorScheme="red"
-                                onClick={liveRequestSwap}
-                                ml={3}
-                            >
-                                Request
-                            </Button>
-                        </AlertDialogFooter>
-                    </AlertDialogContent>
-                </AlertDialogOverlay>
-            </AlertDialog>
-
+                onConfirm={liveRequestSwap}
+                swap={swap}
+                userRequest={userRequest}
+            />
             {user && user.id === swap.from_t_id && !misc.notify && (
                 <Alert status="info">
                     <AlertIcon />
@@ -636,20 +599,7 @@ const SpecificSwap = (
                             />
                         )}
 
-                        {/* {!user ? (
-                            <Button
-                                size="sm"
-                                colorScheme="blue"
-                                onClick={requestSwap(
-                                    swap.swapId,
-                                    user,
-                                    "request"
-                                )}
-                                disabled={hasRequestedSwap === "Requested!"}
-                            >
-                                {hasRequestedSwap || "Request"}
-                            </Button>
-                        ) : user.id === swap.from_t_id ? (
+                        {user?.id === swap.from_t_id && (
                             <>
                                 {swap.status !== "Completed" && (
                                     <Button
@@ -671,35 +621,7 @@ const SpecificSwap = (
                                     Delete
                                 </Button>
                             </>
-                        ) : cleanArrayString(swap.requestors).includes(
-                              user?.id.toString() || ""
-                          ) ? (
-                            <Button
-                                size="sm"
-                                colorScheme="blue"
-                                onClick={requestSwap(
-                                    swap.swapId,
-                                    user,
-                                    "remove"
-                                )}
-                                disabled={hasRequestedSwap === "Unrequested!"}
-                            >
-                                {hasRequestedSwap || "Unrequest"}
-                            </Button>
-                        ) : (
-                            <Button
-                                size="sm"
-                                colorScheme="blue"
-                                onClick={requestSwap(
-                                    swap.swapId,
-                                    user,
-                                    "request"
-                                )}
-                                disabled={hasRequestedSwap === "Requested!"}
-                            >
-                                {hasRequestedSwap || "Request"}
-                            </Button>
-                        )} */}
+                        )}
                     </Flex>
                     {swap.comments && (
                         <Box>
