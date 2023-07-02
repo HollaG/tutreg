@@ -5,16 +5,16 @@ import UserAvatar from "./UserAvatar";
 
 interface Props extends ChakraProps {
     children?: React.ReactNode | React.ReactNode[];
-    swap: TelegramUser;
+    user?: TelegramUser;
 }
 
-const UserDisplay: React.FC<Props> = ({ swap: user, children }) => {
+const UserDisplay: React.FC<Props> = ({ user: user, children }) => {
     return (
         <HStack>
             {/* <Avatar size={"sm"} src={user.photo_url} name={user.first_name} /> */}
             <UserAvatar user={user} />
             <Text>
-                {user.first_name} {children}
+                {user?.first_name} {children}
             </Text>
         </HStack>
     );

@@ -46,7 +46,7 @@ import type {
     NextPage,
 } from "next";
 import { useRouter } from "next/router";
-import { useEffect, useState, MouseEvent, useRef } from "react";
+import { useEffect, useState, MouseEvent, useRef, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { TelegramUser } from "telegram-login-button";
 import Card from "../../components/Card/Card";
@@ -78,6 +78,10 @@ import { GetSwapDataResponse, SwapData } from "../api/swap";
 import SwapCodeIndicator from "../../components/Swap/SwapModuleCodeIndicator";
 import { FullInfo } from "./create";
 import { LessonType } from "../../types/modules";
+import RequestButton from "../../components/Swap/RequestButton";
+import { doc, onSnapshot } from "firebase/firestore";
+import { COLLECTION_NAME, fireDb, SwapReplies } from "../../firebase";
+import { db } from "../../lib/db";
 
 const ROOT_URL = process.env.NEXT_PUBLIC_ROOT_URL;
 
@@ -104,6 +108,10 @@ export const getServerSideProps: GetServerSideProps<{
 const SpecificSwap = (
     props: InferGetServerSidePropsType<typeof getServerSideProps>
 ) => {
+    // Handle real-time updates:
+
+    // because we don't have firebase auth, a non-authenticated user will only have read access
+
     const router = useRouter();
     const { swapId } = router.query as { swapId: string };
 
@@ -217,9 +225,23 @@ const SpecificSwap = (
     const { isOpen, onOpen, onClose } = useDisclosure();
     const cancelRef = useRef<HTMLButtonElement>(null);
     // what the user HAS (his current class)
-    const [userRequest, setUserRequest] = useState<TimetableLessonEntry | null>(
-        null
-    );
+
+    // we actually set it as type TimetableLessonEntry but TimetableLessonEntry <: FullInfo
+    const [userRequest, setUserRequest] = useState<FullInfo | null>(null);
+
+    const beforeRequestSwap = (info: FullInfo) => {
+        // don't allow the user to request his own class
+        // if (user && user.id === swap?.from_t_id) {
+        //     return;
+        // }
+
+        if (!user) {
+            dispatch(miscActions.setNeedsLogIn(true));
+        } else {
+            setUserRequest(info);
+            onOpen();
+        }
+    };
 
     const liveRequestSwap = () =>
         // moduleCode: string,
@@ -259,6 +281,45 @@ const SpecificSwap = (
 
             onClose();
         };
+
+    // Handle live updates of people who selected
+    // note: telegram user ID is exposed, but this is OK. https://www.reddit.com/r/Telegram/comments/cmw9eh/how_do_i_look_up_a_user_via_their_telegram_id/
+    const [userReplies, setUserReplies] = useState<TelegramUser[]>([]);
+    // convert the array to an object for easier lookup
+    const userRepliesObj = useMemo(
+        () =>
+            userReplies.reduce((acc, curr) => {
+                acc[curr.id] = curr;
+                return acc;
+            }, {} as Record<number, TelegramUser>),
+        [userReplies]
+    );
+
+    const [swapReplies, setSwapReplies] = useState<SwapReplies | undefined>(
+        undefined
+    );
+    useEffect(() => {
+        const docRef = doc(fireDb, COLLECTION_NAME, swapId.toString());
+
+        const unsubscribe = onSnapshot(docRef, {
+            next: (doc) => {
+                console.log("Recieved a live update!");
+                const data = doc.data() as SwapReplies;
+
+                console.log({ data });
+                setSwapReplies(data);
+
+                if (user) {
+                    sendPOST(`/api/swap/${swapId}`, user).then((data) => {
+                        console.log("get users", data.data);
+                        setUserReplies(data.data);
+                    });
+                }
+            },
+        });
+
+        return () => unsubscribe && unsubscribe();
+    }, [user]);
 
     const deleteDisclosure = useDisclosure();
     const completeDisclosure = useDisclosure();
@@ -405,11 +466,22 @@ const SpecificSwap = (
                         <AlertDialogBody>
                             Are you sure you want to request to swap your <br />
                             <br />
-                            {userRequest?.moduleCode} {userRequest?.lessonType}{" "}
-                            {userRequest?.classNo} <br />
-                            for
-                            <br /> {swap.first_name}'s {swap?.moduleCode}{" "}
-                            {swap?.lessonType} {swap?.classNo}?
+                            <span style={{ fontWeight: "bold" }}>
+                                {userRequest?.moduleCode}{" "}
+                                {userRequest?.lessonType} {userRequest?.classNo}
+                            </span>{" "}
+                            <br />
+                            for {swap.first_name}'s
+                            <br />
+                            <span style={{ fontWeight: "bold" }}>
+                                {swap?.moduleCode} {swap?.lessonType}{" "}
+                                {swap?.classNo}
+                            </span>
+                            ?
+                            <br />
+                            <br />
+                            Make sure you have clicked the right slot! You will
+                            not be able to request this swap again.
                         </AlertDialogBody>
 
                         <AlertDialogFooter>
@@ -447,121 +519,124 @@ const SpecificSwap = (
                     </HStack>{" "}
                     <Flex>
                         <Stack flex={1}>
-                            <UserDisplay swap={swap} />
+                            <UserDisplay user={swap} />
 
-                            {user?.id === swap.from_t_id &&
-                                cleanArrayString(swap.requestors).length && (
-                                    <>
-                                        <Flex alignItems={"center"}>
-                                            <TbArrowsDownUp
-                                                fontSize={"1.75em"}
-                                            />
-                                            <Text ml={2}> requested </Text>
-                                        </Flex>
-                                        <Wrap>
-                                            {swap.requestors
-                                                .trim()
-                                                .split(",")
-                                                .map((requestor, index) => {
-                                                    const user = users.find(
-                                                        (user) =>
-                                                            user.id.toString() ===
-                                                            requestor
-                                                    );
-                                                    if (user)
-                                                        return (
-                                                            <WrapItem
-                                                                key={index}
+                            {swapReplies?.requests && (
+                                <Stack flex={1}>
+                                    <Flex alignItems={"center"}>
+                                        <TbArrowsDownUp fontSize={"1.75em"} />
+                                        <Text ml={2}> requested </Text>
+                                    </Flex>
+
+                                    {/* Only show usernames and stuff if the requestor id is the current user */}
+
+                                    {user?.id === swap.from_t_id ? (
+                                        <Wrap spacing={3}>
+                                            {swapReplies.requests.map(
+                                                (r, i) => (
+                                                    <WrapItem key={i}>
+                                                        <Tooltip
+                                                            label={`${r.requested.moduleCode} ${r.requested.lessonType} ${r.requested.classNo}`}
+                                                        >
+                                                            <Link
+                                                                onMouseEnter={() =>
+                                                                    setHoveredClass(
+                                                                        r.requested
+                                                                    )
+                                                                }
+                                                                onMouseLeave={() =>
+                                                                    setHoveredClass(
+                                                                        null
+                                                                    )
+                                                                }
+                                                                flex={1}
+                                                                isExternal
+                                                                href={`https://t.me/${
+                                                                    userRepliesObj[
+                                                                        r
+                                                                            .requestorId
+                                                                    ]
+                                                                        ?.username ||
+                                                                    ""
+                                                                }`}
                                                             >
-                                                                <Flex>
-                                                                    <Link
-                                                                        flex={1}
-                                                                        isExternal
-                                                                        href={`https://t.me/${user.username}`}
-                                                                    >
-                                                                        <UserDisplay
-                                                                            swap={
-                                                                                user
-                                                                            }
-                                                                        >
-                                                                            <ExternalLinkIcon
-                                                                                ml={
-                                                                                    1
-                                                                                }
-                                                                            />
-                                                                        </UserDisplay>
-                                                                    </Link>
-                                                                    {/* <Button onClick={() => window.open(`t.me/${user.username}`)} size="sm">
+                                                                <UserDisplay
+                                                                    user={
+                                                                        userRepliesObj[
+                                                                            r
+                                                                                .requestorId
+                                                                        ] || {
+                                                                            username:
+                                                                                r.requestorName,
+                                                                            first_name:
+                                                                                r.requestorName,
+                                                                            auth_date:
+                                                                                "",
+                                                                            hash: "",
+                                                                            id: r.requestorId,
+                                                                            photo_url:
+                                                                                "",
+                                                                        }
+                                                                    }
+                                                                >
+                                                                    <ExternalLinkIcon
+                                                                        ml={1}
+                                                                    />
+                                                                </UserDisplay>
+                                                            </Link>
+                                                            {/* <Button onClick={() => window.open(`t.me/${user.username}`)} size="sm">
                                                                 Contact
                                                             </Button> */}
-                                                                </Flex>
-                                                            </WrapItem>
-                                                        );
-                                                })}{" "}
+                                                        </Tooltip>
+                                                    </WrapItem>
+                                                )
+                                            )}
                                         </Wrap>
-                                    </>
-                                )}
-
-                            {user?.id !== swap.from_t_id &&
-                                cleanArrayString(swap.requestors).length && (
-                                    <>
-                                        <TbArrowsDownUp fontSize={"1.75em"} />
-                                        <Tooltip
-                                            placement="bottom-start"
-                                            label={`${
-                                                cleanArrayString(
-                                                    swap.requestors
-                                                ).length
-                                            } ${
-                                                cleanArrayString(
-                                                    swap.requestors
-                                                ).length === 1
-                                                    ? "person"
-                                                    : "people"
-                                            } requested this swap`}
-                                        >
-                                            <AvatarGroup size="sm" max={5}>
-                                                {swap.requestors
-                                                    .trim()
-                                                    .split(",")
-                                                    .map((requestor, index) => {
-                                                        const user = users.find(
-                                                            (user) =>
-                                                                user.id.toString() ===
-                                                                requestor
-                                                        );
-                                                        if (user)
-                                                            return (
-                                                                // <Avatar
-                                                                //     key={index}
-                                                                //     name={
-                                                                //         user.first_name
-                                                                //     }
-                                                                //     src={
-                                                                //         user.photo_url
-                                                                //     }
-                                                                // />
-                                                                <UserAvatar
-                                                                    user={user}
-                                                                    key={index}
-                                                                />
-                                                            );
-                                                    })}
-                                            </AvatarGroup>
-                                        </Tooltip>
-                                    </>
-                                )}
+                                    ) : (
+                                        <Wrap spacing={1}>
+                                            {swapReplies.requests.map(
+                                                (r, i) => (
+                                                    <WrapItem key={i}>
+                                                        {" "}
+                                                        <Tooltip
+                                                            label={`${r.requested.moduleCode} ${r.requested.lessonType} ${r.requested.classNo}`}
+                                                        >
+                                                            <Avatar
+                                                                key={i}
+                                                                name={
+                                                                    r.requestorName
+                                                                }
+                                                                size="sm"
+                                                                onMouseEnter={() =>
+                                                                    setHoveredClass(
+                                                                        r.requested
+                                                                    )
+                                                                }
+                                                                onMouseLeave={() =>
+                                                                    setHoveredClass(
+                                                                        null
+                                                                    )
+                                                                }
+                                                            />
+                                                        </Tooltip>
+                                                    </WrapItem>
+                                                )
+                                            )}
+                                        </Wrap>
+                                    )}
+                                </Stack>
+                            )}
                         </Stack>
 
-                        <Button
-                            size="sm"
-                            colorScheme="blue"
-                            onClick={requestSwap(swap.swapId, user, "request")}
-                            // disabled={hasRequestedSwap === "Requested!"}
-                        >
-                            TEMP "Request"
-                        </Button>
-                        {!user ? (
+                        {user?.id !== swap.from_t_id && (
+                            <RequestButton
+                                size="sm"
+                                options={desiredClasses}
+                                onClick={beforeRequestSwap}
+                            />
+                        )}
+
+                        {/* {!user ? (
                             <Button
                                 size="sm"
                                 colorScheme="blue"
@@ -624,7 +699,7 @@ const SpecificSwap = (
                             >
                                 {hasRequestedSwap || "Request"}
                             </Button>
-                        )}
+                        )} */}
                     </Flex>
                     {swap.comments && (
                         <Box>
@@ -643,14 +718,12 @@ const SpecificSwap = (
                     desiredClassesInfo={desiredClasses}
                     onHover={setHoveredClass}
                     drawnClasses={drawnClasses}
+                    // FooterButtons={<Button size="xs" colorScheme='blue' onClick={}> </Button>}
+                    onRequest={beforeRequestSwap}
                 />
                 <Timetable
                     classesToDraw={drawnClasses}
-                    onSelected={(class_: TimetableLessonEntry) => {
-                        console.log("ONSELECTED", class_);
-                        setUserRequest(class_);
-                        onOpen();
-                    }}
+                    onSelected={beforeRequestSwap}
                     property={getProperty}
                     showLessonType={!isInternalSwap}
                     showModuleCode={!isInternalSwap}

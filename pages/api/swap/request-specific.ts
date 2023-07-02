@@ -73,14 +73,13 @@ export default async function handler(
                     requests: [
                         {
                             lastUpdated: new Date(),
-                            requested: [
-                                {
-                                    classNo: classNo,
-                                    status: "new",
-                                    lessonType: lessonType,
-                                    moduleCode: moduleCode,
-                                },
-                            ],
+                            requested: {
+                                classNo: classNo,
+                                status: "new",
+                                lessonType: lessonType,
+                                moduleCode: moduleCode,
+                            },
+                            requestorName: user[0].first_name,
                             requestorId: Number(userId),
                         },
                     ],
@@ -108,14 +107,13 @@ export default async function handler(
                             ...oldRequests,
                             {
                                 lastUpdated: new Date(),
-                                requested: [
-                                    {
-                                        classNo: classNo,
-                                        status: "new",
-                                        lessonType: lessonType,
-                                        moduleCode: moduleCode,
-                                    },
-                                ],
+                                requested: {
+                                    classNo: classNo,
+                                    status: "new",
+                                    lessonType: lessonType,
+                                    moduleCode: moduleCode,
+                                },
+                                requestorName: user[0].first_name,
                                 requestorId: Number(userId),
                             },
                         ],
@@ -127,7 +125,6 @@ export default async function handler(
                 } else {
                     // this user has requested something before
                     // check if this user's request is the same (aka he clicked the button twice, lol)
-
                     const isSame =
                         userPrevRequest.requested.classNo === classNo &&
                         userPrevRequest.requested.lessonType === lessonType &&
@@ -135,7 +132,7 @@ export default async function handler(
                     if (isSame) {
                         return res.status(405).json({
                             success: false,
-                            error: "You have already requested for this swap!",
+                            error: "You have already requested for this swap! Please wait for them to contact you.",
                         });
                     }
 
@@ -143,7 +140,7 @@ export default async function handler(
                     // if we don't, uncomment the following code
                     return res.status(405).json({
                         success: false,
-                        error: "You have already requested for a swap!",
+                        error: "You have already requested for a swap! Please wait for them to contact you.",
                     });
 
                     const newRequests = oldRequests.map((request) => {
@@ -152,7 +149,7 @@ export default async function handler(
                             return {
                                 ...request,
                                 lastUpdated: new Date(),
-                                requested: [
+                                requested:
                                     // ...request.requested,
                                     {
                                         classNo: classNo,
@@ -160,7 +157,6 @@ export default async function handler(
                                         lessonType: lessonType,
                                         moduleCode: moduleCode,
                                     },
-                                ],
                             };
                         } else {
                             return request;

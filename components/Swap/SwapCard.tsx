@@ -82,7 +82,7 @@ const SwapCard: React.FC<{
             >
                 <Flex justifyContent={"space-between"}>
                     <Flex alignItems={"center"}>
-                        <UserDisplay swap={swap} />
+                        <UserDisplay user={swap} />
                         {RequestButton}
                     </Flex>
                     <Text fontSize="sm" fontWeight="semibold">

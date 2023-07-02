@@ -14,6 +14,8 @@ import {
     PopoverHeader,
     PopoverTrigger,
     useColorModeValue,
+    PopoverFooter,
+    Button,
 } from "@chakra-ui/react";
 import {
     TbArrowDown,
@@ -40,6 +42,7 @@ const SwapCodeIndicator = ({
 
     onHover,
     drawnClasses,
+    onRequest,
 }: {
     desiredModulesInfo?: HalfInfo[];
     desiredClassesInfo?: FullInfo[];
@@ -50,6 +53,9 @@ const SwapCodeIndicator = ({
 
     // if supplied, will show additional info in the popup
     drawnClasses?: ClassOverview[];
+
+    // if supplied, will show a 'request' button
+    onRequest?: (class_: FullInfo) => void;
 }) => {
     const currentClassFullInfo = drawnClasses?.find(
         (c) =>
@@ -240,6 +246,30 @@ const SwapCodeIndicator = ({
                                                                     )}{" "}
                                                             </Stack>
                                                         </PopoverBody>
+                                                        {onRequest && (
+                                                            <PopoverFooter
+                                                                display="flex"
+                                                                justifyContent={
+                                                                    "right"
+                                                                }
+                                                                w="100%"
+                                                                alignItems={
+                                                                    "center"
+                                                                }
+                                                            >
+                                                                <Button
+                                                                    onClick={() =>
+                                                                        onRequest(
+                                                                            dc
+                                                                        )
+                                                                    }
+                                                                    size="xs"
+                                                                    colorScheme="blue"
+                                                                >
+                                                                    Request
+                                                                </Button>
+                                                            </PopoverFooter>
+                                                        )}
                                                     </PopoverContent>
                                                 </Popover>
                                             );

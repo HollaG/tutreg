@@ -143,20 +143,20 @@ const Swap = (
         if (state.user) {
             setUser(state.user);
             // populate the user swaps
-            const self = props.openSwaps.filter(
-                (swapData) => swapData.swap.from_t_id === state.user?.id
-            );
+            // const self = props.openSwaps.filter(
+            //     (swapData) => swapData.swap.from_t_id === state.user?.id
+            // );
 
-            // remove the user swaps from the open swaps
-            const open = props.openSwaps.filter(
-                (swapData) => swapData.swap.from_t_id !== state.user?.id
-            );
-            setAllSwapData({
-                openSwaps: open,
-                selfSwaps: self,
-            });
+            // // remove the user swaps from the open swaps
+            // const open = props.openSwaps.filter(
+            //     (swapData) => swapData.swap.from_t_id !== state.user?.id
+            // );
+            // setAllSwapData({
+            //     openSwaps: open,
+            //     selfSwaps: self,
+            // });
 
-            setVisibleSwaps(open.slice(0, SWAP_VISIBLE_AMOUNT));
+            // setVisibleSwaps(open.slice(0, SWAP_VISIBLE_AMOUNT));
         } else {
             setUser(undefined);
             setRequestState({});
