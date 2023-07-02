@@ -47,7 +47,7 @@ const RequestAlert = ({
                             {userRequest?.classNo}
                         </span>{" "}
                         <br />
-                        for {swap?.first_name}'s
+                        for {swap?.first_name}&apos;s
                         <br />
                         <span style={{ fontWeight: "bold" }}>
                             {swap?.moduleCode} {swap?.lessonType}{" "}
