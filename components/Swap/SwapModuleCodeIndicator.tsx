@@ -16,6 +16,7 @@ import {
     useColorModeValue,
     PopoverFooter,
     Button,
+    Tooltip,
 } from "@chakra-ui/react";
 import {
     TbArrowDown,
@@ -257,20 +258,24 @@ const SwapCodeIndicator = ({
                                                                     "center"
                                                                 }
                                                             >
-                                                                <Button
-                                                                    onClick={(
-                                                                        e
-                                                                    ) => {
-                                                                        e.stopPropagation();
-                                                                        onRequest(
-                                                                            dc
-                                                                        );
-                                                                    }}
-                                                                    size="xs"
-                                                                    colorScheme="blue"
-                                                                >
-                                                                    Request
-                                                                </Button>
+                                                                <Tooltip label="Click me if you want to swap this class for the swap creator's!">
+                                                                    <Button
+                                                                        onClick={(
+                                                                            e
+                                                                        ) => {
+                                                                            e.stopPropagation();
+                                                                            onRequest(
+                                                                                dc
+                                                                            );
+                                                                        }}
+                                                                        size="xs"
+                                                                        colorScheme="blue"
+                                                                    >
+                                                                        I have
+                                                                        this
+                                                                        class
+                                                                    </Button>
+                                                                </Tooltip>
                                                             </PopoverFooter>
                                                         )}
                                                     </PopoverContent>
