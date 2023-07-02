@@ -112,13 +112,11 @@ const SpecificSwap = (
     // Handle real-time updates:
 
     // because we don't have firebase auth, a non-authenticated user will only have read access
-
     const router = useRouter();
-    const { swapId } = router.query as { swapId: string };
+    const dispatch = useDispatch();
 
-    // fetch the data about this swap from the backend
-    // const [swap, setSwap] = useState<ClassSwapRequest>();
-    // const [classData, setClassData] = useState<ModuleWithClassDB[]>();
+    const toast = useToast();
+    const { swapId } = router.query as { swapId: string };
 
     const [swapData, setSwapData] = useState<GetSwapClassesData | undefined>(
         props.response
@@ -163,64 +161,6 @@ const SpecificSwap = (
             );
         }
     }, [swapData, user, swapId]);
-
-    const dispatch = useDispatch();
-    const [hasRequestedSwap, setHasRequestedSwap] = useState("");
-    const toast = useToast();
-    const requestSwap =
-        (
-            swapId: number,
-            user: TelegramUser | null,
-            type: "request" | "remove"
-        ) =>
-        async (e: MouseEvent<HTMLButtonElement>) => {
-            try {
-                e.stopPropagation();
-
-                const response = await requestSwapHelper(
-                    dispatch,
-                    swapId,
-                    user,
-                    type
-                );
-
-                // not signed in
-                if (!response) return;
-
-                if (response.error || !response.success) {
-                    toast({
-                        title: "Error",
-                        description: response?.error,
-                        status: "error",
-                        duration: 5000,
-                        isClosable: true,
-                    });
-                } else {
-                    // update swap data: response.data contains the new requestors
-                    // prevent user from selecting the button again
-                    setHasRequestedSwap(
-                        type === "remove" ? "Unrequested!" : "Requested!"
-                    );
-                    toast({
-                        title: "Success",
-                        description:
-                            type === "remove"
-                                ? "Removed your request!"
-                                : "Requested! They will contact you shortly.",
-                        status: "success",
-                        duration: 3000,
-                    });
-                }
-            } catch (e) {
-                toast({
-                    title: "Error",
-
-                    status: "error",
-                    duration: 5000,
-                    isClosable: true,
-                });
-            }
-        };
 
     // Handle requesting a specific class
     const { isOpen, onOpen, onClose } = useDisclosure();

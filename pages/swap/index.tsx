@@ -165,7 +165,7 @@ const Swap = (
             setVisibleSwaps(open.slice(0, SWAP_VISIBLE_AMOUNT));
         } else {
             setUser(undefined);
-            setRequestState({});
+
             setRequestedSwaps([]);
         }
     }, [state.user, props.openSwaps]);
@@ -185,60 +185,10 @@ const Swap = (
     );
 
     // allow for filtering
-    // let visibleSwaps = _visibleSwaps;
-
-    const [counter, setCounter] = useState(0);
 
     const router = useRouter();
 
     const borderColor = useColorModeValue("gray.200", "gray.700");
-
-    const [requestState, setRequestState] = useState<{
-        [swapId: number]: string;
-    }>({});
-
-    const requestSwap = async (
-        swapId: number,
-        user: TelegramUser | null,
-        type: "request" | "remove"
-    ) => {
-        try {
-            const response = await requestSwapHelper(
-                dispatch,
-                swapId,
-                user,
-                type
-            );
-            if (!response) return;
-            if (response.error || !response.success) {
-                toast({
-                    title: "Error",
-                    description: response?.error,
-                    status: "error",
-                    duration: 5000,
-                    isClosable: true,
-                });
-            } else {
-                // update swap data: response.data contains the new requestors
-                // prevent user from selecting the button again
-
-                setRequestState((prev) => ({
-                    ...prev,
-                    [swapId]:
-                        type === "remove" ? "Request removed!" : "Requested!",
-                }));
-                toast({
-                    title: "Success",
-                    description:
-                        type === "remove"
-                            ? "Removed your request!"
-                            : "Requested! They will contact you shortly.",
-                    status: "success",
-                    duration: 3000,
-                });
-            }
-        } catch (e) {}
-    };
 
     const toast = useToast();
     const disclosure = useDisclosure();
@@ -274,13 +224,6 @@ const Swap = (
             });
         }
     };
-
-    // color for highlighted tut class
-    const highlightedColor = useColorModeValue("green.200", "green.700");
-    const [selectedModuleCodeLessonType, setSelectedModuleCodeLessonType] =
-        useState<Option | null>(null);
-    const [availableClassNos, setAvailableClassNos] = useState<string[]>([]);
-    const [selectedClassNo, setSelectedClassNo] = useState<Option | null>(null);
 
     // ------------------ FILTERING ------------------
     // Set up the type button
@@ -433,36 +376,6 @@ const Swap = (
     //     else dispatch(miscActions.setHighlightedClassNos([opt.value]));
     // };
 
-    const checkIfShouldDisplay = (swap: ClassSwapRequest) => {
-        if (!selectedModuleCodeLessonType && !selectedClassNo) return true;
-
-        if (selectedModuleCodeLessonType) {
-            const moduleCode =
-                selectedModuleCodeLessonType.value.split(": ")[0];
-            const lessonType =
-                selectedModuleCodeLessonType.value.split(": ")[1];
-            if (!selectedClassNo)
-                return (
-                    swap.moduleCode === moduleCode &&
-                    swap.lessonType === lessonType
-                );
-            else {
-                // find requested class numbers for this swap
-                // TODO: fix this
-                // const requestedClasses = swapData?.requestedClasses[
-                //     swap.swapId
-                // ].map((class_) => class_.wantedClassNo);
-                return (
-                    swap.moduleCode === moduleCode &&
-                    swap.lessonType === lessonType &&
-                    swap.classNo === selectedClassNo.value
-                    // ||
-                    // requestedClasses?.includes(selectedClassNo.value)
-                );
-            }
-        }
-    };
-
     const [tabIndex, setTabIndex] = useState(0);
     const handleTabsChange = (index: number) => {
         setTabIndex(index);
@@ -613,7 +526,7 @@ const Swap = (
         const unsubscribe = onSnapshot(docRef, {
             next: (snapshot) => {
                 const ids = snapshot.data()?.requests;
-                console.log(ids, allSwapsData.openSwaps);
+
                 if (!ids) return;
                 setRequestedSwaps(
                     allSwapsData.openSwaps.filter((s) =>
