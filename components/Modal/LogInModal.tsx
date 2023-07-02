@@ -32,6 +32,11 @@ const LogInModal = () => {
         else onClose();
     }, [misc.needsLogIn, onClose, onOpen]);
 
+    useEffect(() => {
+        if (!isOpen) {
+            dispatch(miscActions.setNeedsLogIn(false));
+        }
+    }, [isOpen]);
     // reset state to false in preparation for next time
     const closeHandler = () => {
         onClose();
