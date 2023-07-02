@@ -30,7 +30,7 @@ export type Request = FullInfo & {
 
 export type SwapReplyRequest = {
     requestorId: number; // Telegram id
-    requested: Request[];
+    requested: Request;
     lastUpdated: Date;
 };
 

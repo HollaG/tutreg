@@ -128,14 +128,10 @@ export default async function handler(
                     // this user has requested something before
                     // check if this user's request is the same (aka he clicked the button twice, lol)
 
-                    // note: we use an array here for future expansion
-                    // acutally, there will only be one element in this array.
                     const isSame =
-                        userPrevRequest.requested[0] &&
-                        userPrevRequest.requested[0].classNo === classNo &&
-                        userPrevRequest.requested[0].lessonType ===
-                            lessonType &&
-                        userPrevRequest.requested[0].moduleCode === moduleCode;
+                        userPrevRequest.requested.classNo === classNo &&
+                        userPrevRequest.requested.lessonType === lessonType &&
+                        userPrevRequest.requested.moduleCode === moduleCode;
                     if (isSame) {
                         return res.status(405).json({
                             success: false,
