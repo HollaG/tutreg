@@ -172,9 +172,9 @@ const SpecificSwap = (
 
     const beforeRequestSwap = (info: FullInfo) => {
         // don't allow the user to request his own class
-        // if (user && user.id === swap?.from_t_id) {
-        //     return;
-        // }
+        if (user && user.id === swap?.from_t_id) {
+            return;
+        }
 
         if (!user) {
             dispatch(miscActions.setNeedsLogIn(true));
