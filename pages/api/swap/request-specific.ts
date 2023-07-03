@@ -47,14 +47,19 @@ export default async function handler(
                 });
             }
             // ensure userId and hash match
+            // TODO: find a better way
+            // problem: if user logins on desktop, a hash is saved.
+            // if user logins on mobile, a different hash is saved.
+            // that means that if user logins on desktop, then on mobile, the hash will be different
+            // perhaps we can store an array of hashess?
             const user: TelegramUser[] = await executeQuery({
-                query: `SELECT * FROM users WHERE id = ? AND hash = ?`,
-                values: [userId, hash],
+                query: `SELECT * FROM users WHERE id = ?`,
+                values: [userId],
             });
 
             if (!user[0]) {
                 return res.status(401).json({
-                    error: "Not authorized",
+                    error: "Missing user in database!",
                     success: false,
                 });
             }
