@@ -74,4 +74,5 @@ export const signIn = async () => {
     }
 };
 
-export const COLLECTION_NAME = "requests";
+export const COLLECTION_NAME =
+    process.env.NEXT_PUBLIC_COLLECTION_NAME || "requests";

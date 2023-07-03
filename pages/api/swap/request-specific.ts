@@ -210,4 +210,5 @@ export default async function handler(
     }
 }
 
-export const REQUEST_INDEX_COLLECTION_NAME = "requestIndex";
+export const REQUEST_INDEX_COLLECTION_NAME =
+    process.env.NEXT_PUBLIC_REQUEST_INDEX_COLLECTION_NAME || "requestIndex";
