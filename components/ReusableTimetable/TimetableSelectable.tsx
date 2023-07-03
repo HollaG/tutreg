@@ -45,7 +45,6 @@ const TimetableSelectable: React.FC<{
     showLessonType = false,
     getClassNames,
 }) => {
-    // console.log("timetable selectable rendering");
     const GRAY_BACKGROUND = useColorModeValue("gray.100", "gray.900");
     const HOVER_COLOR = useColorModeValue(
         `${BTN_COLOR_SCHEME}.100`,

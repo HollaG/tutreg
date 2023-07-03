@@ -26,12 +26,11 @@ export default async function handler(
             // implementation: https://edisonchee.com/writing/telegram-login-with-node.js/
             // note: https://stackoverflow.com/questions/71299151/telegram-bot-login-checking-authorization-not-equal-hash
 
-          
             const secretKey = createHash("SHA256")
                 .update(bot_token || "")
                 .digest();
             const dataCheckString = Object.keys(user)
-                .filter(e => e !== "hash")
+                .filter((e) => e !== "hash")
                 .sort()
                 .map((key) => `${key}=${user[key as keyof TelegramUser]}`)
                 .join("\n");
@@ -58,19 +57,17 @@ export default async function handler(
             // Disable photo_url for now
             user.photo_url = "";
 
-
             if (userDB.length) {
                 // update
                 const res = await executeQuery({
                     query: `UPDATE users SET ? WHERE id = ?`,
                     values: [user, user.id],
                 });
-                // console.log(res)
             } else {
                 // insert
                 const updatedUser = {
                     ...user,
-                    can_notify: true, // default to true? 
+                    can_notify: true, // default to true?
                 };
                 const results = await executeQuery({
                     query: `INSERT INTO users SET ?`,

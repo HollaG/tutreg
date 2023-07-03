@@ -77,7 +77,7 @@ import {
     formatTimeElapsed,
     encodeLessonTypeToShorthand,
 } from "../../lib/functions";
-import { requestSwapHelper } from "../../lib/helpers";
+
 import { requestComm } from "../../lib/requestor";
 import { miscActions } from "../../store/misc";
 import { userActions } from "../../store/user";
@@ -85,7 +85,7 @@ import { ClassDB } from "../../types/db";
 import { RootState, Option, ClassSwapRequest } from "../../types/types";
 import { GetSwapDataResponse, SwapData } from "../api/swap";
 import { GetClassesResponse, GroupedByClassNo } from "../api/swap/getClasses";
-import { RequestSwapResponseData } from "../api/swap/request";
+
 import NextLink from "next/link";
 import InfiniteScroll from "react-infinite-scroll-component";
 import SwapCard from "../../components/Swap/SwapCard";
@@ -123,9 +123,6 @@ export const getServerSideProps: GetServerSideProps<{
     const res = await fetch(`${ROOT_URL}api/swap`);
     const data: { openSwaps: GetSwapClassesData[] } = (await res.json()).data;
 
-    // const userData = await sendPOST(`${ROOT_URL}api/swap/${swapId}`, {});
-    // const safeUsers = userData.data;
-    // console.log(data.openSwaps);
     return {
         props: {
             openSwaps: data.openSwaps,
@@ -391,7 +388,6 @@ const Swap = (
     const [visibleAmount, setVisibleAmount] = useState(SWAP_VISIBLE_AMOUNT);
 
     const handleLoadMore = () => {
-        console.log("Loading more...");
         const newVisibleAmount = visibleAmount + SWAP_VISIBLE_AMOUNT;
         setVisibleAmount(newVisibleAmount);
         setVisibleSwaps(allSwapsData?.openSwaps.slice(0, newVisibleAmount));

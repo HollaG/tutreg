@@ -17,7 +17,6 @@ const loadState = () => {
             const parsedState = JSON.parse(serializedState);
 
             if (!("colorMap" in parsedState) || !parsedState.colorMap.length) {
-                console.log("updating colorMap");
                 parsedState.colorMap = parsedState.moduleOrder;
                 localStorage.setItem(
                     "classesInfo",

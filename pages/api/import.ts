@@ -39,7 +39,6 @@ export default async function handler(
                 !url.startsWith("https://nusmods.com/timetable/sem-1/share?") &&
                 !url.startsWith("https://nusmods.com/timetable/sem-2/share?")
             ) {
-                console.log("Invalid url!");
                 res.status(400).json({
                     success: false,
                     error: "Invalid URL! Please check the URL and try again.",
@@ -51,13 +50,15 @@ export default async function handler(
             const semester = url.includes("sem-1") ? "1" : "2";
 
             // extract module codes
-            const stripped = url.replace(
-                /^https:\/\/nusmods\.com\/timetable\/.*\/share\?/gm,
-                ""
-            ).trim(); // CFG1002=&CS1101S=TUT:07B,REC:11E,LEC:1&CS1231S=TUT:08B,LEC:1&IS1108=TUT:03,LEC:1&MA2001=TUT:1,LAB:2,LEC:1&RVX1000=SEC:1&RVX1002=SEC:2
+            const stripped = url
+                .replace(
+                    /^https:\/\/nusmods\.com\/timetable\/.*\/share\?/gm,
+                    ""
+                )
+                .trim(); // CFG1002=&CS1101S=TUT:07B,REC:11E,LEC:1&CS1231S=TUT:08B,LEC:1&IS1108=TUT:03,LEC:1&MA2001=TUT:1,LAB:2,LEC:1&RVX1000=SEC:1&RVX1002=SEC:2
             // get the url params
             const params = new URLSearchParams(stripped);
-            console.log(params)
+
             const classesSelected: {
                 moduleCode: string;
                 timetable: {
@@ -75,11 +76,14 @@ export default async function handler(
                 const timetable: { [key: string]: string } = {};
                 lessons.forEach((lesson) => {
                     if (lesson.includes(":")) {
-                        let lessonType = lesson.split(":")[0] as LessonTypeAbbrev;
+                        let lessonType = lesson.split(
+                            ":"
+                        )[0] as LessonTypeAbbrev;
 
                         const classNo = lesson.split(":")[1];
 
-                        const decodedLessonType = decodeLessonTypeShorthand(lessonType);
+                        const decodedLessonType =
+                            decodeLessonTypeShorthand(lessonType);
                         timetable[decodedLessonType] = classNo;
                     }
                 });
@@ -90,7 +94,6 @@ export default async function handler(
                 });
             }
 
-            // console.log({classesSelected})
             const moduleCodes = classesSelected.map(
                 (classselected) => classselected.moduleCode
             );
@@ -196,9 +199,6 @@ export default async function handler(
                     }
                     const classData = [...classDataSem1, ...classDataSem2];
 
-                    console.log(
-                        `${classData.length} classes for ${moduleCode}`
-                    );
                     if (classData.length) {
                         const result = await executeQuery({
                             query: `INSERT INTO classlist (moduleCode, lessonType, classNo, day, startTime, endTime, venue, size, weeks, ay, semester) VALUES ?`,

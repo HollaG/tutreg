@@ -98,12 +98,6 @@ const Timetable: React.FC<{
 
                 // But, there are cases where the pushdown value is not consecutive
                 for (let i = 0; i <= overlaps.length; i++) {
-                    // console.log(
-                    //     `${overlaps.map(
-                    //         (overlap) => overlap.classNo
-                    //     )} overlaps with ${class_.classNo}`
-                    // );
-
                     if (!overlaps.find((overlap) => overlap.pushDown === i)) {
                         pushDown = i;
                         break;
@@ -162,10 +156,7 @@ const Timetable: React.FC<{
         (c1, c2) => Number(c1.startTime) - Number(c2.startTime)
     );
 
-    // console.log({ timetableList, totalDayRowsToDraw });
-
     // Create the rowStart and rowEnd for each day
-
     const rowMappingForDays = order.map((day) => ({
         day: day as Day,
         rowStart: 0,
@@ -186,7 +177,6 @@ const Timetable: React.FC<{
         }
     });
 
-    // console.log(rowMappingForDays);
     const totalRowsToDraw =
         Object.values(totalDayRowsToDraw).reduce((a, b) => a + b, 0) + 1; // 1 for the timing row
 
@@ -489,7 +479,6 @@ const convertRowToDay = (row: number, totalDayRowsToDraw: DayRows) => {
         rowT = rowT - totalDayRowsToDraw[day as Day];
         if (rowT < 0) {
             // <= results in Sunday not showing
-            // console.log("returning", day);
             return {
                 day,
                 pushDown: totalDayRowsToDraw[day as Day] - Math.abs(rowT),

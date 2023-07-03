@@ -152,7 +152,6 @@ const Order: NextPage = () => {
             })
                 .then((result: ImportResponseData) => {
                     const data = result.data;
-                    console.log({ data });
                 })
                 .catch((err) => console.log(err));
 

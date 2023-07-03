@@ -66,42 +66,5 @@ export default async function handler(
                 error: "Internal server error",
             });
         }
-
-        // for every module in openSwaps, get all the class data
-        // const classData: ModuleWithClassDB[] = await executeQuery({
-        //     query: `SELECT * FROM classlist LEFT JOIN modulelist ON classlist.moduleCode = modulelist.moduleCode WHERE classlist.moduleCode IN (?) AND ay = ? AND semester = ? AND classlist.lessonType IN (?)`,
-        //     values: [[...new Set(swaps.map(swap => swap.moduleCode))], process.env.NEXT_PUBLIC_AY, process.env.NEXT_PUBLIC_SEM, [...new Set(swaps.map(swap => swap.lessonType))]]
-        // })
-
-        // // console.log(openSwaps)
-        // // get the requested classes
-        // const requestedClasses: ClassSwapFor[] = await executeQuery({
-        //     query: `SELECT * FROM swaps_list WHERE swapId IN (?)`,
-        //     values: [swaps.map(swap => swap.swapId)]
-        // })
-
-        // const groupedBySwapId = (requestedClasses || []).reduce<GroupedBySwapId>((r, a) => {
-        //     r[a.swapId] = [...(r[a.swapId] || []), a];
-        //     return r;
-        // }, {});
-
-        // // discard openSwaps which don't have any requestedClasses
-        // // remove sensitive data
-        // const filteredOpenSwaps = swaps.filter(swap => groupedBySwapId[swap.swapId]).map((swap) => {
-        //     const newSwap = {...swap}
-        //     newSwap.hash = ""
-        //     newSwap.auth_date = 0
-        //     return newSwap
-        // })
-
-        // res.status(200).json({
-        //     success: true,
-        //     data: {
-        //         openSwaps: filteredOpenSwaps,
-        //         requestedClasses: groupedBySwapId,
-        //         classData,
-        //         selfSwaps: []
-        //     }
-        // })
     }
 }

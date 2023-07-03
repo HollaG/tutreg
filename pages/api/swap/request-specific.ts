@@ -38,9 +38,14 @@ export default async function handler(
                     classNo: string;
                     lessonType: LessonType;
                 };
-            console.log("trying sign in");
-            await signIn();
 
+            const signedIn = await signIn();
+            if (!signedIn) {
+                return res.status(500).json({
+                    error: "Failed to sign in to Firebase",
+                    success: false,
+                });
+            }
             // ensure userId and hash match
             const user: TelegramUser[] = await executeQuery({
                 query: `SELECT * FROM users WHERE id = ? AND hash = ?`,
@@ -110,10 +115,9 @@ export default async function handler(
                     success: true,
                     data: "Your request has been sent!",
                 });
-                console.log("set a doc");
             } else {
                 // not yet
-                console.log("doc exists");
+
                 const oldRequests = docDb.data().requests as SwapReplyRequest[];
 
                 // check if this user has made a request before

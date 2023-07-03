@@ -63,7 +63,7 @@ import {
     formatTimeElapsed,
     encodeLessonTypeToShorthand,
 } from "../../lib/functions";
-import { requestSwapHelper } from "../../lib/helpers";
+
 import { miscActions } from "../../store/misc";
 import { ModuleWithClassDB } from "../../types/db";
 import { ClassOverview, ClassSwapRequest, RootState } from "../../types/types";
@@ -192,8 +192,6 @@ const SpecificSwap = (
             if (!user) return console.log("Not signed in!!!");
             if (!userRequest) return console.log("error: no user request?");
 
-            console.log({ userRequest });
-
             // send an api request to backend
             sendPOST(`/api/swap/request-specific`, {
                 swapId,
@@ -250,12 +248,10 @@ const SpecificSwap = (
                 console.log("Recieved a live update!");
                 const data = doc.data() as SwapReplies;
 
-                console.log({ data });
                 setSwapReplies(data);
 
                 if (user) {
                     sendPOST(`/api/swap/${swapId}`, user).then((data) => {
-                        console.log("get users", data.data);
                         setUserReplies(data.data);
                     });
                 }

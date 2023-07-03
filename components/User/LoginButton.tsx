@@ -10,8 +10,6 @@ const LoginButton = () => {
     const dispatch = useDispatch();
     const toast = useToast();
     const handleResponse = async (user: TelegramUser) => {
-        console.log(user);
-
         const response: LoginResponse = await sendPOST(
             "/api/users/login",
             user

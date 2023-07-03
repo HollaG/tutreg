@@ -62,37 +62,6 @@ const ClassList: React.FC<{
 
     const deleteIconColor = useColorModeValue("red.500", "red.500");
 
-    // Calculate if this class conflicts with any other classes
-    // const unavailableTimings = {}
-
-    // useEffect(() => {
-    //     console.log("hellol")
-    //     let timings: {[key:string]: any} = {
-    //         "Monday": [],
-    //         "Tuesday": [],
-    //         "Wednesday": [],
-    //         "Thursday": [],
-    //         "Friday": [],
-    //         "Saturday": [],
-    //         "Sunday": [],
-    //     }
-
-    //     const takenClasses = {...data.selectedClasses, ...data.nonBiddable}
-    //     if (!takenClasses) return
-
-    //     for (const moduleCodeLessonType in takenClasses) {
-    //         let classesSelected = takenClasses[moduleCodeLessonType]
-    //         for (const classes_ of classesSelected) {
-    //             for (const class_ of classes_.classes) {
-    //                 timings[class_.day].push(class_)
-    //             }
-    //         }
-    //     }
-
-    //     // check if any classes are conflicting
-
-    // }, [data])
-
     return (
         <List
             removableByMove

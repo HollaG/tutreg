@@ -23,8 +23,6 @@ export default async function handler(
     res: NextApiResponse<Data>
 ) {
     if (req.method === "POST") {
-        console.log(req.body);
-
         const {
             user,
             currentClassInfo: { moduleCode, lessonType, classNo },
@@ -76,7 +74,6 @@ export default async function handler(
             values: [swapObj],
         });
         const insertId = inserted.insertId;
-        console.log(insertId);
         // insert into swaps_list
         for (const desiredClass of desiredClasses) {
             const {
@@ -95,7 +92,6 @@ export default async function handler(
                     ],
                 ],
             });
-            console.log(result);
         }
 
         res.status(200).json({

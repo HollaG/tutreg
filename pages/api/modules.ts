@@ -116,7 +116,7 @@ export default async function handler(
                             ];
                         }) || [];
                     const classData = [...classDataSem1, ...classDataSem2];
-                    // console.log(classData)
+
                     if (classData.length)
                         await executeQuery({
                             query: `INSERT INTO classlist (moduleCode, lessonType, classNo, day, startTime, endTime, venue, size, weeks, ay, semester) VALUES ?`,
