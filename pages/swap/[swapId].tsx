@@ -83,6 +83,10 @@ import { doc, onSnapshot } from "firebase/firestore";
 import { COLLECTION_NAME, fireDb, SwapReplies } from "../../firebase";
 import { db } from "../../lib/db";
 import RequestAlert from "../../components/Swap/RequestAlert";
+import {
+    ERROR_TOAST_OPTIONS,
+    SUCCESS_TOAST_OPTIONS,
+} from "../../lib/toasts.utils";
 
 const ROOT_URL = process.env.NEXT_PUBLIC_ROOT_URL;
 
@@ -189,8 +193,18 @@ const SpecificSwap = (
         // lessonType: LessonType,
         // classNo: string
         {
-            if (!user) return console.log("Not signed in!!!");
-            if (!userRequest) return console.log("error: no user request?");
+            if (!user)
+                return toast({
+                    title: "Error",
+                    description: "You are not logged in",
+                    ...ERROR_TOAST_OPTIONS,
+                });
+            if (!userRequest)
+                return toast({
+                    title: "Error",
+                    description: "You have not selected a class",
+                    ...ERROR_TOAST_OPTIONS,
+                });
 
             // send an api request to backend
             sendPOST(`/api/swap/request-specific`, {
@@ -206,15 +220,13 @@ const SpecificSwap = (
                         toast({
                             title: "Success",
                             description: res.data,
-                            status: "success",
-                            duration: 3000,
+                            ...SUCCESS_TOAST_OPTIONS,
                         });
                     } else {
                         toast({
                             title: "Error",
                             description: res.error,
-                            status: "error",
-                            duration: 3000,
+                            ...ERROR_TOAST_OPTIONS,
                         });
                     }
                 })
@@ -279,27 +291,21 @@ const SpecificSwap = (
             if (response.success) {
                 toast({
                     title: "Swap deleted!",
-                    status: "success",
-                    duration: 3000,
-                    isClosable: true,
+                    ...SUCCESS_TOAST_OPTIONS,
                 });
                 router.push("/swap");
             } else {
                 toast({
                     title: "Error deleting swap",
                     description: response.error,
-                    status: "error",
-                    duration: 3000,
-                    isClosable: true,
+                    ...ERROR_TOAST_OPTIONS,
                 });
             }
         } catch (e: any) {
             toast({
                 title: "Error deleting swap",
                 description: e.toString(),
-                status: "error",
-                duration: 3000,
-                isClosable: true,
+                ...ERROR_TOAST_OPTIONS,
             });
         } finally {
             setIsDeleting(false);
@@ -314,9 +320,7 @@ const SpecificSwap = (
             if (response.success) {
                 toast({
                     title: "Swap completed!",
-                    status: "success",
-                    duration: 3000,
-                    isClosable: true,
+                    ...SUCCESS_TOAST_OPTIONS,
                 });
 
                 setSwapData((prev) =>
@@ -334,18 +338,14 @@ const SpecificSwap = (
                 toast({
                     title: "Error completing swap",
                     description: response.error,
-                    status: "error",
-                    duration: 3000,
-                    isClosable: true,
+                    ...ERROR_TOAST_OPTIONS,
                 });
             }
         } catch (e: any) {
             toast({
                 title: "Error completing swap",
                 description: e.toString(),
-                status: "error",
-                duration: 3000,
-                isClosable: true,
+                ...ERROR_TOAST_OPTIONS,
             });
         } finally {
             setIsCompleting(false);

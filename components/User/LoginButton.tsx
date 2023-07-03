@@ -2,6 +2,7 @@ import { useToast } from "@chakra-ui/react";
 import { useDispatch } from "react-redux";
 import TelegramLoginButton, { TelegramUser } from "telegram-login-button";
 import { sendPOST } from "../../lib/fetcher";
+import { ERROR_TOAST_OPTIONS } from "../../lib/toasts.utils";
 import { LoginResponse } from "../../pages/api/users/login";
 import { miscActions } from "../../store/misc";
 import { userActions } from "../../store/user";
@@ -20,9 +21,9 @@ const LoginButton = () => {
             dispatch(miscActions.setNeedsLogIn(false));
         } else {
             toast({
-                status: "error",
                 title: "Error",
                 description: response.error,
+                ...ERROR_TOAST_OPTIONS,
             });
         }
     };

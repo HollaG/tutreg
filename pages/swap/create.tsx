@@ -70,6 +70,10 @@ import { Steps } from "chakra-ui-steps";
 import { TbArrowDown, TbArrowNarrowRight } from "react-icons/tb";
 import SwapCodeIndicator from "../../components/Swap/SwapModuleCodeIndicator";
 import { TelegramUser } from "telegram-login-button";
+import {
+    ERROR_TOAST_OPTIONS,
+    SUCCESS_TOAST_OPTIONS,
+} from "../../lib/toasts.utils";
 
 const steps = [
     {
@@ -787,28 +791,28 @@ const CreateSwap: NextPage = () => {
                 toast({
                     title: "Error",
                     description: response.error,
-                    status: "error",
+                    ...ERROR_TOAST_OPTIONS,
                 });
             } else {
                 router.push(`/swap/${response.data}`);
 
                 toast({
                     title: "Swap created",
-                    status: "success",
+
                     description: `${
                         misc.notify
                             ? "You will be notified on Telegram when someone requests your swap."
                             : "To receive notifications on Telegram for this swap, click the bell icon on the top right corner."
                     }`,
-                    duration: 10000,
-                    isClosable: true,
+                    ...SUCCESS_TOAST_OPTIONS,
+                    duration: 5000, // override
                 });
             }
         } catch (e: any) {
             toast({
                 title: "Error",
                 description: e.toString(),
-                status: "error",
+                ...ERROR_TOAST_OPTIONS,
             });
         } finally {
             setIsSubmitting(false);

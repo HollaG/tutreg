@@ -104,6 +104,10 @@ import RequestAlert from "../../components/Swap/RequestAlert";
 import { doc, onSnapshot } from "firebase/firestore";
 import { fireDb } from "../../firebase";
 import { REQUEST_INDEX_COLLECTION_NAME } from "../api/swap/request-specific";
+import {
+    ERROR_TOAST_OPTIONS,
+    SUCCESS_TOAST_OPTIONS,
+} from "../../lib/toasts.utils";
 
 const SWAP_VISIBLE_AMOUNT = 20;
 const CustomCardProps = {
@@ -200,8 +204,7 @@ const Swap = (
             toast({
                 title: "Swap deleted!",
                 status: "success",
-                duration: 3000,
-                isClosable: true,
+                ...SUCCESS_TOAST_OPTIONS,
             });
             // remove the swap from the list
             setAllSwapData((prev) => ({
@@ -215,9 +218,7 @@ const Swap = (
             toast({
                 title: "Error deleting swap",
                 description: response.error,
-                status: "error",
-                duration: 3000,
-                isClosable: true,
+                ...ERROR_TOAST_OPTIONS,
             });
         }
     };
@@ -476,9 +477,25 @@ const Swap = (
     };
 
     const liveRequestSwap = () => {
-        if (!user) return console.log("Not signed in!!!");
-        if (!userRequest) return console.log("error: no user request?");
-        if (!interactedSwap) return console.log("No swap");
+        if (!user)
+            return toast({
+                title: "Error",
+                description: "You are not logged in",
+                ...ERROR_TOAST_OPTIONS,
+            });
+        if (!userRequest)
+            return toast({
+                title: "Error",
+                description: "You have not selected a class",
+                ...ERROR_TOAST_OPTIONS,
+            });
+        if (!interactedSwap) {
+            return toast({
+                title: "Error",
+                description: "You have not selected a swap",
+                ...ERROR_TOAST_OPTIONS,
+            });
+        }
 
         // send an api request to backend
         sendPOST(`/api/swap/request-specific`, {
@@ -494,15 +511,13 @@ const Swap = (
                     toast({
                         title: "Success",
                         description: res.data,
-                        status: "success",
-                        duration: 3000,
+                        ...SUCCESS_TOAST_OPTIONS,
                     });
                 } else {
                     toast({
                         title: "Error",
                         description: res.error,
-                        status: "error",
-                        duration: 3000,
+                        ...ERROR_TOAST_OPTIONS,
                     });
                 }
             })

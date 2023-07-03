@@ -100,6 +100,10 @@ import ModuleSelect from "../components/Select/ModuleSelect";
 import Mousetrap from "mousetrap";
 import { Keybind } from "../components/Navbar";
 import { isMobile } from "react-device-detect";
+import {
+    ERROR_TOAST_OPTIONS,
+    SUCCESS_TOAST_OPTIONS,
+} from "../lib/toasts.utils";
 const ay = process.env.NEXT_PUBLIC_AY;
 const Order: NextPage = () => {
     const toast = useToast();
@@ -122,16 +126,12 @@ const Order: NextPage = () => {
             return toast({
                 title: "Error importing classes!",
                 description: result.error,
-                status: "error",
-                duration: 5000,
-                isClosable: true,
+                ...ERROR_TOAST_OPTIONS,
             });
 
         toast({
             title: "Classes imported",
-            status: "success",
-            duration: 5000,
-            isClosable: true,
+            ...SUCCESS_TOAST_OPTIONS,
         });
         dispatch(classesActions.setState(data));
         setIsSubmitting(false);
@@ -153,7 +153,13 @@ const Order: NextPage = () => {
                 .then((result: ImportResponseData) => {
                     const data = result.data;
                 })
-                .catch((err) => console.log(err));
+                .catch((err) => {
+                    toast({
+                        title: "Error importing classes!",
+                        description: err,
+                        ...ERROR_TOAST_OPTIONS,
+                    });
+                });
 
             // console.log(router.query)
 
@@ -199,11 +205,17 @@ const Order: NextPage = () => {
     const [moduleList, setModuleList] = useState<ModuleCondensed[]>();
 
     useEffect(() => {
-        if (!ay) console.log("ERROR: no ay");
-        fetch(`https://api.nusmods.com/v2/${ay || "2022-2023"}/moduleList.json`)
+        fetch(`https://api.nusmods.com/v2/${ay || "2023-2024"}/moduleList.json`)
             .then((res) => res.json())
             .then((data) => {
                 setModuleList(data);
+            })
+            .catch((err) => {
+                toast({
+                    title: "Error fetching modules!",
+                    description: err,
+                    ...ERROR_TOAST_OPTIONS,
+                });
             });
     }, []);
 
@@ -235,7 +247,11 @@ const Order: NextPage = () => {
                 modules: matchedModules,
             }).then((result: ModulesResponseData) => {
                 if (!result.success || !result.data)
-                    return console.log("error");
+                    return toast({
+                        title: "Error fetching modules!",
+                        description: result.error,
+                        ...ERROR_TOAST_OPTIONS,
+                    });
 
                 const options = Object.keys(result.data).map((key) => ({
                     value: key,

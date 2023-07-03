@@ -40,6 +40,7 @@ import useKeyPress from "../hooks/useKeyPress";
 import Mousetrap from "mousetrap";
 import { StringifyOptions } from "querystring";
 import { classesActions } from "../store/classesReducer";
+import { SUCCESS_TOAST_OPTIONS } from "../lib/toasts.utils";
 const NavLink = ({ children }: { children: ReactNode }) => (
     <Link
         px={2}
@@ -151,9 +152,7 @@ export default function Nav() {
                 toast({
                     title: `Notifications ${res.data ? "enabled" : "disabled"}`,
 
-                    status: "success",
-                    duration: 3000,
-                    isClosable: true,
+                    ...SUCCESS_TOAST_OPTIONS,
                 });
             });
         }

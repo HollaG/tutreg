@@ -1,9 +1,10 @@
-import { FormControl, FormHelperText } from "@chakra-ui/react";
+import { FormControl, FormHelperText, useToast } from "@chakra-ui/react";
 import { AsyncSelect, InputActionMeta } from "chakra-react-select";
 import React from "react";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { sendPOST } from "../../lib/fetcher";
+import { ERROR_TOAST_OPTIONS } from "../../lib/toasts.utils";
 import { ModulesResponseData } from "../../pages/api/modules";
 import { ModuleCondensed } from "../../types/modules";
 
@@ -32,7 +33,6 @@ const ModuleSelect: React.FC<{
     const [moduleCodeLessonTypeValue, setModuleCodeLessonTypeValue] =
         useState("");
     useEffect(() => {
-        if (!ay) console.log("ERROR: no ay");
         fetch(`https://api.nusmods.com/v2/${ay || "2022-2023"}/moduleList.json`)
             .then((res) => res.json())
             .then((data) => {
@@ -57,6 +57,8 @@ const ModuleSelect: React.FC<{
             onSelect(Array.isArray(newValue) ? newValue : [newValue]);
         }
     };
+
+    const toast = useToast();
     const loadOptions = (inputValue: string) =>
         new Promise<any[]>((resolve) => {
             if (!moduleList) return resolve([]);
@@ -79,7 +81,11 @@ const ModuleSelect: React.FC<{
                 hideNonBiddable,
             }).then((result: ModulesResponseData) => {
                 if (!result.success || !result.data)
-                    return console.log("error");
+                    return toast({
+                        title: "Error",
+                        description: result?.error?.toString(),
+                        ...ERROR_TOAST_OPTIONS,
+                    });
 
                 let options = Object.keys(result.data).map((key) => ({
                     value: key,

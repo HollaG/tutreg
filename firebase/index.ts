@@ -49,7 +49,6 @@ const auth = getAuth(app);
 const adminUser = process.env.ADMIN_USER;
 const adminPassword = process.env.ADMIN_PASSWORD;
 export const signIn = async () => {
-    // console.log({ adminUser, adminPassword, auth: auth.currentUser });
     if (!adminUser || !adminPassword) return false;
     if (auth.currentUser) return true;
     try {
