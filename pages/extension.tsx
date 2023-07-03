@@ -1,5 +1,6 @@
 import { ExternalLinkIcon } from "@chakra-ui/icons";
 import {
+    AspectRatio,
     Box,
     Button,
     calc,
@@ -9,14 +10,29 @@ import {
     Image,
     Link,
     Stack,
+    Step,
+    StepDescription,
+    StepIcon,
+    StepIndicator,
+    StepNumber,
+    Stepper,
+    StepSeparator,
+    StepStatus,
+    StepTitle,
     Text,
+    useSteps,
 } from "@chakra-ui/react";
 import { NextPage } from "next";
 import Card from "../components/Card/Card";
 import FancyCard from "../components/Card/FancyCard";
 import FullWidth from "../components/Containers/FullWidth";
-
+import NextImage from "next/image";
 const Extension: NextPage = () => {
+    const { activeStep } = useSteps({
+        index: -1,
+        count: 7,
+    });
+
     return (
         <Stack>
             <Center>
@@ -38,6 +54,7 @@ const Extension: NextPage = () => {
                     leftIcon={
                         <ExternalLinkIcon h={4} w={4} color={"gray.300"} />
                     }
+                    colorScheme="orange"
                 >
                     {" "}
                     <Link
@@ -52,6 +69,7 @@ const Extension: NextPage = () => {
                     leftIcon={
                         <ExternalLinkIcon h={4} w={4} color={"gray.300"} />
                     }
+                    colorScheme="blue"
                 >
                     {" "}
                     <Link
@@ -62,63 +80,228 @@ const Extension: NextPage = () => {
                     </Link>
                 </Button>
             </Center>
+            <Stack spacing={5}>
+                {/* <Box
+                    as="video"
+                    controls
+                    src="tutorial/video_main.mp4"
+                    // poster="https://peach.blender.org/wp-content/uploads/title_anouncement.jpg?x11217"
+                    // alt="Big Buck Bunny"
+                    objectFit="contain"
+                    sx={{
+                        aspectRatio: "959/516",
+                    }}
+                /> */}
 
-            <FancyCard>
-                {" "}
-                <Stack spacing={5}>
-                    <Box
-                        as="video"
-                        controls
-                        src="tutorial/video_main.mp4"
-                        // poster="https://peach.blender.org/wp-content/uploads/title_anouncement.jpg?x11217"
-                        // alt="Big Buck Bunny"
-                        objectFit="contain"
-                        sx={{
-                            aspectRatio: "959/516",
-                        }}
-                    />
-                    <Heading fontSize="2xl" textAlign="center">
-                        {" "}
-                        Watch the video tutorial, or read below for a pictorial
-                        guide.
-                    </Heading>
-                </Stack>
-            </FancyCard>
-            <FancyCard
-                content="Select and rank your courses in the Rank Classes page. Then, copy the URL given by the website in 'Export link'."
-                header="Step 1"
-                src="tutorial/1.png"
-            ></FancyCard>
-            <FancyCard
-                content="Open the Select Tutorials / Labs popup on Edurec."
-                header="Step 2"
-                src="tutorial/2.png"
-            ></FancyCard>
-            <FancyCard
-                content="Open the extension, paste in the URL and click on 'Auto-select'. The extension will automatically select the courses for you."
-                header="Step 3"
-                src="tutorial/3.png"
-            ></FancyCard>
-            <FancyCard
-                content="You should see a success message. Close the popup and go to step 5. If you see an error, try clicking the button again. If it persists, contact the developer at https://t.me/+sbR6NJfo7axkNWE1"
-                header="Step 4"
-                src="tutorial/4.png"
-            ></FancyCard>
-            <FancyCard
-                content="Open the Rank Tutorials / Labs popup on Edurec."
-                header="Step 5"
-                src="tutorial/5.png"
-            ></FancyCard>
-            <FancyCard
-                content="Open the extension, paste in the URL again and click on 'Auto-rank'. The extension will automatically rank the courses for you."
-                header="Step 6"
-                src="tutorial/6.png"
-            ></FancyCard>
-            <FancyCard
-                content="You should see a success message. Close the popup check that your classes are in the correct order If you see an error, try clicking the button again. If it persists, contact the developer at https://t.me/+sbR6NJfo7axkNWE1"
-                header="Step 7"
-                src="tutorial/7.png"
-            ></FancyCard>
+                <AspectRatio ratio={16 / 9}>
+                    <iframe
+                        width="560"
+                        height="315"
+                        src="https://www.youtube.com/embed/NCb4QdqYO88"
+                        title="YouTube video player"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        allowFullScreen
+                    ></iframe>
+                </AspectRatio>
+                <Heading fontSize="2xl" textAlign="center">
+                    {" "}
+                    Watch the video tutorial, or read below for a pictorial
+                    guide.
+                </Heading>
+            </Stack>
+            <Stepper index={activeStep} orientation="vertical">
+                <Box w="100%">
+                    <Step>
+                        <StepIndicator>
+                            <StepStatus
+                                complete={<StepIcon />}
+                                incomplete={<StepNumber />}
+                                active={<StepNumber />}
+                            />
+                        </StepIndicator>
+
+                        <Box>
+                            <StepTitle>
+                                Select and rank your courses in the Rank Classes
+                                page. Then, copy the URL given by the website in
+                                'Export link'.
+                            </StepTitle>
+                            <StepDescription></StepDescription>
+
+                            <Image
+                                mt={3}
+                                objectFit="contain"
+                                w="full"
+                                src={"tutorial/1.png"}
+                            />
+                        </Box>
+
+                        <StepSeparator />
+                    </Step>
+                </Box>
+                <Step>
+                    <StepIndicator>
+                        <StepStatus
+                            complete={<StepIcon />}
+                            incomplete={<StepNumber />}
+                            active={<StepNumber />}
+                        />
+                    </StepIndicator>
+
+                    <Box>
+                        <StepTitle>
+                            Open the Select Tutorials / Labs popup on Edurec.
+                        </StepTitle>
+                        <StepDescription></StepDescription>
+                        <Image
+                            mt={3}
+                            objectFit="contain"
+                            w="full"
+                            src={"tutorial/2.png"}
+                        />
+                    </Box>
+
+                    <StepSeparator />
+                </Step>
+                <Step>
+                    <StepIndicator>
+                        <StepStatus
+                            complete={<StepIcon />}
+                            incomplete={<StepNumber />}
+                            active={<StepNumber />}
+                        />
+                    </StepIndicator>
+
+                    <Box>
+                        <StepTitle>
+                            Open the extension, paste in the URL and click on
+                            'Auto-select'. The extension will automatically
+                            select the courses for you.
+                        </StepTitle>
+                        <StepDescription></StepDescription>
+                        <Image
+                            mt={3}
+                            objectFit="contain"
+                            w="full"
+                            src={"tutorial/3.png"}
+                        />
+                    </Box>
+
+                    <StepSeparator />
+                </Step>
+                <Step>
+                    <StepIndicator>
+                        <StepStatus
+                            complete={<StepIcon />}
+                            incomplete={<StepNumber />}
+                            active={<StepNumber />}
+                        />
+                    </StepIndicator>
+
+                    <Box>
+                        <StepTitle>
+                            You should see a success message. Close the popup
+                            and go to step 5. If you see an error, try clicking
+                            the button again. If it persists, contact the
+                            developer at{" "}
+                            <Link isExternal href="https://t.me/tutreghelp">
+                                {" "}
+                                https://t.me/tutreghelp
+                            </Link>
+                        </StepTitle>
+                        <StepDescription></StepDescription>
+                        <Image
+                            mt={3}
+                            objectFit="contain"
+                            w="full"
+                            src={"tutorial/4.png"}
+                        />
+                    </Box>
+
+                    <StepSeparator />
+                </Step>
+                <Step>
+                    <StepIndicator>
+                        <StepStatus
+                            complete={<StepIcon />}
+                            incomplete={<StepNumber />}
+                            active={<StepNumber />}
+                        />
+                    </StepIndicator>
+
+                    <Box>
+                        <StepTitle>
+                            Open the Rank Tutorials / Labs popup on Edurec.
+                        </StepTitle>
+                        <StepDescription></StepDescription>
+                        <Image
+                            mt={3}
+                            objectFit="contain"
+                            w="full"
+                            src={"tutorial/5.png"}
+                        />
+                    </Box>
+
+                    <StepSeparator />
+                </Step>
+                <Step>
+                    <StepIndicator>
+                        <StepStatus
+                            complete={<StepIcon />}
+                            incomplete={<StepNumber />}
+                            active={<StepNumber />}
+                        />
+                    </StepIndicator>
+
+                    <Box>
+                        <StepTitle>
+                            Open the extension, paste in the URL again and click
+                            on 'Auto-rank'. The extension will automatically
+                            rank the courses for you.
+                        </StepTitle>
+                        <StepDescription></StepDescription>
+                        <Image
+                            mt={3}
+                            objectFit="contain"
+                            w="full"
+                            src={"tutorial/6.png"}
+                        />
+                    </Box>
+
+                    <StepSeparator />
+                </Step>
+                <Step>
+                    <StepIndicator>
+                        <StepStatus
+                            complete={<StepIcon />}
+                            incomplete={<StepNumber />}
+                            active={<StepNumber />}
+                        />
+                    </StepIndicator>
+
+                    <Box>
+                        <StepTitle>
+                            You should see a success message. Close the popup
+                            check that your classes are in the correct order If
+                            you see an error, try clicking the button again. If
+                            it persists, contact the developer at{" "}
+                            <Link isExternal href="https://t.me/tutreghelp">
+                                {" "}
+                                https://t.me/tutreghelp
+                            </Link>
+                        </StepTitle>
+                        <StepDescription></StepDescription>
+                        <Image
+                            mt={3}
+                            objectFit="contain"
+                            w="full"
+                            src={"tutorial/7.png"}
+                        />
+                    </Box>
+
+                    <StepSeparator />
+                </Step>
+            </Stepper>
         </Stack>
     );
 };

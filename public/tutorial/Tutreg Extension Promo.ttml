@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tt xml:lang="en" xmlns="http://www.w3.org/ns/ttml" xmlns:ttm="http://www.w3.org/ns/ttml#metadata" xmlns:tts="http://www.w3.org/ns/ttml#styling" xmlns:ttp="http://www.w3.org/ns/ttml#parameter" xmlns:ittp="http://www.w3.org/ns/ttml/profile/imsc1#parameter" xmlns:itts="http://www.w3.org/ns/ttml/profile/imsc1#styling" ttp:profile="http://www.w3.org/ns/ttml/profile/imsc1/text" ttp:frameRate="30" ttp:timeBase="media">
+  <head>
+    <styling>
+      <style xml:id="s0" tts:color="#000000" tts:opacity="1.00" tts:fontSize="100.000%" tts:fontFamily="Open Sans" tts:fontWeight="bold" tts:textOutline="#ffffff 1px" tts:textAlign="end"/>
+    </styling>
+    <layout>
+      <region xml:id="r0" tts:origin="0.000% 70.343%" tts:extent="100.000% 19.444%" tts:displayAlign="center"/>
+    </layout>
+  </head>
+  <body>
+    <div xml:id="d0" region="r0" style="s0">
+      <p begin="01:01:55.266" end="01:02:09.300">Note: the classes selected are different because the videos <br/>were recorded at different times.</p>
+    </div>
+  </body>
+</tt>
