@@ -691,7 +691,7 @@ const Order: NextPage = () => {
                     <Flex alignItems={"center"}>
                         <AlertIcon />
                         An older version of your ranking has been detected in
-                        the cloud (uploaded
+                        the cloud (uploaded{" "}
                         {formatTimeElapsed(new Date(alertOlder).toString())}).
                     </Flex>
                     <Flex

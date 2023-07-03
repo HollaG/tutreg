@@ -220,7 +220,7 @@ export default function Nav() {
 
                     <Flex alignItems={"center"}>
                         <Stack direction={"row"} spacing={{ base: 0, md: 2 }}>
-                            <Timer />
+                            {/* <Timer /> */}
                             <Button onClick={toggleColorMode} variant="ghost">
                                 {colorMode === "light" ? (
                                     <MoonIcon />
