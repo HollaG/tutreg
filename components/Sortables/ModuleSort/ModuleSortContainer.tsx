@@ -53,8 +53,6 @@ const ModuleSortContainer: React.FC<{ showAdditionalDetails: boolean }> = ({
         if (!initialPop) {
             setInitialPop(true);
         }
-
-        console.log("useeffect in modulesort");
     }, [data.moduleOrder, initialPop]);
 
     const dragHandler = ({

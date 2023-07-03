@@ -87,7 +87,11 @@ import NextLink from "next/link";
 import { useRouter } from "next/router";
 import Explanation from "../components/Description/Explanation";
 import { ImportResponseData } from "./api/import";
-import { generateLink, tutregToNUSMods } from "../lib/functions";
+import {
+    formatTimeElapsed,
+    generateLink,
+    tutregToNUSMods,
+} from "../lib/functions";
 
 import { GrSync } from "react-icons/gr";
 import { IconContext } from "react-icons";
@@ -328,8 +332,8 @@ const Order: NextPage = () => {
     useEffect(() => {
         classesStateReference.current = data;
     }, [data]);
-    const [alertNewer, setAlertNewer] = useState(false);
-    const [alertOlder, setAlertOlder] = useState(false);
+    const [alertNewer, setAlertNewer] = useState<number | null>();
+    const [alertOlder, setAlertOlder] = useState<number | null>();
     // Set a timeout that will fire after 15 seconds.
     // restarts the timer when the user changes again.
     useEffect(() => {
@@ -344,6 +348,7 @@ const Order: NextPage = () => {
                 SYNC_COLLECTION_NAME,
                 user.id.toString()
             );
+
             if (!alertNewer && !alertOlder) {
                 // Check if the firebase data is newer than the local data
                 // If it is, then we should alert the user that their data is behind.
@@ -355,7 +360,13 @@ const Order: NextPage = () => {
                 // On computer A: user changes more data. A is synced to Firebase and firebase is updated.
                 // On computer B: B is no longer synced to firebase (Firebase is ahead) user changes some data. This data CANNOT be uploaded.
                 const docDb = getDoc(docRef);
+
                 docDb.then((d) => {
+                    if (!d.exists()) {
+                        // user has no data in firebase
+                        uploadLocalData();
+                        return;
+                    }
                     const fireData = d.data() as ClassState;
                     // check if the latest firebase data is not the same as the last updated before the latest change
                     if (
@@ -369,10 +380,12 @@ const Order: NextPage = () => {
                             classesStateReference.current.lastUpdated
                         ) {
                             // cloud is NEWER
-                            setAlertNewer(true);
+
+                            setAlertNewer(fireData.lastUpdated);
                         } else {
                             // cloud is OLDER
-                            setAlertOlder(true);
+
+                            setAlertNewer(fireData.lastUpdated);
                         }
                     } else {
                         console.log("Data uploaded to cloud");
@@ -380,7 +393,7 @@ const Order: NextPage = () => {
                     }
                 });
             }
-        }, 2000);
+        }, 5000);
 
         return () => clearTimeout(timeout);
     }, [data, user, alertNewer, alertOlder]);
@@ -413,16 +426,17 @@ const Order: NextPage = () => {
                         cloudClassesInfo.lastUpdated >
                         classesStateReference.current.lastUpdated
                     ) {
-                        setAlertNewer(true);
+                        setAlertNewer(cloudClassesInfo.lastUpdated);
                     } else if (
                         cloudClassesInfo.lastUpdated <
                         classesStateReference.current.lastUpdated
                     ) {
                         // the data in the cloud is OLDER. Do we want to overwrite local?
-                        setAlertOlder(true);
+
+                        setAlertOlder(cloudClassesInfo.lastUpdated);
                     } else {
-                        setAlertNewer(false);
-                        setAlertOlder(false);
+                        setAlertNewer(null);
+                        setAlertOlder(null);
                     }
                 }
             }
@@ -442,8 +456,8 @@ const Order: NextPage = () => {
             dispatch(classesActions.setState(fireData));
             classesStateReference.current = fireData;
             lastLastUpdatedReference.current = fireData.lastUpdated;
-            setAlertNewer(false);
-            setAlertOlder(false);
+            setAlertNewer(null);
+            setAlertOlder(null);
         });
     };
 
@@ -455,8 +469,8 @@ const Order: NextPage = () => {
         const classesInfo = classesStateReference.current;
         const docRef = doc(fireDb, SYNC_COLLECTION_NAME, user?.id.toString());
 
-        setAlertNewer(false);
-        setAlertOlder(false);
+        setAlertNewer(null);
+        setAlertOlder(null);
         setDoc(docRef, classesInfo);
 
         // update the last updated reference
@@ -633,52 +647,73 @@ const Order: NextPage = () => {
     return (
         <>
             {alertNewer && (
-                <Alert status="warning" justifyContent={"space-between"}>
-                    <Flex>
+                <Alert
+                    status="warning"
+                    justifyContent={"space-between"}
+                    // flexWrap="wrap"
+                    alignItems={"center"}
+                >
+                    <Flex alignItems={"center"}>
                         <AlertIcon />A newer version of your ranking has been
-                        detected in the cloud.
+                        detected in the cloud (uploaded{" "}
+                        {formatTimeElapsed(new Date(alertNewer).toString())}).
                     </Flex>
-                    <Flex position="relative" right={-1} alignSelf="flex-end">
+                    <Flex
+                        minWidth={"160px"}
+                        flexWrap="wrap"
+                        justifyContent={"end"}
+                    >
                         <Button
                             size="xs"
                             colorScheme={"red"}
-                            mr={2}
                             onClick={replaceLocalData}
+                            mb={1}
                         >
-                            Download cloud changes
+                            Download cloud
                         </Button>
                         <Button
                             size="xs"
                             colorScheme={"red"}
+                            ml={2}
                             onClick={uploadLocalData}
                         >
-                            Upload local changes
+                            Upload local
                         </Button>
                     </Flex>
                 </Alert>
             )}
             {alertOlder && (
-                <Alert status="warning" justifyContent={"space-between"}>
-                    <Flex>
+                <Alert
+                    status="warning"
+                    justifyContent={"space-between"}
+                    alignItems={"center"}
+                >
+                    <Flex alignItems={"center"}>
                         <AlertIcon />
                         An older version of your ranking has been detected in
-                        the cloud.
+                        the cloud (uploaded
+                        {formatTimeElapsed(new Date(alertOlder).toString())}).
                     </Flex>
-                    <Flex position="relative" right={-1} alignSelf="flex-end">
+                    <Flex
+                        minWidth={"160px"}
+                        flexWrap="wrap"
+                        justifyContent={"end"}
+                    >
                         <Button
                             size="xs"
                             colorScheme={"red"}
-                            mr={2}
+                            mb={1}
                             onClick={replaceLocalData}
                         >
-                            Download cloud changes
+                            Download cloud
                         </Button>
                         <Button
                             size="xs"
                             colorScheme={"red"}
                             onClick={uploadLocalData}
+                            ml={2}
                         >
-                            Upload local changes
+                            Upload local
                         </Button>
                     </Flex>
                 </Alert>
