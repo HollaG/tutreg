@@ -27,7 +27,6 @@ import {
 import Timetable from "./Timetable";
 import TimetableSelectable from "./TimetableSelectable";
 
-
 const GRID_ITEM_HEIGHT_BIG = 75;
 const GRID_ITEM_HEIGHT_SMALL = 50;
 
@@ -44,10 +43,8 @@ const order = [
 const TimetableContainer: React.FC<{
     // listOfLessons: ClassDB[]
     mclt: string;
-    closeHandler: () => void
+    closeHandler: () => void;
 }> = ({ mclt, closeHandler: onClose }) => {
-    
-
     const classesList = useSelector(
         (state: RootState) => state.classesInfo.totalModuleCodeLessonTypeMap
     );
@@ -60,7 +57,7 @@ const TimetableContainer: React.FC<{
         class_: TimetableLessonEntry,
         selectedClasses: ClassOverview[]
     ) => {
-         return (
+        return (
             !!selectedClasses &&
             !!selectedClasses.find(
                 (class_2) => class_2.classNo === class_.classNo
@@ -70,13 +67,11 @@ const TimetableContainer: React.FC<{
 
     const classesForThis = classesList[mclt];
 
-
-
     const dispatch = useDispatch();
     const deselectAllHandler = () => {
         dispatch(classesActions.removeChangedClasses());
     };
-    
+
     return (
         <Container maxW={"1200px"}>
             <Flex justifyContent="right">
@@ -90,17 +85,20 @@ const TimetableContainer: React.FC<{
                     </Button>
                 </Box>
                 <Box ml={2}>
-                    <Button onClick={onClose} colorScheme="blue"> Save & close </Button>
+                    <Button onClick={onClose} colorScheme="blue">
+                        {" "}
+                        Save & close{" "}
+                    </Button>
                 </Box>
             </Flex>
-            <Timetable classesForThis={classesForThis} selectedClasses={selectedClassesMCLT[mclt]} isSelected={isSelected}/>
+            <Timetable
+                classesForThis={classesForThis}
+                selectedClasses={selectedClassesMCLT[mclt]}
+                isSelected={isSelected}
+            />
         </Container>
     );
 };
-
-
-
-
 
 // function to convert # of minutes to 24hour timing
 const convertToHours = (minutes: number) => {
@@ -117,12 +115,5 @@ const convertToMinutes = (time: string) => {
     const minutes = Number(time.slice(2, 4));
     return hours * 60 + minutes;
 };
-
-
-
-
-
-
-
 
 export default React.memo(TimetableContainer);

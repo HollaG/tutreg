@@ -79,7 +79,7 @@ import { sendPOST } from "../lib/fetcher";
 import { ModuleCondensed } from "../types/modules";
 import { RootState } from "../types/types";
 import { ModulesResponseData } from "./api/modules";
-import { classesActions } from "../store/classesReducer";
+import { classesActions, ClassState } from "../store/classesReducer";
 
 import { Option } from "../types/types";
 import ResultContainer from "../components/Sorted/ResultContainer";
@@ -104,9 +104,17 @@ import {
     ERROR_TOAST_OPTIONS,
     SUCCESS_TOAST_OPTIONS,
 } from "../lib/toasts.utils";
+import { fireDb } from "../firebase";
+import { deleteDoc, doc, getDoc, onSnapshot, setDoc } from "firebase/firestore";
+import { resolve } from "node:path/win32";
 const ay = process.env.NEXT_PUBLIC_AY;
+const sem = process.env.NEXT_PUBLIC_SEM;
+const SYNC_COLLECTION_NAME =
+    process.env.NEXT_PUBLIC_SYNC_COLLECTION_NAME || "userStorage";
 const Order: NextPage = () => {
     const toast = useToast();
+    const user = useSelector((state: RootState) => state.user);
+
     const [link, setLink] = useState("");
     const isError =
         !link.startsWith("https://nusmods.com/timetable/sem") && link !== "";
@@ -167,39 +175,14 @@ const Order: NextPage = () => {
         }
     }, [router.query]);
 
-    const [value, setValue] = useState("");
     const [selectedModules, setSelectedModules] = useState<Option[]>([]);
-
-    const handleInputChange = (
-        newValue: string,
-        { action }: InputActionMeta
-    ) => {
-        setValue(newValue);
-        return newValue;
-    };
 
     const handleSelectChange = (newValue: Option[]) => {
         setSelectedModules(newValue);
         setTimeout(() => {});
-        setValue(value);
     };
 
     const data = useSelector((state: RootState) => state.classesInfo);
-
-    // Workaround: Chakra Collapse does not show when showCollapse is initially true.
-    // Ref: https://github.com/chakra-ui/chakra-ui/issues/2534
-    const [hasNoModulesSelected, setHasNoModulesSelected] = useState(false);
-    useEffect(
-        () => setHasNoModulesSelected(!data.moduleOrder.length),
-        [data.moduleOrder.length]
-    );
-
-    const [hasNoClassesSelected, setHasNoClassesSelected] = useState(false);
-    useEffect(
-        () =>
-            setHasNoClassesSelected(!Object.keys(data.selectedClasses).length),
-        [data.selectedClasses]
-    );
 
     // fetch the list of modules from nusmods
     const [moduleList, setModuleList] = useState<ModuleCondensed[]>();
@@ -323,14 +306,7 @@ const Order: NextPage = () => {
         setSelectedModules([]);
     };
 
-    const removeAll = () => {
-        // setActiveStep(0);
-        dispatch(classesActions.removeAll());
-    };
-
     const [showAdditionalDetails, { toggle }] = useBoolean();
-
-    const [isLargerThan500] = useMediaQuery(["min-width: 500px"]);
 
     // Update the displayed link whenever the modules changes
     const [timetableLink, setTimetableLink] = useState("");
@@ -344,26 +320,148 @@ const Order: NextPage = () => {
         }
     }, [data]);
 
-    // const { nextStep, prevStep, setStep, reset, activeStep } = useSteps({
-    //     initialStep: 0,
-    // });
+    // the previous previous last updated time
+    // Note: Store all this data in a Ref.
+    // Refs are memory-based, so even in a callback, even if it's not recreated, we will have access to the latest data.
+    const lastLastUpdatedReference = useRef(data.lastUpdated);
+    const classesStateReference = useRef(data);
+    useEffect(() => {
+        classesStateReference.current = data;
+    }, [data]);
+    const [alertNewer, setAlertNewer] = useState(false);
+    const [alertOlder, setAlertOlder] = useState(false);
+    // Set a timeout that will fire after 15 seconds.
+    // restarts the timer when the user changes again.
+    useEffect(() => {
+        if (!user) return;
+        const timeout = setTimeout(() => {
+            // update the firebase
+            // only update the cloud if the user has dismissed the alert that the data timing is behind.
+            // check if there is a sync conflict first.
 
-    // const { activeStep, setActiveStep } = useSteps({
-    //     index: 0,
-    //     count: 3,
-    // });
+            const docRef = doc(
+                fireDb,
+                SYNC_COLLECTION_NAME,
+                user.id.toString()
+            );
+            if (!alertNewer && !alertOlder) {
+                // Check if the firebase data is newer than the local data
+                // If it is, then we should alert the user that their data is behind.
+                // If it isn't, then we can just overwrite.
 
-    // const clickedStepHandler = (step: number) => {
-    //     if (step === 0) {
-    //         setActiveStep(0);
-    //     }
-    //     if (step === 1 && !hasNoModulesSelected) {
-    //         setActiveStep(1);
-    //     }
-    //     if (step === 2 && !hasNoClassesSelected) {
-    //         setActiveStep(2);
-    //     }
-    // };
+                // Consider this scenario
+                // On computer A: user changes some data. A is synced to Firebase.
+                // On computer B: user downloads the data. B is synced to Firebase.
+                // On computer A: user changes more data. A is synced to Firebase and firebase is updated.
+                // On computer B: B is no longer synced to firebase (Firebase is ahead) user changes some data. This data CANNOT be uploaded.
+                const docDb = getDoc(docRef);
+                docDb.then((d) => {
+                    const fireData = d.data() as ClassState;
+                    // check if the latest firebase data is not the same as the last updated before the latest change
+                    if (
+                        fireData.lastUpdated !==
+                        lastLastUpdatedReference.current
+                    ) {
+                        // alert error
+                        // sync conflict!
+                        if (
+                            fireData.lastUpdated >
+                            classesStateReference.current.lastUpdated
+                        ) {
+                            // cloud is NEWER
+                            setAlertNewer(true);
+                        } else {
+                            // cloud is OLDER
+                            setAlertOlder(true);
+                        }
+                    } else {
+                        console.log("Data uploaded to cloud");
+                        uploadLocalData();
+                    }
+                });
+            }
+        }, 2000);
+
+        return () => clearTimeout(timeout);
+    }, [data, user, alertNewer, alertOlder]);
+
+    // When the user loads the page, check to see if they have newer data in Firebase.
+    useEffect(() => {
+        // only if they're logged in
+        if (!user) return;
+        const docRef = doc(fireDb, SYNC_COLLECTION_NAME, user.id.toString());
+        // try to get the doc
+        const docData = getDoc(docRef);
+        docData.then((d) => {
+            if (!d.exists()) {
+                // the data doesn't exist in the state, copy over the data from the redux store
+                // const classesInfo = classesStateReference.current;
+                // setDoc(docRef, classesInfo);
+            } else {
+                const cloudClassesInfo = d.data() as ClassState;
+
+                // if AY and SEM are different, delete the data.
+                if (
+                    cloudClassesInfo.AY !== ay ||
+                    cloudClassesInfo.SEM !== sem
+                ) {
+                    deleteDoc(docRef);
+                    return;
+                } else {
+                    // if the data in the server is NEWER, check if the user wants to overwrite local data.
+                    if (
+                        cloudClassesInfo.lastUpdated >
+                        classesStateReference.current.lastUpdated
+                    ) {
+                        setAlertNewer(true);
+                    } else if (
+                        cloudClassesInfo.lastUpdated <
+                        classesStateReference.current.lastUpdated
+                    ) {
+                        // the data in the cloud is OLDER. Do we want to overwrite local?
+                        setAlertOlder(true);
+                    } else {
+                        setAlertNewer(false);
+                        setAlertOlder(false);
+                    }
+                }
+            }
+        });
+    }, [user]);
+
+    /**
+     * The user decides to replace local data with that in Firebase.
+     */
+    const replaceLocalData = () => {
+        if (!user) return;
+        const docRef = doc(fireDb, SYNC_COLLECTION_NAME, user.id.toString());
+        const docData = getDoc(docRef);
+
+        docData.then((d) => {
+            const fireData = d.data() as ClassState;
+            dispatch(classesActions.setState(fireData));
+            classesStateReference.current = fireData;
+            lastLastUpdatedReference.current = fireData.lastUpdated;
+            setAlertNewer(false);
+            setAlertOlder(false);
+        });
+    };
+
+    /**
+     * The user decides to upload local data to the cloud, overriding any data in it.
+     */
+    const uploadLocalData = () => {
+        if (!user) return;
+        const classesInfo = classesStateReference.current;
+        const docRef = doc(fireDb, SYNC_COLLECTION_NAME, user?.id.toString());
+
+        setAlertNewer(false);
+        setAlertOlder(false);
+        setDoc(docRef, classesInfo);
+
+        // update the last updated reference
+        lastLastUpdatedReference.current = classesInfo.lastUpdated;
+    };
 
     const steps = [
         {
@@ -534,15 +632,57 @@ const Order: NextPage = () => {
 
     return (
         <>
-            {/* <Center mb={5}>
-                {" "}
-                <Heading> 🥇 Rank your classes</Heading>
-            </Center>
-            <Center w="100%">
-                <Box maxWidth="400px">
-                    <Image src={OrderImage} />
-                </Box>
-            </Center> */}
+            {alertNewer && (
+                <Alert status="warning" justifyContent={"space-between"}>
+                    <Flex>
+                        <AlertIcon />A newer version of your ranking has been
+                        detected in the cloud.
+                    </Flex>
+                    <Flex position="relative" right={-1} alignSelf="flex-end">
+                        <Button
+                            size="xs"
+                            colorScheme={"red"}
+                            mr={2}
+                            onClick={replaceLocalData}
+                        >
+                            Download cloud changes
+                        </Button>
+                        <Button
+                            size="xs"
+                            colorScheme={"red"}
+                            onClick={uploadLocalData}
+                        >
+                            Upload local changes
+                        </Button>
+                    </Flex>
+                </Alert>
+            )}
+            {alertOlder && (
+                <Alert status="warning" justifyContent={"space-between"}>
+                    <Flex>
+                        <AlertIcon />
+                        An older version of your ranking has been detected in
+                        the cloud.
+                    </Flex>
+                    <Flex position="relative" right={-1} alignSelf="flex-end">
+                        <Button
+                            size="xs"
+                            colorScheme={"red"}
+                            mr={2}
+                            onClick={replaceLocalData}
+                        >
+                            Download cloud changes
+                        </Button>
+                        <Button
+                            size="xs"
+                            colorScheme={"red"}
+                            onClick={uploadLocalData}
+                        >
+                            Upload local changes
+                        </Button>
+                    </Flex>
+                </Alert>
+            )}
             <CTA_GENERAL
                 title="🥇 Rank your classes"
                 description="Not sure how to rank your classes for Tutorial Registration? Use this tool to generate the most optimal ranking for you, based on your preferences!"

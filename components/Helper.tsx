@@ -4,12 +4,12 @@ import { useDispatch } from "react-redux";
 import { classesActions } from "../store/classesReducer";
 
 const Helper = () => {
-    const router = useRouter();
+    // const router = useRouter();
 
-    const dispatch = useDispatch();
-    useEffect(() => {
-        dispatch(classesActions.removeChangedClasses());
-    }, [router.pathname, dispatch]);
+    // const dispatch = useDispatch();
+    // useEffect(() => {
+    //     dispatch(classesActions.removeChangedClasses());
+    // }, [router.pathname, dispatch]);
     return <></>;
 };
 

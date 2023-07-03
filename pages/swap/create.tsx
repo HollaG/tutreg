@@ -257,9 +257,6 @@ const Step1: React.FC<{
         else return "";
     };
 
-    const currentlySelectedClass = useSelector(
-        (state: RootState) => state.classesInfo.changedClasses
-    );
     return (
         <Stack spacing={3} width="100%">
             <Center>

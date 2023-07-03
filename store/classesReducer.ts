@@ -6,6 +6,9 @@ import { Data } from "../pages/api/import";
 import { TimetableLessonEntry } from "../types/timetable";
 import { ModuleCodeLessonType, ClassOverview } from "../types/types";
 
+const AY = process.env.NEXT_PUBLIC_AY || "";
+const SEM = process.env.NEXT_PUBLIC_SEM || "";
+
 const loadState = () => {
     try {
         const serializedState = localStorage.getItem("classesInfo");
@@ -44,6 +47,12 @@ export interface ClassState extends Data {
     // };
 
     colorMap: (string | null)[];
+
+    // new Date().getTime().getTime()
+    lastUpdated: number;
+
+    AY: string;
+    SEM: string;
 }
 
 const init: ClassState = {
@@ -55,6 +64,10 @@ const init: ClassState = {
     disabledClasses: [],
     unmodifyableClasses: [],
     colorMap: [],
+    lastUpdated: new Date().getTime(),
+
+    AY,
+    SEM,
 };
 const initialState: ClassState = { ...init, ...loadState() };
 
@@ -98,6 +111,10 @@ const classesSlice = createSlice({
                 unmodifyableClasses: [],
                 // colorMap: {},
                 colorMap: Object.keys(selectedBiddableClasses),
+                lastUpdated: new Date().getTime(),
+
+                AY,
+                SEM,
             };
 
             state.selectedClasses = selectedBiddableClasses;
@@ -116,6 +133,7 @@ const classesSlice = createSlice({
             return {
                 ...state,
                 moduleOrder: action.payload,
+                lastUpdated: new Date().getTime(),
             };
         },
         addModules(state, action: PayloadAction<string[]>) {
@@ -135,6 +153,7 @@ const classesSlice = createSlice({
                 ...state,
                 moduleOrder: [...state.moduleOrder, ...action.payload],
                 colorMap: newColorMap,
+                lastUpdated: new Date().getTime(),
             };
         },
 
@@ -178,6 +197,9 @@ const classesSlice = createSlice({
                 unmodifyableClasses: [...state.unmodifyableClasses],
                 // colorMap: { ...state.colorMap },
                 colorMap: newColorMap,
+                lastUpdated: new Date().getTime(),
+                AY,
+                SEM,
             };
         },
         addAvailableClasses(
@@ -190,6 +212,7 @@ const classesSlice = createSlice({
                     ...state.totalModuleCodeLessonTypeMap,
                     ...action.payload,
                 },
+                lastUpdated: new Date().getTime(),
             };
         },
 
@@ -221,6 +244,7 @@ const classesSlice = createSlice({
                         selectedClass,
                     ],
                 },
+                lastUpdated: new Date().getTime(),
             };
         },
 
@@ -258,6 +282,7 @@ const classesSlice = createSlice({
                 return {
                     ...state,
                     selectedClasses: newState,
+                    lastUpdated: new Date().getTime(),
                     // colorMap: newColorMap,
                 };
             }
@@ -276,6 +301,7 @@ const classesSlice = createSlice({
                     [action.payload.moduleCodeLessonType]:
                         action.payload.newOrder,
                 },
+                lastUpdated: new Date().getTime(),
             };
         },
         removeAll(state) {
@@ -288,6 +314,9 @@ const classesSlice = createSlice({
                 disabledClasses: [],
                 unmodifyableClasses: [],
                 colorMap: [],
+                lastUpdated: new Date().getTime(),
+                AY,
+                SEM,
                 // colorMap: {},
             };
         },
@@ -314,6 +343,7 @@ const classesSlice = createSlice({
                         ...state.changedClasses,
                         action.payload.class_.classNo,
                     ],
+                    lastUpdated: new Date().getTime(),
                 };
             } else {
                 // remove
@@ -322,6 +352,7 @@ const classesSlice = createSlice({
                     changedClasses: state.changedClasses.filter(
                         (classNo) => classNo !== action.payload.class_.classNo
                     ),
+                    lastUpdated: new Date().getTime(),
                 };
             }
         },
@@ -340,11 +371,13 @@ const classesSlice = createSlice({
                 return {
                     ...state,
                     changedClasses: [class_.classNo],
+                    lastUpdated: new Date().getTime(),
                 };
             } else {
                 return {
                     ...state,
                     changedClasses: [],
+                    lastUpdated: new Date().getTime(),
                 };
             }
         },
@@ -354,6 +387,7 @@ const classesSlice = createSlice({
             return {
                 ...state,
                 changedClasses: [],
+                lastUpdated: new Date().getTime(),
             };
         },
         updateMainList(state, action: PayloadAction<string>) {
@@ -378,6 +412,7 @@ const classesSlice = createSlice({
                         [moduleCodeLessonType]: selectedClassesForCode,
                     },
                     changedClasses: [],
+                    lastUpdated: new Date().getTime(),
                 };
             } else {
                 const newState = {
@@ -386,6 +421,7 @@ const classesSlice = createSlice({
                         ...state.selectedClasses,
                     },
                     changedClasses: [],
+                    lastUpdated: new Date().getTime(),
                 };
                 delete newState.selectedClasses[moduleCodeLessonType];
                 return newState;
