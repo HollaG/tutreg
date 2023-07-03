@@ -124,7 +124,7 @@ const Extension: NextPage = () => {
                             <StepTitle>
                                 Select and rank your courses in the Rank Classes
                                 page. Then, copy the URL given by the website in
-                                'Export link'.
+                                &apos;Export link&apos;.
                             </StepTitle>
                             <StepDescription></StepDescription>
 
@@ -175,8 +175,8 @@ const Extension: NextPage = () => {
                     <Box>
                         <StepTitle>
                             Open the extension, paste in the URL and click on
-                            'Auto-select'. The extension will automatically
-                            select the courses for you.
+                            &apos;Auto-select&apos;. The extension will
+                            automatically select the courses for you.
                         </StepTitle>
                         <StepDescription></StepDescription>
                         <Image
@@ -256,8 +256,8 @@ const Extension: NextPage = () => {
                     <Box>
                         <StepTitle>
                             Open the extension, paste in the URL again and click
-                            on 'Auto-rank'. The extension will automatically
-                            rank the courses for you.
+                            on &apos;Auto-rank&apos;. The extension will
+                            automatically rank the courses for you.
                         </StepTitle>
                         <StepDescription></StepDescription>
                         <Image
