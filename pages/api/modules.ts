@@ -31,7 +31,7 @@ export default async function handler(
         for (const module_ of modules) {
             const moduleCode = module_.moduleCode;
             const moduleExists = await executeQuery({
-                query: `SELECT * FROM modulelist LEFT JOIN classlist ON modulelist.moduleCode = classlist.moduleCode WHERE modulelist.moduleCode = ? AND modulelist.lastUpdated > DATE_SUB(NOW(), INTERVAL 1 DAY);`,
+                query: `SELECT * FROM modulelist LEFT JOIN classlist ON modulelist.moduleCode = classlist.moduleCode WHERE modulelist.moduleCode = ? AND modulelist.lastUpdated > DATE_SUB(NOW(), INTERVAL 10 MINUTE);`,
                 values: [module_.moduleCode],
             });
 
