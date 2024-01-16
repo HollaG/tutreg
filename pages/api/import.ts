@@ -104,7 +104,7 @@ export default async function handler(
             for (const { moduleCode } of classesSelected) {
                 console.log(`Running loop for ${moduleCode}`);
                 const moduleData: ModuleDB[] = await executeQuery({
-                    query: `SELECT * FROM modulelist WHERE moduleCode = ? AND lastUpdated > DATE_SUB(NOW(), INTERVAL 2 HOUR)`,
+                    query: `SELECT * FROM modulelist WHERE moduleCode = ? AND lastUpdated > DATE_SUB(NOW(), INTERVAL 10 MINUTE)`,
                     values: [moduleCode],
                 });
 
