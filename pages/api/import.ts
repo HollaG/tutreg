@@ -66,10 +66,22 @@ export default async function handler(
                 };
             }[] = [];
 
+            // check if there's any hidden modules (by hidden key)
+            let hiddenModules: string[] = [];
+            if (params.has("hidden")) {
+                hiddenModules = params.get("hidden")!.split(",");
+                params.delete("hidden");
+            }
+
             for (const p of params) {
                 // p: [moduleCode, selectedLessons]
                 const moduleCode = p[0];
                 const selectedLessons = p[1];
+
+                // skip over this if the module is hidden
+                if (hiddenModules.includes(moduleCode)) {
+                    continue;
+                }
 
                 const lessons = selectedLessons.split(",");
 
