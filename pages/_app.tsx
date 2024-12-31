@@ -24,6 +24,7 @@ import Helper from "../components/Helper";
 import "@fontsource/lexend";
 import "@fontsource/inter";
 import theme from "../theme/theme";
+import Script from "next/script";
 
 function MyApp({ Component, pageProps }: AppProps) {
     return (
@@ -163,6 +164,19 @@ function MyApp({ Component, pageProps }: AppProps) {
             </Head>
             <DndContext>
                 <Provider store={store}>
+                    <Script
+                        src="https://www.googletagmanager.com/gtag/js?id=G-9RW9HSMN26"
+                        strategy="afterInteractive"
+                    />
+                    <Script id="google-analytics" strategy="afterInteractive">
+                        {`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){window.dataLayer.push(arguments);}
+          gtag('js', new Date());
+
+          gtag('config', 'G-9RW9HSMN26');
+        `}
+                    </Script>
                     <Flex minHeight="100%" flexDirection="column">
                         <Nav />
                         <Container
