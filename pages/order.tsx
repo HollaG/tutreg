@@ -121,7 +121,7 @@ const Order: NextPage = () => {
 
     const [link, setLink] = useState("");
     const isError =
-        !link.startsWith("https://nusmods.com/timetable/sem") && link !== "";
+        !link.startsWith("https://nusmods.com/timetable/sem") && !link.includes('shorten.nusmods.com') && link !== "";
 
     const [isSubmitting, setIsSubmitting] = useState(false);
     const handleSubmit = async (e: React.FormEvent) => {
@@ -771,7 +771,7 @@ const Order: NextPage = () => {
                                             >
                                                 <Box mr={3} flexGrow={1}>
                                                     <Input
-                                                        placeholder="https://nusmods.com/timetable/sem-1/share?..."
+                                                        placeholder="https://shorten.nusmods.com/?... OR https://nusmods.com/timetable/sem-1/share?..."
                                                         value={link}
                                                         onChange={(e) =>
                                                             setLink(

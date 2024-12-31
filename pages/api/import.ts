@@ -24,7 +24,7 @@ export default async function handler(
 ) {
     try {
         if (req.method === "POST") {
-            const { url } = req.body;
+            let { url } = req.body;
 
             // validate URL
             if (!url) {
@@ -34,6 +34,27 @@ export default async function handler(
                 });
                 return;
             }
+
+            if (url.includes("shorten.nusmods.com")) {
+                // if URL is a short URL, make a fetch request to get the actual url
+                const response = await fetch(url, {
+                    method: "GET",
+                    redirect: "manual", // Prevent auto-following redirects
+                });
+
+                if (response.status === 302 || response.status === 301) {
+                    url = response.headers.get("Location"); // Get redirected URL
+
+                } else {
+                    console.error("No redirection occurred.");
+                    return res.status(400).json({
+                        success: false,
+                        error: "Invalid URL! Please check the URL and try again.",
+                    });
+                }
+            }
+
+
 
             if (
                 !url.startsWith("https://nusmods.com/timetable/sem-1/share?") &&
