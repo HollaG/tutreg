@@ -94,6 +94,17 @@ export default async function handler(
                 params.delete("hidden");
             }
 
+            // check if there's any TA modules (by ta key)
+            let taModules: string[] = [];
+            if (params.has("ta")) {
+                taModules = params.get("ta")!.split(",");
+                params.delete("ta");
+
+                console.log("INFO:: HAS TA")
+                console.log(taModules)
+
+            }
+
             for (const p of params) {
                 // p: [moduleCode, selectedLessons]
                 const moduleCode = p[0];
@@ -102,6 +113,11 @@ export default async function handler(
                 // skip over this if the module is hidden
                 if (hiddenModules.includes(moduleCode)) {
                     continue;
+                }
+
+                // skip over this if it's a TA module
+                if (taModules.some(taModule => taModule.includes(moduleCode))) {
+                    continue
                 }
 
                 const lessons = selectedLessons.split(",");
