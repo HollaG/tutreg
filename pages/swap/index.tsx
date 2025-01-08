@@ -7,12 +7,14 @@ import {
     TimeIcon,
 } from "@chakra-ui/icons";
 import {
+    Alert,
     AlertDialog,
     AlertDialogBody,
     AlertDialogContent,
     AlertDialogFooter,
     AlertDialogHeader,
     AlertDialogOverlay,
+    AlertIcon,
     AspectRatio,
     Avatar,
     Badge,
@@ -550,6 +552,10 @@ const Swap = (
     }, [user]);
     return (
         <Stack spacing={5} h="100%">
+            <Alert status='info'>
+                <AlertIcon />
+                The swap page will be revamped for AY25/26 Semester 1. Keep a lookout!
+            </Alert>
             <CTA_GENERAL
                 title="🤝 Swap classes with others"
                 description="Got CourseRekt? Need to swap a class? Find someone to swap with here! Create a swap request and get notified through Telegram when another person requests your class."
