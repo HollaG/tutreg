@@ -398,18 +398,38 @@ const classesSlice = createSlice({
             };
 
             const copiedChangedClasses = [...state.changedClasses];
+          
 
-            const selectedClassesForCode: ClassOverview[] =
-                copiedAvailableClasses[moduleCodeLessonType].filter((class_) =>
-                    copiedChangedClasses.includes(class_.classNo)
-                );
+            // const selectedClassesForCode: ClassOverview[] =
+            //     copiedAvailableClasses[moduleCodeLessonType].filter((class_) =>
+            //         copiedChangedClasses.includes(class_.classNo)
+            //     );
 
-            if (selectedClassesForCode[0]) {
+    
+
+            const previousOrder = [...state.selectedClasses[moduleCodeLessonType]]
+            const previousClasses = previousOrder.map(class_ => class_.classNo)
+
+            const newClasses = copiedChangedClasses.filter(classNo => !previousClasses.includes(classNo))
+
+            // only keep classes that were not removed
+            const newOrderWithRemovedClasses = previousOrder.filter(
+                (class_) => copiedChangedClasses.includes(class_.classNo)
+            );
+    
+            // add the new classes at the end
+            const newClassesSelected: ClassOverview[] = copiedAvailableClasses[moduleCodeLessonType].filter((class_) => newClasses.includes(class_.classNo));
+            const newOrderWithAddedClasses = [
+                ...newOrderWithRemovedClasses,
+                ...newClassesSelected
+            ];
+
+            if (newOrderWithAddedClasses[0]) {
                 return {
                     ...state,
                     selectedClasses: {
                         ...state.selectedClasses,
-                        [moduleCodeLessonType]: selectedClassesForCode,
+                        [moduleCodeLessonType]: newOrderWithAddedClasses,
                     },
                     changedClasses: [],
                     lastUpdated: new Date().getTime(),
