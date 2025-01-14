@@ -398,16 +398,8 @@ const classesSlice = createSlice({
             };
 
             const copiedChangedClasses = [...state.changedClasses];
-          
-
-            // const selectedClassesForCode: ClassOverview[] =
-            //     copiedAvailableClasses[moduleCodeLessonType].filter((class_) =>
-            //         copiedChangedClasses.includes(class_.classNo)
-            //     );
-
-    
-
-            const previousOrder = [...state.selectedClasses[moduleCodeLessonType]]
+        
+            const previousOrder = state.selectedClasses[moduleCodeLessonType] ? [...state.selectedClasses[moduleCodeLessonType]] : []
             const previousClasses = previousOrder.map(class_ => class_.classNo)
 
             const newClasses = copiedChangedClasses.filter(classNo => !previousClasses.includes(classNo))
