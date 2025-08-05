@@ -202,7 +202,7 @@ const ResultContainer: React.FC<{
                 <Box>
                     <Tooltip
                         hasArrow
-                        label="When unlocked, you can make changes to your final class priority, if you don't like how the system calculated the ranking."
+                        label="When unlocked, you can make changes to your final class priority, if you don't like how the system calculated the ranking. NOTE: new classes added will not be reflected in the ranking when unlocked."
                         textAlign="center"
                     >
                         <Button size="sm" onClick={() => toggleDecouple()}>
@@ -278,7 +278,7 @@ const ResultContainer: React.FC<{
                                             {value.moduleCode}{" "}
                                             {encodeLessonTypeToShorthand(
                                                 (value.lessonType as keyof LessonTypeAbbrevMap) ||
-                                                    ""
+                                                ""
                                             )}{" "}
                                             [{value.classNo}]
                                         </Text>
