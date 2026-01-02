@@ -80,6 +80,8 @@ export default async function handler(
             // get the url params
             const params = new URLSearchParams(stripped);
 
+            console.log("PARAMS: ", params);
+
             const classesSelected: {
                 moduleCode: string;
                 timetable: {
@@ -105,10 +107,15 @@ export default async function handler(
 
             }
 
+            let ay = process.env.NEXT_PUBLIC_AY;
+			let sem = process.env.NEXT_PUBLIC_SEM;
+
             for (const p of params) {
                 // p: [moduleCode, selectedLessons]
                 const moduleCode = p[0];
                 const selectedLessons = p[1];
+                console.log("moduleCode: ", moduleCode);
+                console.log("selectedLessons: ", selectedLessons);
 
                 // skip over this if the module is hidden
                 if (hiddenModules.includes(moduleCode)) {
@@ -120,20 +127,50 @@ export default async function handler(
                     continue
                 }
 
-                const lessons = selectedLessons.split(",");
+                const lessons = selectedLessons.split(";");
+                console.log("lessons: ", lessons);
 
                 const timetable: { [key: string]: string } = {};
-                lessons.forEach((lesson) => {
+                lessons.forEach(async (lesson) => {
                     if (lesson.includes(":")) {
                         let lessonType = lesson.split(
                             ":"
                         )[0] as LessonTypeAbbrev;
 
-                        const classNo = lesson.split(":")[1];
+                        const classIndicesStr: string = lesson.split(":")[1];
+                        const classIndices = getIndicesFromString(classIndicesStr)
+                        console.log("classIndices: ", classIndices);
+
+                        // Get classNo from API
+                        const result = await fetch(
+                          `https://api.nusmods.com/v2/${ay}/modules/${moduleCode}.json`
+                        );
+
+                        const data = await result.json();
+						console.log("DATA.semesterData:\n", data.semesterData);
+
+						const array = getSemesterTimetable(data, sem);
+
+						const classNos = new Set<string>;
+
+						for (const classIndex of classIndices) {
+							const classNo = array[classIndex].classNo;
+							classNos.add(classNo);
+						}
+
+						if (classNos.size != 1) {
+							// TODO: ask marcus how he wants to handle diff class numbers being selected
+							return res.status(400).json({
+								success: false,
+								error: "Invalid URL! Please check the URL and try again.",
+							});
+						}
+
+						const classNosArray = [... classNos];
 
                         const decodedLessonType =
                             decodeLessonTypeShorthand(lessonType);
-                        timetable[decodedLessonType] = classNo;
+                        timetable[decodedLessonType] = classNosArray[0];
                     }
                 });
 
@@ -148,7 +185,6 @@ export default async function handler(
             );
 
             // check if the system has up to date (1 day old or less) data for the semester and module codes for this AY
-            let ay = process.env.NEXT_PUBLIC_AY;
 
             for (const { moduleCode } of classesSelected) {
                 console.log(`Running loop for ${moduleCode}`);
@@ -364,3 +400,25 @@ export default async function handler(
         console.log(e);
     }
 }
+
+function getIndicesFromString(classIndicesStr: string) : number[] {
+
+	if (classIndicesStr.length <= 2) {
+		return [];
+	}
+
+	classIndicesStr = classIndicesStr.slice(1, -1);
+
+	return classIndicesStr.split(",").map((classIndexString) => Number(classIndexString));
+
+}
+
+function getSemesterTimetable(data: any, sem: string | undefined) {
+	const semNum = Number(sem);
+	for (let semesterData of data.semesterData) {
+		if (semesterData.semester == semNum) {
+			return semesterData.timetable;
+		}
+	}
+}
+
