@@ -80,8 +80,6 @@ export default async function handler(
             // get the url params
             const params = new URLSearchParams(stripped);
 
-            console.log("PARAMS: ", params);
-
             const classesSelected: {
                 moduleCode: string;
                 timetable: {
@@ -114,8 +112,6 @@ export default async function handler(
                 // p: [moduleCode, selectedLessons]
                 const moduleCode = p[0];
                 const selectedLessons = p[1];
-                console.log("moduleCode: ", moduleCode);
-                console.log("selectedLessons: ", selectedLessons);
 
                 // skip over this if the module is hidden
                 if (hiddenModules.includes(moduleCode)) {
@@ -128,7 +124,6 @@ export default async function handler(
                 }
 
                 const lessons = selectedLessons.split(";");
-                console.log("lessons: ", lessons);
 
                 const timetable: { [key: string]: string } = {};
                 lessons.forEach(async (lesson) => {
@@ -139,7 +134,6 @@ export default async function handler(
 
                         const classIndicesStr: string = lesson.split(":")[1];
                         const classIndices = getIndicesFromString(classIndicesStr)
-                        console.log("classIndices: ", classIndices);
 
                         // Get classNo from API
                         const result = await fetch(
@@ -147,7 +141,6 @@ export default async function handler(
                         );
 
                         const data = await result.json();
-						console.log("DATA.semesterData:\n", data.semesterData);
 
 						const array = getSemesterTimetable(data, sem);
 
