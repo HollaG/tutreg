@@ -147,10 +147,20 @@ export default async function handler(
 						const classNos = new Set<string>;
 
 						for (const classIndex of classIndices) {
+
+							// URL is invalid if the index does not correspond to the correct lesson type
+							if (array[classIndex].lessonType != decodeLessonTypeShorthand(lessonType)) {
+								return res.status(400).json({
+									success: false,
+									error: "Invalid URL! Please re-generate URL from NUSMods and try again.",
+								});
+							}
+
 							const classNo = array[classIndex].classNo;
 							classNos.add(classNo);
 						}
 
+						// URL is invalid if indices for 1 lesson type correspond to multiple class numbers
 						if (classNos.size != 1) {
 							return res.status(400).json({
 								success: false,
