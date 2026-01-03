@@ -152,10 +152,9 @@ export default async function handler(
 						}
 
 						if (classNos.size != 1) {
-							// TODO: ask marcus how he wants to handle diff class numbers being selected
 							return res.status(400).json({
 								success: false,
-								error: "Invalid URL! Please check the URL and try again.",
+								error: "Invalid URL! Please re-generate URL from NUSMods and try again.",
 							});
 						}
 
