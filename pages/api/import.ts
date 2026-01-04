@@ -18,6 +18,10 @@ export type ImportResponseData = {
     data?: Data;
 };
 
+let ay = process.env.NEXT_PUBLIC_AY;
+let sem = process.env.NEXT_PUBLIC_SEM;
+const moduleCache = new Map<string, any>();
+
 export default async function handler(
     req: NextApiRequest,
     res: NextApiResponse<ImportResponseData>
@@ -105,9 +109,6 @@ export default async function handler(
 
             }
 
-            let ay = process.env.NEXT_PUBLIC_AY;
-			let sem = process.env.NEXT_PUBLIC_SEM;
-
             for (const p of params) {
                 // p: [moduleCode, selectedLessons]
                 const moduleCode = p[0];
@@ -126,7 +127,7 @@ export default async function handler(
                 const lessons = selectedLessons.split(";");
 
                 const timetable: { [key: string]: string } = {};
-                lessons.forEach(async (lesson) => {
+				for (const lesson of lessons) {
                     if (lesson.includes(":")) {
                         let lessonType = lesson.split(
                             ":"
@@ -135,15 +136,10 @@ export default async function handler(
                         const classIndicesStr: string = lesson.split(":")[1];
                         const classIndices = getIndicesFromString(classIndicesStr)
 
-                        // Get classNo from API
-                        const result = await fetch(
-                          `https://api.nusmods.com/v2/${ay}/modules/${moduleCode}.json`
-                        );
+                        // Get classNo
 
-                        const data = await result.json();
-
+						const data = await getModuleData(moduleCode);
 						const array = getSemesterTimetable(data, sem);
-
 						const classNos = new Set<string>;
 
 						for (const classIndex of classIndices) {
@@ -174,7 +170,8 @@ export default async function handler(
                             decodeLessonTypeShorthand(lessonType);
                         timetable[decodedLessonType] = classNosArray[0];
                     }
-                });
+
+				}
 
                 classesSelected.push({
                     moduleCode,
@@ -422,5 +419,21 @@ function getSemesterTimetable(data: any, sem: string | undefined) {
 			return semesterData.timetable;
 		}
 	}
+}
+
+async function getModuleData(moduleCode: string) {
+	if (moduleCache.has(moduleCode)) {
+		return moduleCache.get(moduleCode);
+	}	
+
+	const result = await fetch(
+		`https://api.nusmods.com/v2/${ay}/modules/${moduleCode}.json`
+	);
+
+	const data = await result.json();
+
+	moduleCache.set(moduleCode, data);
+
+	return data;
 }
 
