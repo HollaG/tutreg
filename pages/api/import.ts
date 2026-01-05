@@ -423,7 +423,12 @@ function getSemesterTimetable(data: any, sem: string | undefined) {
 
 async function getModuleData(moduleCode: string) {
 	if (moduleCache.has(moduleCode)) {
-		return moduleCache.get(moduleCode);
+		const now = Date.now();
+		if (moduleCache.get(moduleCode).expiry > now) {
+			console.log(`${moduleCode} data obtained from cache`);
+			return moduleCache.get(moduleCode).data;
+		}
+		moduleCache.delete(moduleCode);
 	}	
 
 	const result = await fetch(
@@ -432,7 +437,11 @@ async function getModuleData(moduleCode: string) {
 
 	const data = await result.json();
 
-	moduleCache.set(moduleCode, data);
+	moduleCache.set(moduleCode, {
+		data: data,
+		expiry: Date.now() + (15 * 60 * 1000)
+	});
+	console.log(`Added ${moduleCode} data to cache with expiry ${new Date(moduleCache.get(moduleCode).expiry).toString()}`)
 
 	return data;
 }
