@@ -18,6 +18,10 @@ export type ImportResponseData = {
     data?: Data;
 };
 
+let ay = process.env.NEXT_PUBLIC_AY;
+let sem = process.env.NEXT_PUBLIC_SEM;
+const moduleCache = new Map<string, any>();
+
 export default async function handler(
     req: NextApiRequest,
     res: NextApiResponse<ImportResponseData>
@@ -120,22 +124,54 @@ export default async function handler(
                     continue
                 }
 
-                const lessons = selectedLessons.split(",");
+                const lessons = selectedLessons.split(";");
 
                 const timetable: { [key: string]: string } = {};
-                lessons.forEach((lesson) => {
+				for (const lesson of lessons) {
                     if (lesson.includes(":")) {
                         let lessonType = lesson.split(
                             ":"
                         )[0] as LessonTypeAbbrev;
 
-                        const classNo = lesson.split(":")[1];
+                        const classIndicesStr: string = lesson.split(":")[1];
+                        const classIndices = getIndicesFromString(classIndicesStr)
+
+                        // Get classNo
+
+						const data = await getModuleData(moduleCode);
+						const array = getSemesterTimetable(data, sem);
+						const classNos = new Set<string>;
+
+						for (const classIndex of classIndices) {
+
+							// URL is invalid if the index does not correspond to the correct lesson type
+							if (array[classIndex].lessonType != decodeLessonTypeShorthand(lessonType)) {
+								return res.status(400).json({
+									success: false,
+									error: "Invalid URL! Please re-generate URL from NUSMods and try again.",
+								});
+							}
+
+							const classNo = array[classIndex].classNo;
+							classNos.add(classNo);
+						}
+
+						// URL is invalid if indices for 1 lesson type correspond to multiple class numbers
+						if (classNos.size != 1) {
+							return res.status(400).json({
+								success: false,
+								error: "Invalid URL! Please re-generate URL from NUSMods and try again.",
+							});
+						}
+
+						const classNosArray = [... classNos];
 
                         const decodedLessonType =
                             decodeLessonTypeShorthand(lessonType);
-                        timetable[decodedLessonType] = classNo;
+                        timetable[decodedLessonType] = classNosArray[0];
                     }
-                });
+
+				}
 
                 classesSelected.push({
                     moduleCode,
@@ -148,113 +184,86 @@ export default async function handler(
             );
 
             // check if the system has up to date (1 day old or less) data for the semester and module codes for this AY
-            let ay = process.env.NEXT_PUBLIC_AY;
 
             for (const { moduleCode } of classesSelected) {
                 console.log(`Running loop for ${moduleCode}`);
-                const moduleData: ModuleDB[] = await executeQuery({
-                    query: `SELECT * FROM modulelist WHERE moduleCode = ? AND lastUpdated > DATE_SUB(NOW(), INTERVAL 10 MINUTE)`,
-                    values: [moduleCode],
-                });
+				await executeQuery({
+					query: `DELETE FROM modulelist WHERE moduleCode = ?`,
+					values: [moduleCode],
+				});
 
-                console.log(`Found ${moduleData.length} modules`);
-                if (!moduleData.length) {
-                    // either expired or never imported
-                    // drop the module code from the list
-                    await executeQuery({
-                        query: `DELETE FROM modulelist WHERE moduleCode = ?`,
-                        values: [moduleCode],
-                    });
+				const data: Module = moduleCache.get(moduleCode).data
 
-                    console.log(
-                        `${moduleCode} expired, refreshing at ${`https://api.nusmods.com/v2/${ay}/modules/${moduleCode}.json`}`
-                    );
 
-                    // make request to NUSMods for the module data
-                    const result = await fetch(
-                        `https://api.nusmods.com/v2/${ay}/modules/${moduleCode}.json`
-                    );
+				// insert the module data into the database
+				await executeQuery({
+					query: `INSERT INTO modulelist SET ?`,
+					values: [
+						{
+							moduleCode,
+							moduleName: data.title,
+						},
+					],
+				});
 
-                    const data: Module = await result.json();
+				// insert the class data into the database
+				await executeQuery({
+					query: `DELETE FROM classlist WHERE ay = ? AND moduleCode = ?`,
+					values: [process.env.NEXT_PUBLIC_AY, moduleCode],
+				});
 
-                    if (!data) {
-                        res.status(400).json({
-                            success: false,
-                            error: "Invalid response from NUSMods! Please try again in a while.",
-                        });
-                        return;
-                    }
+				let classDataSem1: any[] = []; // TODO
 
-                    // insert the module data into the database
-                    await executeQuery({
-                        query: `INSERT INTO modulelist SET ?`,
-                        values: [
-                            {
-                                moduleCode,
-                                moduleName: data.title,
-                            },
-                        ],
-                    });
+				if (data.semesterData?.[0]?.timetable) {
+					classDataSem1 =
+						data.semesterData[0].timetable.map((classItem) => {
+							return [
+								moduleCode,
+								classItem.lessonType,
+								classItem.classNo,
+								classItem.day,
+								classItem.startTime,
+								classItem.endTime,
+								classItem.venue || "No venue",
+								classItem.size,
+								JSON.stringify(
+									formatWeeks(classItem.weeks)
+								),
+								process.env.NEXT_PUBLIC_AY,
+								data.semesterData[0].semester,
+							];
+						}) || [];
+				}
 
-                    // insert the class data into the database
-                    await executeQuery({
-                        query: `DELETE FROM classlist WHERE ay = ? AND moduleCode = ?`,
-                        values: [process.env.NEXT_PUBLIC_AY, moduleCode],
-                    });
+				let classDataSem2: any[] = []; // TODO
+				if (data.semesterData?.[1]?.timetable) {
+					classDataSem2 =
+						data.semesterData[1].timetable.map((classItem) => {
+							return [
+								moduleCode,
+								classItem.lessonType,
+								classItem.classNo,
+								classItem.day,
+								classItem.startTime,
+								classItem.endTime,
+								classItem.venue || "No venue",
+								classItem.size,
+								JSON.stringify(
+									formatWeeks(classItem.weeks)
+								),
+								process.env.NEXT_PUBLIC_AY,
+								data.semesterData[1].semester,
+							];
+						}) || [];
+				}
+				const classData = [...classDataSem1, ...classDataSem2];
 
-                    let classDataSem1: any[] = []; // TODO
-
-                    if (data.semesterData?.[0]?.timetable) {
-                        classDataSem1 =
-                            data.semesterData[0].timetable.map((classItem) => {
-                                return [
-                                    moduleCode,
-                                    classItem.lessonType,
-                                    classItem.classNo,
-                                    classItem.day,
-                                    classItem.startTime,
-                                    classItem.endTime,
-                                    classItem.venue || "No venue",
-                                    classItem.size,
-                                    JSON.stringify(
-                                        formatWeeks(classItem.weeks)
-                                    ),
-                                    process.env.NEXT_PUBLIC_AY,
-                                    data.semesterData[0].semester,
-                                ];
-                            }) || [];
-                    }
-
-                    let classDataSem2: any[] = []; // TODO
-                    if (data.semesterData?.[1]?.timetable) {
-                        classDataSem2 =
-                            data.semesterData[1].timetable.map((classItem) => {
-                                return [
-                                    moduleCode,
-                                    classItem.lessonType,
-                                    classItem.classNo,
-                                    classItem.day,
-                                    classItem.startTime,
-                                    classItem.endTime,
-                                    classItem.venue || "No venue",
-                                    classItem.size,
-                                    JSON.stringify(
-                                        formatWeeks(classItem.weeks)
-                                    ),
-                                    process.env.NEXT_PUBLIC_AY,
-                                    data.semesterData[1].semester,
-                                ];
-                            }) || [];
-                    }
-                    const classData = [...classDataSem1, ...classDataSem2];
-
-                    if (classData.length) {
-                        const result = await executeQuery({
-                            query: `INSERT INTO classlist (moduleCode, lessonType, classNo, day, startTime, endTime, venue, size, weeks, ay, semester) VALUES ?`,
-                            values: [classData],
-                        });
-                    }
-                }
+				if (classData.length) {
+					const result = await executeQuery({
+						query: `INSERT INTO classlist (moduleCode, lessonType, classNo, day, startTime, endTime, venue, size, weeks, ay, semester) VALUES ?`,
+						values: [classData],
+					});
+				}
             }
 
             const availableClassList: ModuleWithClassDB[] = await executeQuery({
@@ -364,3 +373,50 @@ export default async function handler(
         console.log(e);
     }
 }
+
+function getIndicesFromString(classIndicesStr: string) : number[] {
+
+	if (classIndicesStr.length <= 2) {
+		return [];
+	}
+
+	classIndicesStr = classIndicesStr.slice(1, -1);
+
+	return classIndicesStr.split(",").map((classIndexString) => Number(classIndexString));
+
+}
+
+function getSemesterTimetable(data: any, sem: string | undefined) {
+	const semNum = Number(sem);
+	for (let semesterData of data.semesterData) {
+		if (semesterData.semester == semNum) {
+			return semesterData.timetable;
+		}
+	}
+}
+
+async function getModuleData(moduleCode: string) {
+	if (moduleCache.has(moduleCode)) {
+		const now = Date.now();
+		if (moduleCache.get(moduleCode).expiry > now) {
+			console.log(`${moduleCode} data obtained from cache`);
+			return moduleCache.get(moduleCode).data;
+		}
+		moduleCache.delete(moduleCode);
+	}	
+
+	const result = await fetch(
+		`https://api.nusmods.com/v2/${ay}/modules/${moduleCode}.json`
+	);
+
+	const data = await result.json();
+
+	moduleCache.set(moduleCode, {
+		data: data,
+		expiry: Date.now() + (15 * 60 * 1000)
+	});
+	console.log(`Added ${moduleCode} data to cache with expiry ${new Date(moduleCache.get(moduleCode).expiry).toString()}`)
+
+	return data;
+}
+
