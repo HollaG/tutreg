@@ -575,9 +575,9 @@ const Swap = (
     }, [user]);
     return (
         <Stack spacing={5} h="100%">
-            <Alert status='info'>
+            <Alert status='success'>
                 <AlertIcon />
-                The swap page will be revamped for AY25/26 Semester 1. Keep a lookout!
+                The swap feature is now in beta testing for AY25/26 Sem 2. Do give it a try and provide feedback!
             </Alert>
             <CTA_GENERAL
                 title="🤝 Swap classes with others"

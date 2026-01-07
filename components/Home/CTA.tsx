@@ -14,6 +14,7 @@ import {
     IconProps,
     useColorModeValue,
     Kbd,
+    Tag,
 } from "@chakra-ui/react";
 
 import NextLink from "next/link";
@@ -117,6 +118,10 @@ export default function CallToAction() {
                                 colorScheme="teal"
                             >
                                 Swap Classes
+                                <Tag ml={3} style={{
+                                    background: "linear-gradient(135deg, #ffd6e7 0%, #ffe7c7 18%, #fff6bf 36%, #d9ffd6 54%, #d6f0ff 72%, #ead6ff 90%, #ffd6e7 100%)",
+                                    color: "#111"
+                                }}>NEW</Tag>
                             </Button>
                         </NextLink>
                     </Stack>
