@@ -17,6 +17,8 @@ import {
   ClassSwapRequest,
   ClassSwapRequestDB,
 } from "../../../types/types";
+import { sendTelegramAlert } from "../../../lib/botServer";
+import { UserEvent } from "../../../types/botServer";
 
 export interface RequestSwapResponseData extends Omit<BasicResponse, "data"> {
   data?: any;
@@ -121,6 +123,13 @@ export default async function handler(
           success: true,
           data: "Your request has been sent!",
         });
+
+        sendTelegramAlert(
+          UserEvent.SWAP_REQUESTED,
+          Number(userId),
+          Number(swapId),
+          user[0].first_name
+        );
       } else {
         // not yet
 
@@ -153,6 +162,12 @@ export default async function handler(
             success: true,
             data: "Your request has been sent!",
           });
+          sendTelegramAlert(
+            UserEvent.SWAP_REQUESTED,
+            Number(userId),
+            Number(swapId),
+            user[0].first_name
+          );
         } else {
           // this user has requested something before
           // check if this user's request is the same (aka he clicked the button twice, lol)
