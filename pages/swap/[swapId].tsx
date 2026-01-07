@@ -99,6 +99,7 @@ export const getServerSideProps: GetServerSideProps<{
     const res = await fetch(`${ROOT_URL}api/swap/${swapId}`);
     const data: GetSwapClassesData = (await res.json()).data;
 
+
     const userData = await sendPOST(`${ROOT_URL}api/swap/${swapId}`, {});
     const safeUsers = userData.data;
 
@@ -189,52 +190,52 @@ const SpecificSwap = (
     };
 
     const liveRequestSwap = () =>
-        // moduleCode: string,
-        // lessonType: LessonType,
-        // classNo: string
-        {
-            if (!user)
-                return toast({
-                    title: "Error",
-                    description: "You are not logged in",
-                    ...ERROR_TOAST_OPTIONS,
-                });
-            if (!userRequest)
-                return toast({
-                    title: "Error",
-                    description: "You have not selected a class",
-                    ...ERROR_TOAST_OPTIONS,
-                });
+    // moduleCode: string,
+    // lessonType: LessonType,
+    // classNo: string
+    {
+        if (!user)
+            return toast({
+                title: "Error",
+                description: "You are not logged in",
+                ...ERROR_TOAST_OPTIONS,
+            });
+        if (!userRequest)
+            return toast({
+                title: "Error",
+                description: "You have not selected a class",
+                ...ERROR_TOAST_OPTIONS,
+            });
 
-            // send an api request to backend
-            sendPOST(`/api/swap/request-specific`, {
-                swapId,
-                moduleCode: userRequest.moduleCode,
-                lessonType: userRequest.lessonType,
-                classNo: userRequest.classNo,
-                userId: user.id,
-                hash: user.hash,
+        // send an api request to backend
+        sendPOST(`/api/swap/request-specific`, {
+            swapId,
+            moduleCode: userRequest.moduleCode,
+            lessonType: userRequest.lessonType,
+            classNo: userRequest.classNo,
+            userId: user.id,
+            hash: user.hash,
+        })
+            .then((res) => {
+                if (res.success) {
+                    toast({
+                        title: "Success",
+                        description: res.data,
+                        ...SUCCESS_TOAST_OPTIONS,
+                    });
+                } else {
+                    toast({
+                        title: "Error",
+                        description: res.error,
+                        ...ERROR_TOAST_OPTIONS,
+                    });
+                }
             })
-                .then((res) => {
-                    if (res.success) {
-                        toast({
-                            title: "Success",
-                            description: res.data,
-                            ...SUCCESS_TOAST_OPTIONS,
-                        });
-                    } else {
-                        toast({
-                            title: "Error",
-                            description: res.error,
-                            ...ERROR_TOAST_OPTIONS,
-                        });
-                    }
-                })
-                .finally(() => {
-                    onClose();
-                    setUserRequest(null);
-                });
-        };
+            .finally(() => {
+                onClose();
+                setUserRequest(null);
+            });
+    };
 
     // Handle live updates of people who selected
     // note: telegram user ID is exposed, but this is OK. https://www.reddit.com/r/Telegram/comments/cmw9eh/how_do_i_look_up_a_user_via_their_telegram_id/
@@ -326,12 +327,12 @@ const SpecificSwap = (
                 setSwapData((prev) =>
                     prev
                         ? {
-                              ...prev,
-                              swap: {
-                                  ...prev.swap,
-                                  status: "Completed",
-                              },
-                          }
+                            ...prev,
+                            swap: {
+                                ...prev.swap,
+                                status: "Completed",
+                            },
+                        }
                         : undefined
                 );
             } else {
@@ -450,20 +451,19 @@ const SpecificSwap = (
                                                                 }
                                                                 flex={1}
                                                                 isExternal
-                                                                href={`https://t.me/${
-                                                                    userRepliesObj[
-                                                                        r
-                                                                            .requestorId
-                                                                    ]
-                                                                        ?.username ||
+                                                                href={`https://t.me/${userRepliesObj[
+                                                                    r
+                                                                        .requestorId
+                                                                ]
+                                                                    ?.username ||
                                                                     ""
-                                                                }`}
+                                                                    }`}
                                                             >
                                                                 <UserDisplay
                                                                     user={
                                                                         userRepliesObj[
-                                                                            r
-                                                                                .requestorId
+                                                                        r
+                                                                            .requestorId
                                                                         ] || {
                                                                             username:
                                                                                 r.requestorName,

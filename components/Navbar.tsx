@@ -241,7 +241,8 @@ export default function Nav() {
                                     )}
                                 </Button>
                             )}
-                            <Menu isLazy>
+                            {!user ? <LoginButton /> : null}
+                            {user ? <Menu isLazy>
                                 <MenuButton
                                     as={Button}
                                     rounded={"full"}
@@ -263,37 +264,31 @@ export default function Nav() {
                                     <UserAvatar user={user} />
                                 </MenuButton>
                                 <MenuList alignItems={"center"}>
-                                    {user ? (
-                                        <>
-                                            <br />
-                                            <Center>
-                                                <UserAvatar
-                                                    user={user}
-                                                    size="2xl"
-                                                />
-                                            </Center>
-                                            <br />
-                                            <Center>
-                                                <p>{user.first_name}</p>
-                                            </Center>
-                                            <Center>
-                                                <p>@{user.username}</p>
-                                            </Center>
-                                            <br />
-                                            <MenuDivider />
-                                            <MenuItem
-                                                onClick={() => logoutHandler()}
-                                            >
-                                                Logout
-                                            </MenuItem>
-                                        </>
-                                    ) : (
-                                        <Center>
-                                            <LoginButton />
-                                        </Center>
-                                    )}
+
+                                    <br />
+                                    <Center>
+                                        <UserAvatar
+                                            user={user}
+                                            size="2xl"
+                                        />
+                                    </Center>
+                                    <br />
+                                    <Center>
+                                        <p>{user.first_name}</p>
+                                    </Center>
+                                    <Center>
+                                        <p>@{user.username}</p>
+                                    </Center>
+                                    <br />
+                                    <MenuDivider />
+                                    <MenuItem
+                                        onClick={() => logoutHandler()}
+                                    >
+                                        Logout
+                                    </MenuItem>
+
                                 </MenuList>
-                            </Menu>
+                            </Menu> : null}
                         </Stack>
                     </Flex>
                 </Flex>
