@@ -394,7 +394,7 @@ const SpecificSwap = (
   if (!swap) return <> Missing info </>;
 
   const summary =
-    `Swap request for ⌜${swap.moduleCode} ${encodeLessonTypeToShorthand(swap.lessonType)} [${swap.classNo}]⌝ to one of ${desiredClasses.map(c => `${c.moduleCode} ${encodeLessonTypeToShorthand(c.lessonType)} [${c.classNo}]`).join(', ')}`;
+    `Swap request for ${swap.moduleCode} ${encodeLessonTypeToShorthand(swap.lessonType)} [${swap.classNo}] to one of ${desiredClasses.map(c => `${c.moduleCode} ${encodeLessonTypeToShorthand(c.lessonType)} [${c.classNo}]`).join(', ')}`;
   return (
     <>
       <Head>
