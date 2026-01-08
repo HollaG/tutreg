@@ -4,6 +4,7 @@ import {
   ArrowUpDownIcon,
   ArrowUpIcon,
   ChevronDownIcon,
+  ExternalLinkIcon,
   TimeIcon,
 } from "@chakra-ui/icons";
 import {
@@ -581,6 +582,24 @@ const Swap = (
       <Alert status='success'>
         <AlertIcon />
         The swap feature is now in beta testing for AY25/26 Sem 2. Do give it a try and provide feedback!
+        <div style={{ flex: 1 }}></div>
+        <Link
+          // as={NextLink}
+          isExternal
+          href="https://forms.gle/BUKeoGLq5SQ9Kg8W9"
+          // open in new window
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <Button
+            size="xs"
+            mr={2}
+            colorScheme="green"
+          >
+            Feedback <ExternalLinkIcon ml={1} />
+          </Button>
+        </Link>
+
       </Alert>
       <CTA_GENERAL
         title="🤝 Swap classes with others"
