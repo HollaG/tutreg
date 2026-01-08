@@ -6,8 +6,8 @@ This repository holds the code for the website running at [https://tutreg.com](h
 - [tutreg.com main site](https://tutreg.com)
 - [tutreg.com companion extension](https://chromewebstore.google.com/detail/tutreg-companion-extensio/alklihigfndbjjihbglpfpadlmkcgdja?authuser=0&hl=en&pli=1)
 - [tutreg.com companion extension Github](https://github.com/HollaG/tutreg-ext-chromium)
-- [tutreg.com companion telegram bot](https://t.me/swaptutbot) (depreciating soon)
-- [tutreg.com companion telegram bot Github](https://github.com/HollaG/tutreg-bot) (depreciating soon)
+- [tutreg.com companion telegram bot](https://t.me/swaptutbot)
+- [tutreg.com companion telegram bot Github](https://github.com/HollaG/tutreg-bot)
 - [unofficial Firefox extension](https://github.com/CrunchyBiscuit19/TutReg-Companion-for-Firefox)
 
 ## Tech stack
