@@ -144,6 +144,16 @@ export default async function handler(
 
 						for (const classIndex of classIndices) {
 
+							// URL is invalid if the index is out of range
+							const length = array.length;
+
+							if (classIndex < 0 || classIndex >= length) {
+								return res.status(400).json({
+									success: false,
+									error: "(153) Invalid URL! Please refresh NUSMods, re-generate URL, and try again.",
+								});
+							}
+
 							// URL is invalid if the index does not correspond to the correct lesson type
 							if (array[classIndex].lessonType != decodeLessonTypeShorthand(lessonType)) {
 								return res.status(400).json({
