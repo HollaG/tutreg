@@ -87,6 +87,7 @@ import {
   ERROR_TOAST_OPTIONS,
   SUCCESS_TOAST_OPTIONS,
 } from "../../lib/toasts.utils";
+import Head from "next/head";
 
 const ROOT_URL = process.env.NEXT_PUBLIC_ROOT_URL;
 
@@ -391,213 +392,221 @@ const SpecificSwap = (
   }, [swap?.createdAt]);
 
   if (!swap) return <> Missing info </>;
+
+  const summary =
+    `Swap request for ${swap.moduleCode} ${encodeLessonTypeToShorthand(swap.lessonType)} ${swap.classNo} to ${desiredClasses.map(c => `${c.moduleCode} ${encodeLessonTypeToShorthand(c.lessonType)} ${c.classNo}`).join(', ')}`;
   return (
-    <Stack spacing={5} alignItems="center" h="100%">
-      <RequestAlert
-        isOpen={isOpen}
-        cancelRef={cancelRef}
-        onClose={onClose}
-        onConfirm={liveRequestSwap}
-        swap={swap}
-        userRequest={userRequest}
-      />
-      {user && user.id === swap.from_t_id && !misc.notify && (
-        <Alert status="info">
-          <AlertIcon />
-          To receive notifications on Telegram when someone requests
-          your swap, click the bell in the top-right corner.
-        </Alert>
-      )}
+    <>
+      <Head>
+        <title>tutreg.com | Swap Request</title>
+        <meta name="description" content={summary} />
+      </Head>
+      <Stack spacing={5} alignItems="center" h="100%">
+        <RequestAlert
+          isOpen={isOpen}
+          cancelRef={cancelRef}
+          onClose={onClose}
+          onConfirm={liveRequestSwap}
+          swap={swap}
+          userRequest={userRequest}
+        />
+        {user && user.id === swap.from_t_id && !misc.notify && (
+          <Alert status="info">
+            <AlertIcon />
+            To receive notifications on Telegram when someone requests
+            your swap, click the bell in the top-right corner.
+          </Alert>
+        )}
 
-      {/* <Card> */}
-      <Box w="100%">
-        <Stack>
-          <HStack alignItems="center" justifyContent="left">
-            <TimeIcon />
-            <Text textColor={textColor}>
-              Created {timeAgoString}, on{" "}
-              {formatDate(new Date(swap.createdAt))}
-            </Text>
-          </HStack>{" "}
-          <Flex>
-            <Stack flex={1}>
-              <UserDisplay user={swap} />
+        {/* <Card> */}
+        <Box w="100%">
+          <Stack>
+            <HStack alignItems="center" justifyContent="left">
+              <TimeIcon />
+              <Text textColor={textColor}>
+                Created {timeAgoString}, on{" "}
+                {formatDate(new Date(swap.createdAt))}
+              </Text>
+            </HStack>{" "}
+            <Flex>
+              <Stack flex={1}>
+                <UserDisplay user={swap} />
 
-              {swapReplies?.requests && (
-                <Stack flex={1}>
-                  <Flex alignItems={"center"}>
-                    <TbArrowsDownUp fontSize={"1.75em"} />
-                    <Text ml={2}> requested </Text>
-                  </Flex>
+                {swapReplies?.requests && (
+                  <Stack flex={1}>
+                    <Flex alignItems={"center"}>
+                      <TbArrowsDownUp fontSize={"1.75em"} />
+                      <Text ml={2}> requested </Text>
+                    </Flex>
 
-                  {/* Only show usernames and stuff if the requestor id is the current user */}
+                    {/* Only show usernames and stuff if the requestor id is the current user */}
 
-                  {user?.id === swap.from_t_id ? (
-                    <Wrap spacing={3}>
-                      {swapReplies.requests.map(
-                        (r, i) => (
-                          <WrapItem key={i}>
-                            <Tooltip
-                              label={`${r.requested.moduleCode} ${r.requested.lessonType} ${r.requested.classNo}`}
-                            >
-                              <Link
-                                onMouseEnter={() =>
-                                  setHoveredClass(
-                                    r.requested
-                                  )
-                                }
-                                onMouseLeave={() =>
-                                  setHoveredClass(
-                                    null
-                                  )
-                                }
-                                flex={1}
-                                isExternal
-                                href={`https://t.me/${userRepliesObj[
-                                  r
-                                    .requestorId
-                                ]
-                                  ?.username ||
-                                  ""
-                                  }`}
+                    {user?.id === swap.from_t_id ? (
+                      <Wrap spacing={3}>
+                        {swapReplies.requests.map(
+                          (r, i) => (
+                            <WrapItem key={i}>
+                              <Tooltip
+                                label={`${r.requested.moduleCode} ${r.requested.lessonType} ${r.requested.classNo}`}
                               >
-                                <UserDisplay
-                                  user={
-                                    userRepliesObj[
+                                <Link
+                                  onMouseEnter={() =>
+                                    setHoveredClass(
+                                      r.requested
+                                    )
+                                  }
+                                  onMouseLeave={() =>
+                                    setHoveredClass(
+                                      null
+                                    )
+                                  }
+                                  flex={1}
+                                  isExternal
+                                  href={`https://t.me/${userRepliesObj[
                                     r
                                       .requestorId
-                                    ] || {
-                                      username:
-                                        r.requestorName,
-                                      first_name:
-                                        r.requestorName,
-                                      auth_date:
-                                        "",
-                                      hash: "",
-                                      id: r.requestorId,
-                                      photo_url:
-                                        "",
-                                    }
-                                  }
+                                  ]
+                                    ?.username ||
+                                    ""
+                                    }`}
                                 >
-                                  <ExternalLinkIcon
-                                    ml={1}
-                                  />
-                                </UserDisplay>
-                              </Link>
-                              {/* <Button onClick={() => window.open(`t.me/${user.username}`)} size="sm">
+                                  <UserDisplay
+                                    user={
+                                      userRepliesObj[
+                                      r
+                                        .requestorId
+                                      ] || {
+                                        username:
+                                          r.requestorName,
+                                        first_name:
+                                          r.requestorName,
+                                        auth_date:
+                                          "",
+                                        hash: "",
+                                        id: r.requestorId,
+                                        photo_url:
+                                          "",
+                                      }
+                                    }
+                                  >
+                                    <ExternalLinkIcon
+                                      ml={1}
+                                    />
+                                  </UserDisplay>
+                                </Link>
+                                {/* <Button onClick={() => window.open(`t.me/${user.username}`)} size="sm">
                                                                 Contact
                                                             </Button> */}
-                            </Tooltip>
-                          </WrapItem>
-                        )
-                      )}
-                    </Wrap>
-                  ) : (
-                    <Wrap spacing={1}>
-                      {swapReplies.requests.map(
-                        (r, i) => (
-                          <WrapItem key={i}>
-                            {" "}
-                            <Tooltip
-                              label={`${r.requested.moduleCode} ${r.requested.lessonType} ${r.requested.classNo}`}
-                            >
-                              <Avatar
-                                key={i}
-                                name={
-                                  r.requestorName
-                                }
-                                size="sm"
-                                onMouseEnter={() =>
-                                  setHoveredClass(
-                                    r.requested
-                                  )
-                                }
-                                onMouseLeave={() =>
-                                  setHoveredClass(
-                                    null
-                                  )
-                                }
-                              />
-                            </Tooltip>
-                          </WrapItem>
-                        )
-                      )}
-                    </Wrap>
-                  )}
-                </Stack>
+                              </Tooltip>
+                            </WrapItem>
+                          )
+                        )}
+                      </Wrap>
+                    ) : (
+                      <Wrap spacing={1}>
+                        {swapReplies.requests.map(
+                          (r, i) => (
+                            <WrapItem key={i}>
+                              {" "}
+                              <Tooltip
+                                label={`${r.requested.moduleCode} ${r.requested.lessonType} ${r.requested.classNo}`}
+                              >
+                                <Avatar
+                                  key={i}
+                                  name={
+                                    r.requestorName
+                                  }
+                                  size="sm"
+                                  onMouseEnter={() =>
+                                    setHoveredClass(
+                                      r.requested
+                                    )
+                                  }
+                                  onMouseLeave={() =>
+                                    setHoveredClass(
+                                      null
+                                    )
+                                  }
+                                />
+                              </Tooltip>
+                            </WrapItem>
+                          )
+                        )}
+                      </Wrap>
+                    )}
+                  </Stack>
+                )}
+              </Stack>
+
+              {user?.id !== swap.from_t_id && (
+                <RequestButton
+                  size="sm"
+                  options={desiredClasses}
+                  onClick={beforeRequestSwap}
+                />
               )}
-            </Stack>
 
-            {user?.id !== swap.from_t_id && (
-              <RequestButton
-                size="sm"
-                options={desiredClasses}
-                onClick={beforeRequestSwap}
-              />
-            )}
-
-            {user?.id === swap.from_t_id && (
-              <>
-                {swap.status !== "Completed" && (
+              {user?.id === swap.from_t_id && (
+                <>
+                  {swap.status !== "Completed" && (
+                    <Button
+                      size="sm"
+                      colorScheme="blue"
+                      mr={2}
+                      onClick={promptComplete}
+                      isLoading={isCompleting}
+                    >
+                      Complete
+                    </Button>
+                  )}
                   <Button
                     size="sm"
-                    colorScheme="blue"
-                    mr={2}
-                    onClick={promptComplete}
-                    isLoading={isCompleting}
+                    colorScheme="red"
+                    onClick={promptDelete}
+                    isLoading={isDeleting}
                   >
-                    Complete
+                    Delete
                   </Button>
-                )}
-                <Button
-                  size="sm"
-                  colorScheme="red"
-                  onClick={promptDelete}
-                  isLoading={isDeleting}
-                >
-                  Delete
-                </Button>
-              </>
+                </>
+              )}
+            </Flex>
+            {swap.comments && (
+              <Box>
+                <Heading fontSize="lg">Comments</Heading>
+                <Text>{swap.comments}</Text>
+              </Box>
             )}
-          </Flex>
-          {swap.comments && (
-            <Box>
-              <Heading fontSize="lg">Comments</Heading>
-              <Text>{swap.comments}</Text>
-            </Box>
-          )}
-        </Stack>
-      </Box>
-      {/* </Card> */}
+          </Stack>
+        </Box>
+        {/* </Card> */}
 
-      <Box w="full">
-        <SwapCodeIndicator
-          desiredModulesInfo={desiredModules}
-          currentClassInfo={currentClassInfo}
-          desiredClassesInfo={desiredClasses}
-          onHover={setHoveredClass}
-          drawnClasses={drawnClasses}
-          // FooterButtons={<Button size="xs" colorScheme='blue' onClick={}> </Button>}
-          onRequest={beforeRequestSwap}
-        />
-        <Timetable
-          classesToDraw={drawnClasses}
-          onSelected={beforeRequestSwap}
-          property={getProperty}
-          showLessonType={!isInternalSwap}
-          showModuleCode={!isInternalSwap}
-          getClassNames={getClassNames}
-        />
-        {user?.id !== swap.from_t_id && <Alert status="info" mt={2}>
-          <AlertIcon />
-          Click on the class that you have to initiate a swap request with this person.
-        </Alert>}
-      </Box>
+        <Box w="full">
+          <SwapCodeIndicator
+            desiredModulesInfo={desiredModules}
+            currentClassInfo={currentClassInfo}
+            desiredClassesInfo={desiredClasses}
+            onHover={setHoveredClass}
+            drawnClasses={drawnClasses}
+            // FooterButtons={<Button size="xs" colorScheme='blue' onClick={}> </Button>}
+            onRequest={beforeRequestSwap}
+          />
+          <Timetable
+            classesToDraw={drawnClasses}
+            onSelected={beforeRequestSwap}
+            property={getProperty}
+            showLessonType={!isInternalSwap}
+            showModuleCode={!isInternalSwap}
+            getClassNames={getClassNames}
+          />
+          {user?.id !== swap.from_t_id && <Alert status="info" mt={2}>
+            <AlertIcon />
+            Click on the class that you have to initiate a swap request with this person.
+          </Alert>}
+        </Box>
 
-      <ConfirmDelete {...deleteDisclosure} cb={handleDelete} />
-      <ConfirmComplete {...completeDisclosure} cb={handleComplete} />
-    </Stack >
+        <ConfirmDelete {...deleteDisclosure} cb={handleDelete} />
+        <ConfirmComplete {...completeDisclosure} cb={handleComplete} />
+      </Stack ></>
   );
 
   return <></>;
