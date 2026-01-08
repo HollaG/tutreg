@@ -150,7 +150,7 @@ export default async function handler(
 							if (classIndex < 0 || classIndex >= length) {
 								return res.status(400).json({
 									success: false,
-									error: "(153) Invalid URL! Please refresh NUSMods, re-generate URL, and try again.",
+									error: "Invalid URL! Please refresh NUSMods, re-generate URL, and try again.",
 								});
 							}
 
@@ -158,7 +158,7 @@ export default async function handler(
 							if (array[classIndex].lessonType != decodeLessonTypeShorthand(lessonType)) {
 								return res.status(400).json({
 									success: false,
-									error: "Invalid URL! Please re-generate URL from NUSMods and try again.",
+									error: "Invalid URL! Please refresh NUSMods, re-generate URL, and try again.",
 								});
 							}
 
@@ -170,7 +170,7 @@ export default async function handler(
 						if (classNos.size != 1) {
 							return res.status(400).json({
 								success: false,
-								error: "Invalid URL! Please re-generate URL from NUSMods and try again.",
+								error: "Invalid URL! Please refresh NUSMods, re-generate URL, and try again.",
 							});
 						}
 
