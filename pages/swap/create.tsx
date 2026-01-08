@@ -64,7 +64,7 @@ import { LessonType } from "../../types/modules";
 import Timetable from "../../components/ReusableTimetable/Timetable";
 import React from "react";
 
-import { classesActions } from "../../store/classesReducer";
+import { classesActions, ClassState } from "../../store/classesReducer";
 import { TimetableLessonEntry } from "../../types/timetable";
 import { Steps } from "chakra-ui-steps";
 import { TbArrowDown, TbArrowNarrowRight } from "react-icons/tb";
@@ -159,6 +159,8 @@ const Step1: React.FC<{
   possibleClasses: ClassOverview[];
   setPossibleClasses: Dispatch<SetStateAction<ClassOverview[]>>;
   setPossibleStep2Classes: Dispatch<SetStateAction<ClassOverview[]>>;
+
+  staticClasses: ClassOverview[];
 }> = ({
   nextStep,
   prevStep,
@@ -176,6 +178,8 @@ const Step1: React.FC<{
   possibleClasses,
   setPossibleClasses,
   setPossibleStep2Classes,
+
+  staticClasses
 }) => {
     const canGoStep2 = currentClassInfo.classNo !== "";
 
@@ -251,9 +255,9 @@ const Step1: React.FC<{
       }
     };
 
-    const getProperty = (class_: TimetableLessonEntry) => {
+    const getProperty: (class_: TimetableLessonEntry) => "readonly" | "selected" | "static" | undefined = (class_: TimetableLessonEntry) => {
       if (currentClassInfo.classNo === class_.classNo) return "selected";
-      else return "";
+      else return undefined;
     };
 
     return (
@@ -293,6 +297,7 @@ const Step1: React.FC<{
   };
 
 const ModuleSelectStep2: React.FC<{
+
   nextStep: () => void;
   prevStep: () => void;
 
@@ -318,6 +323,8 @@ const ModuleSelectStep2: React.FC<{
   setPossibleClasses: Dispatch<SetStateAction<ClassOverview[]>>;
 
   isInternalSwap: boolean;
+
+  staticClasses: ClassOverview[];
 }> = ({
   nextStep,
   prevStep,
@@ -338,6 +345,7 @@ const ModuleSelectStep2: React.FC<{
   setPossibleClasses,
 
   isInternalSwap,
+  staticClasses
 }) => {
     const canGoStep3 = desiredClasses.length > 0;
     // provide another select if the user wants to select a different module code lesson type
@@ -439,7 +447,7 @@ const ModuleSelectStep2: React.FC<{
       )
         // possiblility to have different modules entirely
         return "readonly";
-      else return "";
+      else return;
     };
 
     // handle the expansion of the desired modules
@@ -490,6 +498,7 @@ const ModuleSelectStep2: React.FC<{
           showLessonType={!isInternalSwap}
           showModuleCode={!isInternalSwap}
           getClassNames={getClassNames}
+          staticClasses={staticClasses}
         />
 
         <Center>
@@ -544,7 +553,7 @@ const Step3: React.FC<{
   isInternalSwap,
   isSubmitting,
 }) => {
-    const getProperty = (class_: TimetableLessonEntry) => {
+    const getProperty: (class_: TimetableLessonEntry) => "readonly" | "selected" | "static" | undefined = (class_: TimetableLessonEntry) => {
       if (
         desiredClasses.find(
           (e) =>
@@ -560,7 +569,7 @@ const Step3: React.FC<{
         class_.classNo === currentClassInfo.classNo
       ) {
         return "readonly";
-      } else return "";
+      } else return;
     };
 
     // handle the expansion of the desired modules
@@ -669,6 +678,11 @@ const CreateSwap: NextPage = () => {
   // hooks
   const misc = useSelector((state: RootState) => state.misc);
   const stateUser = useSelector((state: RootState) => state.user);
+  const nonBiddableClassesInfo = useSelector((state: RootState) => state.classesInfo.nonBiddable);
+
+  const nonBiddableClassesToDisplay = nonBiddableClassesInfo ? Object.values(nonBiddableClassesInfo).flat() : [];
+  console.log({ nonBiddableClassesInfo })
+  console.log("nonBiddableClassesToDisplay", nonBiddableClassesToDisplay);
   const [user, setUser] = useState<TelegramUser | null>(null);
   useEffect(() => {
     setUser(stateUser);
@@ -796,8 +810,8 @@ const CreateSwap: NextPage = () => {
           title: "Swap created",
 
           description: `${misc.notify
-              ? "You will be notified on Telegram when someone requests your swap."
-              : "To receive notifications on Telegram for this swap, click the bell icon on the top right corner."
+            ? "You will be notified on Telegram when someone requests your swap."
+            : "To receive notifications on Telegram for this swap, click the bell icon on the top right corner."
             }`,
           ...SUCCESS_TOAST_OPTIONS,
           duration: 5000, // override
@@ -866,6 +880,7 @@ const CreateSwap: NextPage = () => {
             possibleClasses={possibleStep1Classes}
             setPossibleClasses={setPossibleStep1Classes}
             setPossibleStep2Classes={setPossibleStep2Classes}
+            staticClasses={[]} // TODO: To be implemented
           />
         )}
         {activeStep === 1 && (
@@ -883,6 +898,7 @@ const CreateSwap: NextPage = () => {
             possibleClasses={possibleStep2Classes}
             setPossibleClasses={setPossibleStep2Classes}
             isInternalSwap={isInternalSwap}
+            staticClasses={[]} // TODO: To be implemented
           />
         )}
         {activeStep === 2 && (
