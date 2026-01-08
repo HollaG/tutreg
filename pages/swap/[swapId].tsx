@@ -189,7 +189,7 @@ const SpecificSwap = (
     }
   };
 
-  const liveRequestSwap = () =>
+  const liveRequestSwap = (comments: string) =>
   // moduleCode: string,
   // lessonType: LessonType,
   // classNo: string
@@ -215,6 +215,7 @@ const SpecificSwap = (
       classNo: userRequest.classNo,
       userId: user.id,
       hash: user.hash,
+      comments,
     })
       .then((res) => {
         if (res.success) {

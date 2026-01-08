@@ -30,16 +30,24 @@ export default async function handler(
 ) {
   try {
     if (req.method === "POST") {
-      const { swapId, userId, hash, moduleCode, classNo, lessonType } =
-        req.body as {
-          userId: string; // of the user who wants to request a swap with the creator
-          hash: string;
+      const {
+        swapId,
+        userId,
+        hash,
+        moduleCode,
+        classNo,
+        lessonType,
+        comments,
+      } = req.body as {
+        userId: string; // of the user who wants to request a swap with the creator
+        hash: string;
 
-          swapId: string;
-          moduleCode: string;
-          classNo: string;
-          lessonType: LessonType;
-        };
+        swapId: string;
+        moduleCode: string;
+        classNo: string;
+        lessonType: LessonType;
+        comments?: string;
+      };
 
       const signedIn = await signIn();
       if (!signedIn) {
@@ -49,7 +57,7 @@ export default async function handler(
           success: false,
         });
       }
-      // ensure userId and hash match
+      // ensure userId and hash match to prevent spoofing
       // TODO: find a better way
       // problem: if user logins on desktop, a hash is saved.
       // if user logins on mobile, a different hash is saved.
@@ -66,12 +74,6 @@ export default async function handler(
           success: false,
         });
       }
-
-      // get the swap
-      const swap: ClassSwapRequestDB[] = await executeQuery({
-        query: `SELECT * FROM swaps WHERE swapId = ?`,
-        values: [swapId],
-      });
 
       // add this swap to the list of swaps he's requested
 
@@ -115,6 +117,7 @@ export default async function handler(
               },
               requestorName: user[0].first_name,
               requestorId: Number(userId),
+              comments: comments || "",
             },
           ],
         });

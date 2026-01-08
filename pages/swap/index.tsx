@@ -503,7 +503,7 @@ const Swap = (
     }
   };
 
-  const liveRequestSwap = () => {
+  const liveRequestSwap = (comments: string) => {
     if (!user)
       return toast({
         title: "Error",
@@ -532,6 +532,7 @@ const Swap = (
       classNo: userRequest.classNo,
       userId: user.id,
       hash: user.hash,
+      comments,
     })
       .then((res) => {
         if (res.success) {
