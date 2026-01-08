@@ -127,12 +127,12 @@ export default async function handler(
           data: "Your request has been sent!",
         });
 
-        sendTelegramAlert(
-          UserEvent.SWAP_REQUESTED,
-          Number(userId),
-          Number(swapId),
-          user[0].first_name
-        );
+        // sendTelegramAlert(
+        //   UserEvent.SWAP_REQUESTED,
+        //   Number(userId),
+        //   Number(swapId),
+        //   user[0].first_name
+        // );
       } else {
         // not yet
 
@@ -165,12 +165,13 @@ export default async function handler(
             success: true,
             data: "Your request has been sent!",
           });
-          sendTelegramAlert(
-            UserEvent.SWAP_REQUESTED,
-            Number(userId),
-            Number(swapId),
-            user[0].first_name
-          );
+
+          // sendTelegramAlert(
+          //   UserEvent.SWAP_REQUESTED,
+          //   Number(userId),
+          //   Number(swapId),
+          //   user[0].first_name
+          // );
         } else {
           // this user has requested something before
           // check if this user's request is the same (aka he clicked the button twice, lol)
