@@ -112,6 +112,7 @@ import { fireDb } from "../firebase";
 import { deleteDoc, doc, getDoc, onSnapshot, setDoc } from "firebase/firestore";
 import { resolve } from "node:path/win32";
 import { FullPage } from "../components/PageWrap/FullPage";
+import { ContainedPage } from "../components/PageWrap/ContainedPage";
 import Timetable from "../components/ReusableTimetable/Timetable";
 import { LiveTimetable } from "../components/ReusableTimetable/LiveTimetable";
 const ay = process.env.NEXT_PUBLIC_AY;
@@ -119,6 +120,8 @@ const sem = process.env.NEXT_PUBLIC_SEM;
 const SYNC_COLLECTION_NAME =
   process.env.NEXT_PUBLIC_SYNC_COLLECTION_NAME || "userStorage";
 const Order: NextPage = () => {
+  const [dualMode, setDualMode] = useState(true)
+
   const toast = useToast();
   const user = useSelector((state: RootState) => state.user);
 
@@ -649,10 +652,10 @@ const Order: NextPage = () => {
     </>
   );
 
+  const Wrapper = dualMode ? FullPage : ContainedPage;
 
-
-  return (<FullPage>
-    <SimpleGrid columns={{ base: 1, xl: 2 }} spacing={"6rem"}>
+  return (<Wrapper>
+    <SimpleGrid columns={{ base: 1, xl: dualMode ? 2 : 1 }} spacingX={"6rem"} spacingY="2rem">
 
       <Stack>
         {alertNewer && (
@@ -1127,9 +1130,16 @@ const Order: NextPage = () => {
         overflowY="auto"    //</SimpleGrid>>
       >
         <LiveTimetable />
+        <Flex justifyContent={"right"} mt={3}>
+
+          <Button onClick={() => setDualMode((prev) => !prev)} colorScheme="teal" size="sm"> {dualMode ? "Switch to single view" : "Switch to dual view"} <Tag ml={3} size={"sm"} style={{
+            background: "linear-gradient(135deg, #ffd6e7 0%, #ffe7c7 18%, #fff6bf 36%, #d9ffd6 54%, #d6f0ff 72%, #ead6ff 90%, #ffd6e7 100%)",
+            color: "#111"
+          }}>NEW</Tag></Button>
+        </Flex>
       </Box>
     </SimpleGrid>
-  </FullPage >);
+  </Wrapper>);
 };
 
 export default Order;

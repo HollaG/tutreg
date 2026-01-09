@@ -97,7 +97,10 @@ export const LiveTimetable: React.FC = () => {
     return "static"
   }
 
-  // const handleClick = () => {
+  // const handleClick = (cls: TimetableLessonEntry) => {
+  //   const moduleCodeLessonType = `${cls.moduleCode}: ${cls.lessonType}`
+
+  //   // 1. shift all existing classesToDraw to staticClasses (multiple imppls here)
 
   //   // // when opening the modal, set the changed classes to the currently selected classes, or none if there's none
   //   // if (data.selectedClasses[moduleCodeLessonType]) {
@@ -126,6 +129,8 @@ export const LiveTimetable: React.FC = () => {
     getFillMode={getFillMode}
     getTag={getTag}
     canDownload
+
+
 
   />
 }
