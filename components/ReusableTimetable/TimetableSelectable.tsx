@@ -35,17 +35,35 @@ const TimetableSelectable: React.FC<{
   showLessonType?: boolean;
 
   getClassNames?: (class_: TimetableLessonEntry) => string;
+
+
+  getOverrideColor?: (class_: TimetableLessonEntry) => string;
+  getFillMode?: (class_: TimetableLessonEntry) => "solid" | "outline"
+  getDisplayMode?: (class_: TimetableLessonEntry) => "detailed" | "compact" | "hidden"
 }> = ({
   class_,
   property,
   onSelected,
   tinyMode = false,
-  selectedColor: BTN_COLOR_SCHEME = "teal",
+  selectedColor = "teal",
+  getOverrideColor,
+  getDisplayMode,
+  getFillMode,
+
+
   showModuleCode = false,
   showLessonType = false,
   getClassNames,
 }) => {
+    const BTN_COLOR_SCHEME = getOverrideColor
+      ? getOverrideColor(class_)
+      : selectedColor || "teal";
+
+    const displayMode = getDisplayMode ? getDisplayMode(class_) : "detailed";
+    const fillMode = getFillMode ? getFillMode(class_) : "solid";
+
     const GRAY_BACKGROUND = useColorModeValue("gray.100", "gray.900");
+
     const HOVER_COLOR = useColorModeValue(
       `${BTN_COLOR_SCHEME}.100`,
       `${BTN_COLOR_SCHEME}.800`
@@ -160,7 +178,7 @@ const TimetableSelectable: React.FC<{
       );
     }
 
-    // STATIC property: display ALL information, NO 
+    // STATIC property: display ALL information, NO matter the extra params
     if (property === "static") {
 
       return (
@@ -196,7 +214,7 @@ const TimetableSelectable: React.FC<{
               {...({
                 variant: "outline",
                 opacity: 1,
-                colorScheme: 'blue',
+                colorScheme: BTN_COLOR_SCHEME,
               }
               )}
               // onClick={() => toggleHandler()}
@@ -265,8 +283,25 @@ const TimetableSelectable: React.FC<{
       );
     }
 
+    const btnProps = sel
+      ? {
+        variant: fillMode,
+        opacity: 1,
+        colorScheme: BTN_COLOR_SCHEME,
+      }
+      : {
+        bgColor: GRAY_BACKGROUND,
+        variant: "outline",
+        opacity: 0.7,
+        colorScheme: "grey",
+        _hover: {
+          opacity: 1,
+          bgColor: HOVER_COLOR,
+        },
+      }
+
     return (
-      <Center w="100%" h="100%">
+      <Center w="100%" h={"100%"}>
         <Flex
           height="95%"
           transform={"scale(0.95)"}
@@ -281,22 +316,7 @@ const TimetableSelectable: React.FC<{
             h="100%"
             justifyContent={"left"}
             textAlign="left"
-            {...(sel
-              ? {
-                variant: "solid",
-                opacity: 1,
-                colorScheme: BTN_COLOR_SCHEME,
-              }
-              : {
-                bgColor: GRAY_BACKGROUND,
-                variant: "outline",
-                opacity: 0.7,
-                colorScheme: "grey",
-                _hover: {
-                  opacity: 1,
-                  bgColor: HOVER_COLOR,
-                },
-              })}
+            {...(btnProps)}
             onClick={() => toggleHandler()}
             className={getClassNames ? getClassNames(class_) : ""}
           >
@@ -326,7 +346,7 @@ const TimetableSelectable: React.FC<{
                 >
                   {class_.classNo}
                 </Text>
-                <Stack spacing={0}>
+                {displayMode === "detailed" ? <Stack spacing={0}>
                   <Text
                     fontSize={{
                       base: "0.65rem",
@@ -345,7 +365,7 @@ const TimetableSelectable: React.FC<{
                   >
                     Wks {weeksDisplay}{" "}
                   </Text>
-                </Stack>
+                </Stack> : null}
               </Flex>
             </Stack>
           </Button>

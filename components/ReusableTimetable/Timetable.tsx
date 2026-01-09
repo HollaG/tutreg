@@ -32,7 +32,27 @@ const order = [
 const GRID_ITEM_HEIGHT_BIG = 85;
 const GRID_ITEM_HEIGHT_SMALL = 75;
 
+/**
+ * 
+ * @param classesToDraw Classes that are selectable and editable by user
+ * @param staticClasses Classes that are static and not editable by user
+ * @param property Called on each class to determine whether it is:
+ *  "readonly" - cannot be selected nor unselected but should be displayed as selected (used in swap)
+ *  "selected" - can be unselected
+ *  "static" - cannot be selected nor unselected, used to denote non-tutorial classes the user already has
+ *  Static classes display all information by default.
+ * 
+ * @param tinyMode Whether to render in tiny mode (for smaller screens)
+ * @param onSelected Callback when a class is selected
+ * @param selectedColor Optional color to override selected color. Will apply to the WHOLE timetable
+ * 
+ * @param overrideColor Optional function to override color of each class block. Takes priority OVER selectedColor.
+ * @param fillMode Optional function to determine fill mode of each class block when selected.
+ * @param displayMode Optional function to determine display mode of each class block. Used to show ranking.
+ * @returns 
+ */
 const Timetable: React.FC<{
+  minWidth?: string; //px
   classesToDraw: ClassOverview[];
   staticClasses?: ClassOverview[];
   property: (class_: TimetableLessonEntry) => "readonly" | "selected" | "static" | undefined;
@@ -42,7 +62,13 @@ const Timetable: React.FC<{
   showModuleCode?: boolean;
   showLessonType?: boolean;
   getClassNames?: (class_: TimetableLessonEntry) => string;
+
+  getOverrideColor?: (class_: TimetableLessonEntry) => string;
+  getFillMode?: (class_: TimetableLessonEntry) => "solid" | "outline"
+  getDisplayMode?: (class_: TimetableLessonEntry) => "detailed" | "compact" | "hidden"
+  getTag?: (class_: TimetableLessonEntry) => React.ReactNode | string | undefined;
 }> = ({
+  minWidth = "750px",
   classesToDraw,
   staticClasses,
   property,
@@ -52,6 +78,10 @@ const Timetable: React.FC<{
   showModuleCode,
   showLessonType,
   getClassNames,
+  getOverrideColor,
+  getDisplayMode,
+  getFillMode,
+  getTag
 }) => {
     const GRID_ITEM_HEIGHT_RESPONSIVE = useBreakpointValue({
       base: GRID_ITEM_HEIGHT_SMALL,
@@ -221,7 +251,7 @@ const Timetable: React.FC<{
 
         <Box overflowX="scroll">
           <Grid
-            minW={"750px"}
+            minW={minWidth}
             margin="auto"
             gridTemplateRows={"25px 1fr"}
             templateColumns={`${COLUMN_WIDTH_START} repeat(${totalColumnsToDraw - 1
@@ -358,6 +388,7 @@ const Timetable: React.FC<{
                                       earliestTiming,
                                       latestTiming
                                     )}%`}
+                                    position={"relative"}
                                   >
                                     <TimetableSelectable
                                       class_={
@@ -383,7 +414,12 @@ const Timetable: React.FC<{
                                       getClassNames={
                                         getClassNames
                                       }
+                                      getOverrideColor={getOverrideColor}
+                                      getDisplayMode={getDisplayMode}
+                                      getFillMode={getFillMode}
+                                    // getTag={getTag}
                                     />
+                                    {getTag ? (getTag(class_)) : <></>}
                                   </Box>
                                 );
                               })}
