@@ -88,6 +88,7 @@ import {
   SUCCESS_TOAST_OPTIONS,
 } from "../../lib/toasts.utils";
 import Head from "next/head";
+import { ContainedPage } from "../../components/PageWrap/ContainedPage";
 
 const ROOT_URL = process.env.NEXT_PUBLIC_ROOT_URL;
 
@@ -395,7 +396,7 @@ const SpecificSwap = (
 
   const summary =
     `Swap request for ${swap.moduleCode} ${encodeLessonTypeToShorthand(swap.lessonType)} [${swap.classNo}] to one of ${desiredClasses.map(c => `${c.moduleCode} ${encodeLessonTypeToShorthand(c.lessonType)} [${c.classNo}]`).join(', ')}`;
-  return (
+  return (<ContainedPage>
     <>
       <Head>
         <title>tutreg.com | Swap Request</title>
@@ -607,7 +608,7 @@ const SpecificSwap = (
         <ConfirmDelete {...deleteDisclosure} cb={handleDelete} />
         <ConfirmComplete {...completeDisclosure} cb={handleComplete} />
       </Stack ></>
-  );
+  </ContainedPage>);
 
   return <></>;
 };
