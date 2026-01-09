@@ -843,84 +843,84 @@ const CreateSwap: NextPage = () => {
   }, [hookOrientation]);
 
   return (<ContainedPage>
-    user && (
-    <Stack spacing={5} alignItems="center" h="100%">
-      <Stepper index={activeStep} w="100%" orientation={orientation}>
-        {steps.map((step, index) => (
-          <Step key={index}>
-            <StepIndicator>
-              <StepStatus
-                complete={<StepIcon />}
-                incomplete={<StepNumber />}
-                active={<StepNumber />}
-              />
-            </StepIndicator>
+    {user && (
+      <Stack spacing={5} alignItems="center" h="100%">
+        <Stepper index={activeStep} w="100%" orientation={orientation}>
+          {steps.map((step, index) => (
+            <Step key={index}>
+              <StepIndicator>
+                <StepStatus
+                  complete={<StepIcon />}
+                  incomplete={<StepNumber />}
+                  active={<StepNumber />}
+                />
+              </StepIndicator>
 
-            <Box flexShrink="0">
-              <StepTitle>{step.label}</StepTitle>
-              {/* <StepDescription>
+              <Box flexShrink="0">
+                <StepTitle>{step.label}</StepTitle>
+                {/* <StepDescription>
                                     {step.description}
                                 </StepDescription> */}
-            </Box>
+              </Box>
 
-            <StepSeparator />
-          </Step>
-        ))}
-      </Stepper>
+              <StepSeparator />
+            </Step>
+          ))}
+        </Stepper>
 
-      {activeStep === 0 && (
-        <Step1
-          activeStep={activeStep}
-          nextStep={nextStep}
-          prevStep={prevStep}
-          setStep={setStep}
-          setCurrentClassInfo={setCurrentClassInfo}
-          currentClassInfo={currentClassInfo}
-          setDesiredClasses={setDesiredClasses}
-          setDesiredModulesInfo={setDesiredModulesInfo}
-          possibleClasses={possibleStep1Classes}
-          setPossibleClasses={setPossibleStep1Classes}
-          setPossibleStep2Classes={setPossibleStep2Classes}
-          staticClasses={[]} // TODO: To be implemented
-        />
-      )}
-      {activeStep === 1 && (
-        <ModuleSelectStep2
-          activeStep={activeStep}
-          nextStep={nextStep}
-          prevStep={prevStep}
-          setStep={setStep}
-          currentClassInfo={currentClassInfo}
-          setCurrentClassInfo={setCurrentClassInfo}
-          desiredClasses={desiredClasses}
-          setDesiredClasses={setDesiredClasses}
-          setDesiredModulesInfo={setDesiredModulesInfo}
-          desiredModulesInfo={desiredModulesInfo}
-          possibleClasses={possibleStep2Classes}
-          setPossibleClasses={setPossibleStep2Classes}
-          isInternalSwap={isInternalSwap}
-          staticClasses={[]} // TODO: To be implemented
-        />
-      )}
-      {activeStep === 2 && (
-        <Step3
-          activeStep={activeStep}
-          nextStep={nextStep}
-          prevStep={prevStep}
-          setStep={setStep}
-          currentClassInfo={currentClassInfo}
-          desiredModulesInfo={desiredModulesInfo}
-          displayedClasses={reviewClassesList}
-          desiredClasses={desiredClasses}
-          submitHandler={submitHandler}
-          comments={comments}
-          setComments={setComments}
-          isInternalSwap={isInternalSwap}
-          isSubmitting={isSubmitting}
-        />
-      )}
-    </Stack>
-    )
+        {activeStep === 0 && (
+          <Step1
+            activeStep={activeStep}
+            nextStep={nextStep}
+            prevStep={prevStep}
+            setStep={setStep}
+            setCurrentClassInfo={setCurrentClassInfo}
+            currentClassInfo={currentClassInfo}
+            setDesiredClasses={setDesiredClasses}
+            setDesiredModulesInfo={setDesiredModulesInfo}
+            possibleClasses={possibleStep1Classes}
+            setPossibleClasses={setPossibleStep1Classes}
+            setPossibleStep2Classes={setPossibleStep2Classes}
+            staticClasses={[]} // TODO: To be implemented
+          />
+        )}
+        {activeStep === 1 && (
+          <ModuleSelectStep2
+            activeStep={activeStep}
+            nextStep={nextStep}
+            prevStep={prevStep}
+            setStep={setStep}
+            currentClassInfo={currentClassInfo}
+            setCurrentClassInfo={setCurrentClassInfo}
+            desiredClasses={desiredClasses}
+            setDesiredClasses={setDesiredClasses}
+            setDesiredModulesInfo={setDesiredModulesInfo}
+            desiredModulesInfo={desiredModulesInfo}
+            possibleClasses={possibleStep2Classes}
+            setPossibleClasses={setPossibleStep2Classes}
+            isInternalSwap={isInternalSwap}
+            staticClasses={[]} // TODO: To be implemented
+          />
+        )}
+        {activeStep === 2 && (
+          <Step3
+            activeStep={activeStep}
+            nextStep={nextStep}
+            prevStep={prevStep}
+            setStep={setStep}
+            currentClassInfo={currentClassInfo}
+            desiredModulesInfo={desiredModulesInfo}
+            displayedClasses={reviewClassesList}
+            desiredClasses={desiredClasses}
+            submitHandler={submitHandler}
+            comments={comments}
+            setComments={setComments}
+            isInternalSwap={isInternalSwap}
+            isSubmitting={isSubmitting}
+          />
+        )}
+      </Stack>
+    )}
   </ContainedPage>);
 };
 
