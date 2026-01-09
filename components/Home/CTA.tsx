@@ -14,6 +14,7 @@ import {
     IconProps,
     useColorModeValue,
     Kbd,
+    Tag,
 } from "@chakra-ui/react";
 
 import NextLink from "next/link";
@@ -62,7 +63,7 @@ export default function CallToAction() {
                             tutorial / lab classes of each course, giving you an
                             ordered list that you can copy into CourseReg.
                         </Text>
-                        <Text color={useColorModeValue("gray.700", "gray.300")} style={{display: "none"}}>
+                        <Text color={useColorModeValue("gray.700", "gray.300")} style={{ display: "none" }}>
                             You can also request swaps for classes.
                         </Text>
                         <Text color={"gray.500"} mt={2}>
@@ -115,9 +116,12 @@ export default function CallToAction() {
                                     />
                                 }
                                 colorScheme="teal"
-                                style={{display: "none"}}
                             >
                                 Swap Classes
+                                <Tag ml={3} style={{
+                                    background: "linear-gradient(135deg, #ffd6e7 0%, #ffe7c7 18%, #fff6bf 36%, #d9ffd6 54%, #d6f0ff 72%, #ead6ff 90%, #ffd6e7 100%)",
+                                    color: "#111"
+                                }}>NEW</Tag>
                             </Button>
                         </NextLink>
                     </Stack>
