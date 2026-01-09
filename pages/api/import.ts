@@ -3,7 +3,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import executeQuery from "../../lib/db";
 import { decodeLessonTypeShorthand, formatWeeks } from "../../lib/functions";
 import { ModuleDB, ModuleWithClassDB } from "../../types/db";
-import { LessonType, LessonTypeAbbrev, Module } from "../../types/modules";
+import { LessonTypeAbbrev, Module, RawLesson } from "../../types/modules";
 import { ModuleCodeLessonType } from "../../types/types";
 
 export interface Data {
@@ -140,15 +140,32 @@ export default async function handler(
 
 						const data = await getModuleData(moduleCode);
 						const array = getSemesterTimetable(data, sem);
+						if (!array) {
+							return res.status(400).json({
+								success: false,
+								error: `Error getting data for ${moduleCode}.
+									Check that this ${moduleCode} is offered for the upcoming semester.`
+							});
+						}
 						const classNos = new Set<string>;
 
 						for (const classIndex of classIndices) {
+
+							// URL is invalid if the index is out of range
+							const length = array.length;
+
+							if (classIndex < 0 || classIndex >= length) {
+								return res.status(400).json({
+									success: false,
+									error: "Invalid URL! Please refresh NUSMods, re-generate URL, and try again.",
+								});
+							}
 
 							// URL is invalid if the index does not correspond to the correct lesson type
 							if (array[classIndex].lessonType != decodeLessonTypeShorthand(lessonType)) {
 								return res.status(400).json({
 									success: false,
-									error: "Invalid URL! Please re-generate URL from NUSMods and try again.",
+									error: "Invalid URL! Please refresh NUSMods, re-generate URL, and try again.",
 								});
 							}
 
@@ -160,7 +177,7 @@ export default async function handler(
 						if (classNos.size != 1) {
 							return res.status(400).json({
 								success: false,
-								error: "Invalid URL! Please re-generate URL from NUSMods and try again.",
+								error: "Invalid URL! Please refresh NUSMods, re-generate URL, and try again.",
 							});
 						}
 
@@ -386,7 +403,7 @@ function getIndicesFromString(classIndicesStr: string) : number[] {
 
 }
 
-function getSemesterTimetable(data: any, sem: string | undefined) {
+function getSemesterTimetable(data: Module, sem: string | undefined) : RawLesson[] | undefined {
 	const semNum = Number(sem);
 	for (let semesterData of data.semesterData) {
 		if (semesterData.semester == semNum) {

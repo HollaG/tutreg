@@ -134,12 +134,14 @@ const Order: NextPage = () => {
 
         const data = result.data;
 
-        if (!data)
+        if (!data) {
+			setIsSubmitting(false);
             return toast({
                 title: "Error importing classes!",
                 description: result.error,
                 ...ERROR_TOAST_OPTIONS,
             });
+		}
 
         toast({
             title: "Classes imported",
