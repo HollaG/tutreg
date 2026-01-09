@@ -526,7 +526,9 @@ const Timetable: React.FC<{
             </GridItem>
           </Grid>
         </Box>
-        <Flex justifyContent={"end"} mt={4}>
+        <Flex justifyContent={"end"} mt={4} gap={'1rem'}>
+          <Button size="sm"> Remove fixed classes </Button>
+          <Button size="sm"> Add fixed classes </Button>
           {canDownload && <Button isLoading={isTakingScreenshot} onClick={() => takeScreenshot()} size="sm" colorScheme="blue"> Download as image </Button>}
         </Flex>
 
