@@ -5,6 +5,7 @@ import { canBeBidFor } from "../lib/functions";
 import { Data } from "../pages/api/import";
 import { TimetableLessonEntry } from "../types/timetable";
 import { ModuleCodeLessonType, ClassOverview } from "../types/types";
+import { FullInfo } from "../pages/swap/create";
 
 const AY = process.env.NEXT_PUBLIC_AY || "";
 const SEM = process.env.NEXT_PUBLIC_SEM || "";
@@ -444,6 +445,49 @@ const classesSlice = createSlice({
         delete newState.selectedClasses[moduleCodeLessonType];
         return newState;
       }
+    },
+
+    addNonBiddableClass(state, action: PayloadAction<ModuleCodeLessonType>) {
+      return {
+        ...state,
+        totalModuleCodeLessonTypeMap: {
+          ...state.totalModuleCodeLessonTypeMap,
+          ...action.payload,
+        },
+        nonBiddable: {
+          ...state.nonBiddable,
+          ...action.payload,
+        },
+        lastUpdated: new Date().getTime(),
+      };
+    },
+
+    removeNonBiddableClass(state, action: PayloadAction<FullInfo>) {
+      const newNonBiddable: ModuleCodeLessonType = { ...state.nonBiddable };
+      const mclt = `${action.payload.moduleCode}: ${action.payload.lessonType}`;
+
+      // only remove the corresponding classNo
+      const existingClasses = newNonBiddable[mclt];
+      if (!existingClasses) {
+        return state;
+      }
+
+      const remainingClasses = existingClasses.filter(
+        (class_) => class_.classNo !== action.payload.classNo
+      );
+
+      if (remainingClasses.length) {
+        newNonBiddable[mclt] = remainingClasses;
+      } else {
+        delete newNonBiddable[mclt];
+      }
+
+      // OK to leave in totalModuleCodeLessonTypeMap
+      return {
+        ...state,
+        nonBiddable: newNonBiddable,
+        lastUpdated: new Date().getTime(),
+      };
     },
   },
 });

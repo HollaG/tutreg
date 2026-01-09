@@ -198,8 +198,15 @@ const TimetableSelectable: React.FC<{
               right={0}
               bottom={0}
               backgroundImage={STATIC_STRIPED_BG_COLOR}
-              pointerEvents="none"
+              // pointerEvents="none"
               borderRadius="md"
+
+              // we want the "button" look, but not block clicks
+              // cannot put the onClick in the Button as that would trigger the hover animation
+              // TODO: implement a specific variable to manage this behaviour
+              onClick={() => toggleHandler()}
+              cursor={'pointer'}
+
             />
             <Button
               pointerEvents={'none'}
@@ -209,7 +216,7 @@ const TimetableSelectable: React.FC<{
               justifyContent={"left"}
               textAlign="left"
               pl={{ base: 1, md: 2 }}
-              cursor="not-allowed"
+              // cursor="not-allowed"
               position="relative"
               {...({
                 variant: "outline",
@@ -217,7 +224,6 @@ const TimetableSelectable: React.FC<{
                 colorScheme: BTN_COLOR_SCHEME,
               }
               )}
-              // onClick={() => toggleHandler()}
               overflow="hidden"
             >
               <Flex flexWrap={"wrap"} alignItems="center">

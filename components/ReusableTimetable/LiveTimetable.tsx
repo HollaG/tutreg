@@ -1,22 +1,42 @@
 // This component renders the LiveTimetable in the Order Page for better information for the user.
 
 import { useEffect, useState } from "react"
-import { useSelector } from "react-redux"
+import { useDispatch, useSelector } from "react-redux"
 import Timetable from "./Timetable"
-import { ClassOverview, RootState } from "../../types/types"
-import { ClassState } from "../../store/classesReducer"
+import { ClassOverview, Option, RootState } from "../../types/types"
+import { classesActions, ClassState } from "../../store/classesReducer"
 import { TimetableLessonEntry } from "../../types/timetable"
 import { getModuleColor } from "../../lib/functions"
-import { Tag, Text } from "@chakra-ui/react"
-
+import { Alert, AlertIcon, Button, ModalProps, Stack, Tag, Text, Tooltip, useDisclosure } from "@chakra-ui/react"
+import ModuleSelect from "../Select/ModuleSelect"
+import BasicModal from "../Modal/Modal";
+import TimetableContainer from "../Timetable/TimetableContainer"
+import { GetClassesResponse } from "../../pages/api/swap/getClasses"
+import { LessonType } from "../../types/modules"
+import { sendPOST } from "../../lib/fetcher"
+import { convertToTimetableList, FullInfo } from "../../pages/swap/create"
 export const LiveTimetable: React.FC = () => {
   const _classesInfo = useSelector((state: RootState) => state.classesInfo)
+  const { isOpen, onOpen, onClose } = useDisclosure()
 
   const [classesInfo, setClassesInfo] = useState<ClassState | null>(null)
 
   useEffect(() => {
     setClassesInfo(_classesInfo)
   }, [_classesInfo])
+
+
+  // states for selecting a new class to add as reference
+  const [currentClassInfo, setCurrentClassInfo] = useState<FullInfo>({
+    moduleCode: "",
+    lessonType: "Lecture",
+    classNo: "",
+  });
+  const [possibleClassesOfModule, setPossibleClassesOfModule] = useState<
+    ClassOverview[]
+  >([]);
+
+  const dispatch = useDispatch()
 
   if (!classesInfo) {
     return null
@@ -44,7 +64,6 @@ export const LiveTimetable: React.FC = () => {
 
   const getColor = (cls: TimetableLessonEntry): string => {
     const moduleCodeLessonType = `${cls.moduleCode}: ${cls.lessonType}`
-    console.log({ moduleCodeLessonType })
 
     return getModuleColor(colorMap, moduleCodeLessonType)
   }
@@ -97,40 +116,169 @@ export const LiveTimetable: React.FC = () => {
     return "static"
   }
 
-  // const handleClick = (cls: TimetableLessonEntry) => {
-  //   const moduleCodeLessonType = `${cls.moduleCode}: ${cls.lessonType}`
 
-  //   // 1. shift all existing classesToDraw to staticClasses (multiple imppls here)
+  const onSelectModule = async (options: Option[]) => {
+    const moduleCodeLessonType = options[0].value;
 
-  //   // // when opening the modal, set the changed classes to the currently selected classes, or none if there's none
-  //   // if (data.selectedClasses[moduleCodeLessonType]) {
-  //   //   dispatch(
-  //   //     classesActions.setChangedClasses(
-  //   //       data.selectedClasses[moduleCodeLessonType].map(
-  //   //         (class_) => class_.classNo
-  //   //       ) || []
-  //   //     )
-  //   //   );
-  //   // }
-  //   // onOpen();
-  // };
+    const moduleCode = moduleCodeLessonType.split(": ")[0];
+    const lessonType = moduleCodeLessonType.split(": ")[1] as LessonType;
 
-  return <Timetable
-    classesToDraw={[selectedBiddableClasses, nonBiddable].flat()}
-    showModuleCode={true}
-    showLessonType={true}
-    onSelected={() => { }} //no action
-    property={getProperty}
-    minWidth="1600px"
-    // staticClasses={nonBiddable}
+    // todo change to fetch
+    const response: GetClassesResponse = await sendPOST(
+      "/api/swap/getClasses",
+      {
+        moduleCode,
+        lessonType,
+      }
+    );
 
-    getOverrideColor={getColor}
-    getDisplayMode={getDisplayMode}
-    getFillMode={getFillMode}
-    getTag={getTag}
-    canDownload
+    if (response.success && response.data) {
+      // on success, reset the list of possible classes
+
+      setCurrentClassInfo({
+        moduleCode,
+        lessonType,
+        classNo: "",
+      });
+
+      const lst: ClassOverview[] = convertToTimetableList(response.data);
+      setPossibleClassesOfModule(lst);
+    }
 
 
 
-  />
+    // setMclt(moduleCodeLessonType);
+    // const moduleCode = moduleCodeLessonType.split(": ")[0];
+    // const lessonType = moduleCodeLessonType.split(": ")[1] as LessonType;
+  }
+
+
+  const closeHandler = () => {
+    if (currentClassInfo.classNo !== "") {
+      // if we have selected a class, then we need to find the ClassOverview of this class, 
+      // so we know what to display
+      const classToAdd = possibleClassesOfModule.filter((c) => c.classNo === currentClassInfo.classNo);
+      if (classToAdd) {
+        // dispatch to add this class as non-biddable 
+        const mclt = `${currentClassInfo.moduleCode}: ${currentClassInfo.lessonType}`;
+        dispatch(classesActions.addNonBiddableClass({
+          [mclt]: classToAdd
+        }));
+
+      }
+    }
+
+    // close the handler
+    onClose();
+
+    // reset the internal states
+    setCurrentClassInfo({
+      moduleCode: "",
+      lessonType: "Lecture",
+      classNo: "",
+    });
+    setPossibleClassesOfModule([]);
+  }
+
+
+  const selectCurrentClassHandler = (
+    class_: TimetableLessonEntry,
+    selected: boolean
+  ) => {
+    if (selected) {
+      setCurrentClassInfo((prevState) => ({
+        ...prevState,
+        classNo: class_.classNo,
+      }));
+    } else {
+      setCurrentClassInfo((prevState) => ({
+        ...prevState,
+        classNo: "",
+      }));
+    }
+  };
+
+  const getPropertyForAdding: (class_: TimetableLessonEntry) => "readonly" | "selected" | "static" | undefined = (class_: TimetableLessonEntry) => {
+    if (currentClassInfo.classNo === class_.classNo) return "selected";
+    else return undefined;
+  };
+
+
+  const onSelect = (class_: TimetableLessonEntry) => {
+    console.log("Selected class: ", class_);
+
+    // if the class is from non-biddable, remove it
+    const isInNonBiddable = nonBiddable.find(c => c.classNo === class_.classNo && c.moduleCode === class_.moduleCode && c.lessonType === class_.lessonType)
+    if (isInNonBiddable) {
+      const mclt = `${class_.moduleCode}: ${class_.lessonType}`;
+      dispatch(classesActions.removeNonBiddableClass({
+        classNo: class_.classNo, lessonType: class_.lessonType, moduleCode: class_.moduleCode
+      }));
+      return;
+    }
+    // else, do nothing
+
+
+  }
+
+
+  return <Stack>
+
+    <Timetable
+      classesToDraw={[selectedBiddableClasses, nonBiddable].flat()}
+      showModuleCode={true}
+      showLessonType={true}
+      onSelected={onSelect} //no action
+      property={getProperty}
+      minWidth="1600px"
+      // staticClasses={nonBiddable}
+
+      getOverrideColor={getColor}
+      getDisplayMode={getDisplayMode}
+      getFillMode={getFillMode}
+      getTag={getTag}
+      canDownload
+
+
+
+    >
+      <Tooltip label="Add a class (e.g. a Lecture) for your reference. This will not affect your tutorial ranking, and you can remove the class simply by clicking on it. Reference classes have a diagonal stripe pattern background.">
+        <Button size="sm" onClick={() => onOpen()}> Add reference classes </Button>
+
+      </Tooltip>
+    </Timetable>
+
+
+    <BasicModal
+      props={
+        {
+          size: "6xl",
+          isOpen: isOpen,
+
+          onClose: closeHandler,
+        } as ModalProps
+      }
+      title={"Add a class (for reference only - will not appear in Ranking)"}
+      closeButton="Save & close"
+    >
+      <Alert status="info" mb={3}>
+        <AlertIcon />
+        Add a class (e.g. a Lecture) for your reference. This will not affect your tutorial ranking, and you can remove the class simply by clicking on it. Reference classes have a diagonal stripe pattern background.
+      </Alert>
+      <ModuleSelect
+        isMulti={false}
+        onSelect={onSelectModule}
+        hideNonBiddable={false}
+      />
+      <Timetable
+        classesToDraw={possibleClassesOfModule}
+        onSelected={selectCurrentClassHandler}
+        property={getPropertyForAdding}
+        selectedColor="blue"
+
+
+      />
+
+    </BasicModal>
+  </Stack>
 }

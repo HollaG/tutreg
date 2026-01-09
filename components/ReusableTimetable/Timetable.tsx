@@ -70,7 +70,10 @@ const Timetable: React.FC<{
   getDisplayMode?: (class_: TimetableLessonEntry) => "detailed" | "compact" | "hidden"
   getTag?: (class_: TimetableLessonEntry) => React.ReactNode | string | undefined;
   canDownload?: boolean;
-}> = ({
+
+  children?: React.ReactNode | React.ReactNode[];
+
+} & React.PropsWithChildren> = ({
   minWidth = "750px",
   classesToDraw,
   staticClasses,
@@ -85,7 +88,9 @@ const Timetable: React.FC<{
   getDisplayMode,
   getFillMode,
   getTag,
-  canDownload = false
+  canDownload = false,
+
+  children
 }) => {
     const GRID_ITEM_HEIGHT_RESPONSIVE = useBreakpointValue({
       base: GRID_ITEM_HEIGHT_SMALL,
@@ -527,8 +532,7 @@ const Timetable: React.FC<{
           </Grid>
         </Box>
         <Flex justifyContent={"end"} mt={4} gap={'1rem'}>
-          <Button size="sm"> Remove fixed classes </Button>
-          <Button size="sm"> Add fixed classes </Button>
+          {children}
           {canDownload && <Button isLoading={isTakingScreenshot} onClick={() => takeScreenshot()} size="sm" colorScheme="blue"> Download as image </Button>}
         </Flex>
 
