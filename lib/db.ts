@@ -18,8 +18,7 @@ export default async function executeQuery({
 }) {
   try {
     const results = await db.query<any>(query, values);
-    // Don't call db.end() here - let serverless-mysql handle connection pooling
-    // Calling end() after every query causes hanging issues when multiple queries run
+    await db.end(); // Clean up connections
     if (Array.isArray(results)) {
       const stripped = results.map((rowDataPacket: any) =>
         Object.assign({}, rowDataPacket)
@@ -29,6 +28,7 @@ export default async function executeQuery({
       return results;
     }
   } catch (error) {
+    await db.end(); // Clean up even on error
     throw error;
   }
 }
@@ -52,11 +52,13 @@ export const executeTransaction = async (
       console.log(e);
       return { error: e };
     });
-    transaction.commit();
+    await transaction.commit();
+    await db.end(); // Clean up connections
     return results;
 
     // return insertIDs
   } catch (e) {
+    await db.end(); // Clean up even on error
     return { error: e };
   }
 };
