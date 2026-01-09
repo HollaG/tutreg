@@ -307,7 +307,7 @@ const TimetableSelectable: React.FC<{
         bgColor: GRAY_BACKGROUND,
         variant: "outline",
         opacity: 0.7,
-        colorScheme: "grey",
+        colorScheme: BTN_COLOR_SCHEME,
         _hover: {
           opacity: 1,
           bgColor: HOVER_COLOR,

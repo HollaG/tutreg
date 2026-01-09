@@ -26,7 +26,7 @@ export const LiveTimetable: React.FC = () => {
   }, [_classesInfo])
 
 
-  // states for selecting a new class to add as reference
+  // states for selecting a new class to add as reference (MODAL POPUP)
   const [currentClassInfo, setCurrentClassInfo] = useState<FullInfo>({
     moduleCode: "",
     lessonType: "Lecture",
@@ -36,6 +36,10 @@ export const LiveTimetable: React.FC = () => {
     ClassOverview[]
   >([]);
 
+
+  // states for selecting / deselecting from the possible classes for this (MAIN VIEW)
+  const [isModifying, setIsModifying] = useState<boolean>(false);
+  const [selectedClass, setSelectedClass] = useState<TimetableLessonEntry | null>(null);
   const dispatch = useDispatch()
 
   if (!classesInfo) {
@@ -58,7 +62,6 @@ export const LiveTimetable: React.FC = () => {
   })
 
 
-  const classList = [...nonBiddable, ...selectedBiddableClasses]
 
   const colorMap = classesInfo.colorMap
 
@@ -80,6 +83,9 @@ export const LiveTimetable: React.FC = () => {
 
   const getFillMode = (cls: TimetableLessonEntry): "solid" | "outline" => {
     // if is first choice, solid, if not, empty
+    if (isModifying) {
+      return "solid"
+    }
 
     const isFirstChoice = firstChoices.find(c => c.classNo === cls.classNo && c.moduleCode === cls.moduleCode)
     if (isFirstChoice) {
@@ -107,13 +113,30 @@ export const LiveTimetable: React.FC = () => {
     }}>{`#${index + 1}`}</Tag>
   }
 
-  const getProperty = (cls: TimetableLessonEntry): "selected" | "static" => {
+  const getProperty = (cls: TimetableLessonEntry): "selected" | "static" | undefined => {
     const moduleCodeLessonType = `${cls.moduleCode}: ${cls.lessonType}`
-    const classListForModule = classesInfo.selectedClasses[moduleCodeLessonType]
-    if (classListForModule) {
-      return "selected"
+    if (isModifying) {
+      const selectedClasses = classesInfo.selectedClasses
+      if (selectedClasses) {
+        const classListForModule = selectedClasses[moduleCodeLessonType]
+        const thisClassNo = cls.classNo
+        if (classListForModule) {
+          const isSelected = !!classListForModule.find(c => c.classNo === thisClassNo)
+          if (isSelected) {
+            return "selected"
+          }
+        }
+        return;
+      }
+    } else {
+
+      const classListForModule = classesInfo.selectedClasses[moduleCodeLessonType]
+      if (classListForModule) {
+        return "selected"
+      }
+      return "static"
     }
-    return "static"
+
   }
 
 
@@ -210,22 +233,96 @@ export const LiveTimetable: React.FC = () => {
     // if the class is from non-biddable, remove it
     const isInNonBiddable = nonBiddable.find(c => c.classNo === class_.classNo && c.moduleCode === class_.moduleCode && c.lessonType === class_.lessonType)
     if (isInNonBiddable) {
-      const mclt = `${class_.moduleCode}: ${class_.lessonType}`;
       dispatch(classesActions.removeNonBiddableClass({
         classNo: class_.classNo, lessonType: class_.lessonType, moduleCode: class_.moduleCode
       }));
       return;
     }
-    // else, do nothing
 
+    setSelectedClass(class_)
+    // if the class is from biddable, then:
+
+
+    // a) if is already modifying, then
+    //   if the MCLT is DIFFERENT, set modifying to false, return
+    //   if is in selected, remove it
+    //   else, add it
+    //     AND
+    //   set modifying to false
+    // b) if is not modifying, then
+    //   set modifying to true
+    //   temporarily set all colours to grey 
+
+    if (isModifying) {
+      // if in selected, remove
+      const moduleCodeLessonType = `${class_.moduleCode}: ${class_.lessonType}`
+
+      // if not the same MCLT, just exit modifying mode
+      if (selectedClass && moduleCodeLessonType !== `${selectedClass.moduleCode}: ${selectedClass.lessonType}`) {
+        setIsModifying(false);
+        setSelectedClass(null);
+        return;
+      }
+
+      const selectedClasses = classesInfo.selectedClasses
+      if (selectedClasses) {
+        const classListForModule = selectedClasses[moduleCodeLessonType]
+        const thisClassNo = class_.classNo
+        if (classListForModule) {
+          const isSelected = !!classListForModule.find(c => c.classNo === thisClassNo)
+          if (isSelected) {
+            dispatch(classesActions.removeSelectedClass({
+              classNo: class_.classNo,
+              moduleCodeLessonType: `${class_.moduleCode}: ${class_.lessonType}`,
+            }))
+            // setIsModifying(false);
+            return;
+          } else {
+            dispatch(classesActions.addSelectedClass({
+              classNo: class_.classNo,
+              moduleCodeLessonType: `${class_.moduleCode}: ${class_.lessonType}`,
+            }))
+            // setIsModifying(false);
+          }
+        }
+      }
+
+
+
+
+    } else {
+      setIsModifying(true);
+
+
+    }
 
   }
+
+  let defaultClasses = [selectedBiddableClasses, nonBiddable].flat()
+
+  let staticClasses: ClassOverview[] = []
+  if (isModifying && selectedClass) {
+    staticClasses = defaultClasses.filter(c => !(c.moduleCode === selectedClass?.moduleCode && c.lessonType === selectedClass?.lessonType))
+  }
+
+
+  let classesToDraw = defaultClasses
+  if (isModifying && selectedClass) {
+    const mclt = `${selectedClass.moduleCode}: ${selectedClass.lessonType}`
+    classesToDraw = classesInfo.totalModuleCodeLessonTypeMap[mclt] || [] // will be the list of classes from the totalModuleCodeLessonTypeMap 
+    // how to figure out which classes have been selected? we can check the classesInfo.selectedClasses. Then, the getProperty function can be modified to return "selected" only for the selected classes.
+  }
+
+
 
 
   return <Stack>
 
     <Timetable
-      classesToDraw={[selectedBiddableClasses, nonBiddable].flat()}
+
+      // When modifying a class, we want to change ALL CLASSES to be static, EXCEPT the MCLT being modified
+      classesToDraw={classesToDraw}
+      staticClasses={staticClasses}
       showModuleCode={true}
       showLessonType={true}
       onSelected={onSelect} //no action
@@ -242,10 +339,13 @@ export const LiveTimetable: React.FC = () => {
 
 
     >
-      <Tooltip label="Add a class (e.g. a Lecture) for your reference. This will not affect your tutorial ranking, and you can remove the class simply by clicking on it. Reference classes have a diagonal stripe pattern background.">
-        <Button size="sm" onClick={() => onOpen()}> Add reference classes </Button>
+      {!isModifying ? <Tooltip label="Add a class (e.g. a Lecture) for your reference. This will not affect your tutorial ranking, and you can remove the class simply by clicking on it. Reference classes have a diagonal stripe pattern background.">
+        {<Button size="sm" onClick={() => onOpen()}> Add reference classes </Button>}
 
-      </Tooltip>
+      </Tooltip> : <Button size="sm" colorScheme="green" onClick={() => {
+        setIsModifying(false)
+        setSelectedClass(null)
+      }}> Finish modifying </Button>}
     </Timetable>
 
 
