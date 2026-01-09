@@ -7,7 +7,7 @@ import { ClassOverview, Option, RootState } from "../../types/types"
 import { classesActions, ClassState } from "../../store/classesReducer"
 import { TimetableLessonEntry } from "../../types/timetable"
 import { getModuleColor } from "../../lib/functions"
-import { Alert, AlertIcon, Button, ModalProps, Stack, Tag, Text, Tooltip, useDisclosure } from "@chakra-ui/react"
+import { Alert, AlertIcon, Button, Flex, ModalProps, Stack, Tag, Text, Tooltip, useDisclosure } from "@chakra-ui/react"
 import ModuleSelect from "../Select/ModuleSelect"
 import BasicModal from "../Modal/Modal";
 import TimetableContainer from "../Timetable/TimetableContainer"
@@ -15,6 +15,7 @@ import { GetClassesResponse } from "../../pages/api/swap/getClasses"
 import { LessonType } from "../../types/modules"
 import { sendPOST } from "../../lib/fetcher"
 import { convertToTimetableList, FullInfo } from "../../pages/swap/create"
+import { AddIcon, EditIcon, InfoIcon, QuestionIcon } from "@chakra-ui/icons"
 export const LiveTimetable: React.FC = () => {
   const _classesInfo = useSelector((state: RootState) => state.classesInfo)
   const { isOpen, onOpen, onClose } = useDisclosure()
@@ -81,7 +82,7 @@ export const LiveTimetable: React.FC = () => {
     return "detailed"
   }
 
-  const getFillMode = (cls: TimetableLessonEntry): "solid" | "outline" => {
+  const getFillMode = (cls: TimetableLessonEntry): "solid" | "outline" | "subtle" => {
     // if is first choice, solid, if not, empty
     if (isModifying) {
       return "solid"
@@ -91,7 +92,7 @@ export const LiveTimetable: React.FC = () => {
     if (isFirstChoice) {
       return "solid"
     }
-    return "outline"
+    return "subtle"
   }
 
   const getTag = (cls: TimetableLessonEntry): React.ReactNode | string | undefined => {
@@ -339,13 +340,24 @@ export const LiveTimetable: React.FC = () => {
 
 
     >
-      {!isModifying ? <Tooltip label="Add a class (e.g. a Lecture) for your reference. This will not affect your tutorial ranking, and you can remove the class simply by clicking on it. Reference classes have a diagonal stripe pattern background.">
-        {<Button size="sm" onClick={() => onOpen()}> Add reference classes </Button>}
+      <Tooltip label='Click on a biddable class to add / remove class options, then click "Finish editing" when you are done.     Click on a reference class to remove it.'>
 
-      </Tooltip> : <Button size="sm" colorScheme="green" onClick={() => {
-        setIsModifying(false)
-        setSelectedClass(null)
-      }}> Finish modifying </Button>}
+        <Button size="sm" leftIcon={<QuestionIcon />}> Usage tips </Button>
+      </Tooltip>
+      <Flex flex={1}></Flex>
+      {isModifying ?
+        <Button size="sm" colorScheme="green" onClick={() => {
+          setIsModifying(false)
+          setSelectedClass(null)
+        }}> Finish editing </Button>
+
+        : <></>}
+      <Tooltip label="Add a class (e.g. a Lecture) for your reference. This will not affect your tutorial ranking, and you can remove the class simply by clicking on it. Reference classes have a diagonal stripe pattern background.">
+        {<Button leftIcon={<AddIcon />} size="sm" variant="subtle" colorScheme="blue" onClick={() => onOpen()}> Add reference class </Button>}
+
+      </Tooltip>
+
+
     </Timetable>
 
 

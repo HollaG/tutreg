@@ -20,6 +20,7 @@ import { ClassOverview } from "../../types/types";
 
 import TimetableSelectable, { ExampleTimetableSelectableStatic } from "./TimetableSelectable";
 import { toJpeg, toPng } from "html-to-image";
+import { DownloadIcon } from "@chakra-ui/icons";
 
 const order = [
   "Monday",
@@ -66,7 +67,7 @@ const Timetable: React.FC<{
   getClassNames?: (class_: TimetableLessonEntry) => string;
 
   getOverrideColor?: (class_: TimetableLessonEntry) => string;
-  getFillMode?: (class_: TimetableLessonEntry) => "solid" | "outline"
+  getFillMode?: (class_: TimetableLessonEntry) => "solid" | "outline" | "subtle";
   getDisplayMode?: (class_: TimetableLessonEntry) => "detailed" | "compact" | "hidden"
   getTag?: (class_: TimetableLessonEntry) => React.ReactNode | string | undefined;
   canDownload?: boolean;
@@ -274,7 +275,7 @@ const Timetable: React.FC<{
       if (!screenshotRef.current) return;
       setIsTakingScreenshot(true);
 
-      toPng(screenshotRef.current, { cacheBust: true, pixelRatio: 3 }).then((dataUrl) => {
+      toPng(screenshotRef.current, { cacheBust: true, pixelRatio: 5 }).then((dataUrl) => {
         // Create a link to download the image
         const link = document.createElement('a');
         link.download = 'tutreg-order.png';
@@ -533,7 +534,7 @@ const Timetable: React.FC<{
         </Box>
         <Flex justifyContent={"end"} mt={4} gap={'1rem'}>
           {children}
-          {canDownload && <Button isLoading={isTakingScreenshot} onClick={() => takeScreenshot()} size="sm" colorScheme="blue"> Download as image </Button>}
+          {canDownload && <Button leftIcon={<DownloadIcon />} isLoading={isTakingScreenshot} onClick={() => takeScreenshot()} size="sm" colorScheme="blue"> Download as image </Button>}
         </Flex>
 
         {/* To be implemented */}

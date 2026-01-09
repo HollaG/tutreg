@@ -38,7 +38,7 @@ const TimetableSelectable: React.FC<{
 
 
   getOverrideColor?: (class_: TimetableLessonEntry) => string;
-  getFillMode?: (class_: TimetableLessonEntry) => "solid" | "outline"
+  getFillMode?: (class_: TimetableLessonEntry) => "solid" | "outline" | "subtle"
   getDisplayMode?: (class_: TimetableLessonEntry) => "detailed" | "compact" | "hidden"
 }> = ({
   class_,

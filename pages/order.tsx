@@ -66,6 +66,8 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogOverlay,
+  Container,
+  Grid,
 } from "@chakra-ui/react";
 import { AnyARecord } from "dns";
 import { NextPage } from "next";
@@ -90,6 +92,7 @@ import { ImportResponseData } from "./api/import";
 import {
   formatTimeElapsed,
   generateLink,
+  getModuleColor,
   tutregToNUSMods,
 } from "../lib/functions";
 
@@ -658,200 +661,222 @@ const Order: NextPage = () => {
 
   const Wrapper = dualMode ? FullPage : ContainedPage;
 
-  return (<Wrapper>
+
+  // ------------- LEGEND --------------
+  // generate a colour map for the modules selected
+  let colorList: string[] = []
+  const [colorMap, setColorMap] = useState<(string | null)[]>([])
+  useEffect(() => {
+    setColorMap(classesInfo.colorMap)
+  }, [classesInfo.colorMap])
+
+  colorMap.forEach((mclt, index) => {
+    // cap at 3
+    if (mclt != null && colorList.length < 3) colorList.push(getModuleColor(colorMap, mclt))
+  })
+  const STATIC_STRIPED_BG_COLOR = useColorModeValue(
+    'repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(0,0,0,0.2) 10px, rgba(0,0,0,0.2) 11px)',
+    'repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.2) 10px, rgba(255,255,255,0.2) 11px)'
+  )
+
+
+  return (<FullPage>
     <SimpleGrid columns={{ base: 1, xl: dualMode ? 2 : 1 }} spacingX={"6rem"} spacingY="2rem">
+      <Container maxW={"container.lg"}>
 
-      <Stack>
-        {alertNewer && (
-          <Alert
-            status="warning"
-            justifyContent={"space-between"}
-            // flexWrap="wrap"
-            alignItems={"center"}
-          >
-            <Flex alignItems={"center"}>
-              <AlertIcon />A newer version of your ranking has been
-              detected in the cloud (uploaded{" "}
-              {formatTimeElapsed(new Date(alertNewer).toString())}).
-            </Flex>
-            <Flex
-              minWidth={"160px"}
-              flexWrap="wrap"
-              justifyContent={"end"}
-            >
-              <Button
-                size="xs"
-                colorScheme={"red"}
-                onClick={replaceLocalData}
-                mb={1}
-              >
-                Download cloud
-              </Button>
-              <Button
-                size="xs"
-                colorScheme={"red"}
-                ml={2}
-                onClick={uploadLocalData}
-              >
-                Upload local
-              </Button>
-            </Flex>
-          </Alert>
-        )}
-        {alertOlder && (
-          <Alert
-            status="warning"
-            justifyContent={"space-between"}
-            alignItems={"center"}
-          >
-            <Flex alignItems={"center"}>
-              <AlertIcon />
-              An older version of your ranking has been detected in
-              the cloud (uploaded{" "}
-              {formatTimeElapsed(new Date(alertOlder).toString())}).
-            </Flex>
-            <Flex
-              minWidth={"160px"}
-              flexWrap="wrap"
-              justifyContent={"end"}
-            >
-              <Button
-                size="xs"
-                colorScheme={"red"}
-                mb={1}
-                onClick={replaceLocalData}
-              >
-                Download cloud
-              </Button>
-              <Button
-                size="xs"
-                colorScheme={"red"}
-                onClick={uploadLocalData}
-                ml={2}
-              >
-                Upload local
-              </Button>
-            </Flex>
-          </Alert>
-        )}
-        <CTA_GENERAL
-          title="🥇 Rank your classes"
-          description="Not sure how to rank your classes for Tutorial Registration? Use this tool to generate the most optimal ranking for you, based on your preferences!"
-          image={OrderImage}
-          ButtonLeft={
-            <Button
-              // rounded={"full"}
-              // size={"lg"}
-              fontWeight={"normal"}
-              px={6}
-              colorScheme={"blue"}
-              onClick={beginOnboarding}
-            >
-              Get started
-            </Button>
-          }
-          ButtonRight={HOW_IT_WORKS}
-        />
-        <Stepper index={activeStep} orientation="vertical" w="full">
-          <Box width="100%" ref={step1Ref}>
-            <Step>
-              <StepIndicator>
-                <StepStatus
-                  complete={<StepIcon />}
-                  incomplete={<StepNumber />}
-                  active={<StepNumber />}
-                />
-              </StepIndicator>
 
-              <Box w="100%" ml={2}>
-                <Flex
-                  alignItems={"center"}
-                  justifyContent="space-between"
+        <Stack>
+          {alertNewer && (
+            <Alert
+              status="warning"
+              justifyContent={"space-between"}
+              // flexWrap="wrap"
+              alignItems={"center"}
+            >
+              <Flex alignItems={"center"}>
+                <AlertIcon />A newer version of your ranking has been
+                detected in the cloud (uploaded{" "}
+                {formatTimeElapsed(new Date(alertNewer).toString())}).
+              </Flex>
+              <Flex
+                minWidth={"160px"}
+                flexWrap="wrap"
+                justifyContent={"end"}
+              >
+                <Button
+                  size="xs"
+                  colorScheme={"red"}
+                  onClick={replaceLocalData}
+                  mb={1}
                 >
-                  <Box>
-                    <StepTitle>{steps[0].title}</StepTitle>
-                    <StepDescription>
-                      {steps[0].description}
-                    </StepDescription>
-                  </Box>
-                  {DetailsButton}
-                </Flex>
+                  Download cloud
+                </Button>
+                <Button
+                  size="xs"
+                  colorScheme={"red"}
+                  ml={2}
+                  onClick={uploadLocalData}
+                >
+                  Upload local
+                </Button>
+              </Flex>
+            </Alert>
+          )}
+          {alertOlder && (
+            <Alert
+              status="warning"
+              justifyContent={"space-between"}
+              alignItems={"center"}
+            >
+              <Flex alignItems={"center"} flexGrow={1}>
+                <AlertIcon />
+                An older version of your ranking has been detected in
+                the cloud (uploaded{" "}
+                {formatTimeElapsed(new Date(alertOlder).toString())}).
+              </Flex>
+              <Flex
+                minWidth={"160px"}
+                flexWrap="wrap"
+                justifyContent={"end"}
 
-                <Stack p={1}>
-                  <form onSubmit={handleSubmit}>
-                    <Flex>
-                      <FormControl isInvalid={isError}>
-                        <Flex
-                          // alignItems={"center"}
-                          justifyContent="space-between"
-                        >
-                          <Box mr={3} flexGrow={1}>
-                            <Input
-                              placeholder="https://shorten.nusmods.com/?... OR https://nusmods.com/timetable/sem-1/share?..."
-                              value={link}
-                              onChange={(e) =>
-                                setLink(
-                                  e.target.value
-                                )
-                              }
-                            />
+              >
+                <Button
+                  size="xs"
+                  colorScheme={"red"}
+                  mb={1}
+                  onClick={replaceLocalData}
+                >
+                  Download cloud
+                </Button>
+                <Button
+                  size="xs"
+                  colorScheme={"red"}
+                  onClick={uploadLocalData}
+                  ml={2}
+                >
+                  Upload local
+                </Button>
+              </Flex>
+            </Alert>
+          )}
+          <CTA_GENERAL
+            title="🥇 Rank your classes"
+            description="Not sure how to rank your classes for Tutorial Registration? Use this tool to generate the most optimal ranking for you, based on your preferences!"
+            image={OrderImage}
+            ButtonLeft={
+              <Button
+                // rounded={"full"}
+                // size={"lg"}
+                fontWeight={"normal"}
+                px={6}
+                colorScheme={"blue"}
+                onClick={beginOnboarding}
+              >
+                Get started
+              </Button>
+            }
+            ButtonRight={HOW_IT_WORKS}
+          />
+          <Stepper index={activeStep} orientation="vertical" w="full">
+            <Box width="100%" ref={step1Ref}>
+              <Step>
+                <StepIndicator>
+                  <StepStatus
+                    complete={<StepIcon />}
+                    incomplete={<StepNumber />}
+                    active={<StepNumber />}
+                  />
+                </StepIndicator>
 
-                            {
-                              <FormHelperText>
-                                {" "}
-                                Paste the timetable
-                                link you send to
-                                your friends!
-                              </FormHelperText>
-                            }
-                            {isError && (
-                              <FormErrorMessage>
-                                Invalid share link!
-                              </FormErrorMessage>
-                            )}
-                          </Box>
-                          <Box
-                            width="85px"
-                            minWidth={"85px"}
-                            flexShrink={0}
-                          >
-                            <Tooltip
-                              hasArrow
-                              label="Importing a new timetable will clear your previously selected courses, if any!"
-                              textAlign="center"
-                            >
-                              <Button
-                                type="submit"
-                                colorScheme="blue"
-                                isDisabled={!link}
-                                isLoading={
-                                  isSubmitting
-                                }
-                              >
-                                {" "}
-                                Import
-                              </Button>
-                            </Tooltip>
-                          </Box>
-                        </Flex>
-                      </FormControl>
-                    </Flex>
-                  </form>
+                <Box w="100%" ml={2}>
                   <Flex
-                    justifyContent={"space-between"}
-                    alignItems="center"
+                    alignItems={"center"}
+                    justifyContent="space-between"
                   >
-                    <Divider />
-                    <Text mx={3} fontWeight="semibold">
-                      {" "}
-                      or{" "}
-                    </Text>
-                    <Divider />
+                    <Box>
+                      <StepTitle>{steps[0].title}</StepTitle>
+                      <StepDescription>
+                        {steps[0].description}
+                      </StepDescription>
+                    </Box>
+                    {DetailsButton}
                   </Flex>
-                  <form onSubmit={(e) => e.preventDefault()}>
-                    <Flex>
-                      <Box flex={1} mr={3}>
-                        {/* <FormControl>
+
+                  <Stack p={1}>
+                    <form onSubmit={handleSubmit}>
+                      <Flex>
+                        <FormControl isInvalid={isError}>
+                          <Flex
+                            // alignItems={"center"}
+                            justifyContent="space-between"
+                          >
+                            <Box mr={3} flexGrow={1}>
+                              <Input
+                                placeholder="https://shorten.nusmods.com/?... OR https://nusmods.com/timetable/sem-1/share?..."
+                                value={link}
+                                onChange={(e) =>
+                                  setLink(
+                                    e.target.value
+                                  )
+                                }
+                              />
+
+                              {
+                                <FormHelperText>
+                                  {" "}
+                                  Paste the timetable
+                                  link you send to
+                                  your friends!
+                                </FormHelperText>
+                              }
+                              {isError && (
+                                <FormErrorMessage>
+                                  Invalid share link!
+                                </FormErrorMessage>
+                              )}
+                            </Box>
+                            <Box
+                              width="85px"
+                              minWidth={"85px"}
+                              flexShrink={0}
+                            >
+                              <Tooltip
+                                hasArrow
+                                label="Importing a new timetable will clear your previously selected courses, if any!"
+                                textAlign="center"
+                              >
+                                <Button
+                                  type="submit"
+                                  colorScheme="blue"
+                                  isDisabled={!link}
+                                  isLoading={
+                                    isSubmitting
+                                  }
+                                >
+                                  {" "}
+                                  Import
+                                </Button>
+                              </Tooltip>
+                            </Box>
+                          </Flex>
+                        </FormControl>
+                      </Flex>
+                    </form>
+                    <Flex
+                      justifyContent={"space-between"}
+                      alignItems="center"
+                    >
+                      <Divider />
+                      <Text mx={3} fontWeight="semibold">
+                        {" "}
+                        or{" "}
+                      </Text>
+                      <Divider />
+                    </Flex>
+                    <form onSubmit={(e) => e.preventDefault()}>
+                      <Flex>
+                        <Box flex={1} mr={3}>
+                          {/* <FormControl>
                                                 <AsyncSelect
                                                     instanceId={`${ay}-select`}
                                                     closeMenuOnSelect={false}
@@ -880,252 +905,253 @@ const Order: NextPage = () => {
                                                     are not shown.
                                                 </FormHelperText>
                                             </FormControl> */}
-                        <ModuleSelect
-                          onSelect={handleSelectChange}
-                          additionalFilter={
-                            filterSelectedModules
-                          }
-                          isMulti
-                          hideNonBiddable={true}
-                        />
+                          <ModuleSelect
+                            onSelect={handleSelectChange}
+                            additionalFilter={
+                              filterSelectedModules
+                            }
+                            isMulti
+                            hideNonBiddable={true}
+                          />
+                        </Box>
+                        <Button
+                          onClick={() => addModules()}
+                          type="submit"
+                          colorScheme="blue"
+                          width="85px"
+                        >
+                          {" "}
+                          Add{" "}
+                        </Button>
+                      </Flex>
+                    </form>
+                    <ModuleSortContainer
+                      showAdditionalDetails={
+                        showAdditionalDetails
+                      }
+                    />
+                  </Stack>
+                </Box>
+
+                <StepSeparator />
+              </Step>
+            </Box>
+            <Box width="100%" ref={step2Ref}>
+              <Step>
+                <StepIndicator>
+                  <StepStatus
+                    complete={<StepIcon />}
+                    incomplete={<StepNumber />}
+                    active={<StepNumber />}
+                  />
+                </StepIndicator>
+
+                <Box w="100%" ml={2}>
+                  <Flex
+                    alignItems={"center"}
+                    justifyContent="space-between"
+                  >
+                    <Box>
+                      <StepTitle>{steps[1].title}</StepTitle>
+                      <StepDescription>
+                        {steps[1].description}
+                      </StepDescription>
+                    </Box>
+                    {DetailsButton}
+                  </Flex>
+                  <Stack p={1}>
+                    <ClassSortContainer
+                      showAdditionalDetails={
+                        showAdditionalDetails
+                      }
+                    />
+                  </Stack>
+                </Box>
+
+                <StepSeparator />
+              </Step>
+            </Box>
+            <Box w="100%" ref={step3Ref}>
+              <Step>
+                <StepIndicator>
+                  <StepStatus
+                    complete={<StepIcon />}
+                    incomplete={<StepNumber />}
+                    active={<StepNumber />}
+                  />
+                </StepIndicator>
+
+                <Box w="100%" ml={2}>
+                  <Flex
+                    alignItems={"center"}
+                    justifyContent="space-between"
+                  >
+                    <Box>
+                      <StepTitle>{steps[2].title}</StepTitle>
+                      <StepDescription>
+                        {steps[2].description}
+                      </StepDescription>
+                    </Box>
+                    {DetailsButton}
+                  </Flex>
+                  <Stack p={1}>
+                    <ResultContainer
+                      showAdditionalDetails={
+                        showAdditionalDetails
+                      }
+                      setShareLink={setShareLink}
+                    />
+                  </Stack>
+                </Box>
+
+                <StepSeparator />
+              </Step>
+            </Box>
+            <Box w="100%" ref={step4Ref}>
+              <Step>
+                <StepIndicator>
+                  <StepStatus
+                    complete={<StepIcon />}
+                    incomplete={<StepNumber />}
+                    active={<StepNumber />}
+                  />
+                </StepIndicator>
+
+                <Box w="100%" ml={2}>
+                  <Flex
+                    alignItems={"center"}
+                    justifyContent="space-between"
+                  >
+                    <Box>
+                      <StepTitle>{steps[3].title}</StepTitle>
+                      <StepDescription>
+                        {steps[3].description}
+                      </StepDescription>
+                    </Box>
+                    {/* {DetailsButton} */}
+                  </Flex>
+                </Box>
+
+                <StepSeparator />
+              </Step>
+            </Box>
+          </Stepper>
+          <Stack p={1}>
+            <Box>
+              <Flex
+                fontWeight="semibold"
+                mb={2}
+                ml={2}
+                display="flex"
+                flexWrap={"wrap"}
+              >
+                {" "}
+                Export link
+                <Popover>
+                  <PopoverTrigger>
+                    <Text
+                      as={Box}
+                      ml={2}
+                      fontWeight="normal"
+                      borderBottom={"2px dotted"}
+                      // borderBottomColor={useColorModeValue(
+                      //     "black",
+                      //     "white"
+                      // )}
+                      cursor="help"
+                    >
+                      to Tutreg Companion Extension
+                    </Text>
+                  </PopoverTrigger>
+                  <PopoverContent>
+                    <PopoverArrow />
+                    <PopoverCloseButton />
+
+                    <PopoverBody fontWeight={"normal"}>
+                      The Tutreg Companion Extension helps you
+                      import the ranking of classes you just made
+                      above into EduRec with just two button
+                      presses.
+                    </PopoverBody>
+                    <PopoverFooter
+                      display="flex"
+                      justifyContent={"right"}
+                      w="100%"
+                      alignItems={"center"}
+                    >
+                      <Box>
+                        <Link
+                          // as={NextLink}
+                          isExternal
+                          href="https://chrome.google.com/webstore/detail/tutreg-companion-extensio/alklihigfndbjjihbglpfpadlmkcgdja"
+                          // open in new window
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <Button
+                            size="xs"
+                            mr={2}
+                            colorScheme="orange"
+                          >
+                            Get extension{" "}
+                          </Button>
+                        </Link>
                       </Box>
-                      <Button
-                        onClick={() => addModules()}
-                        type="submit"
-                        colorScheme="blue"
-                        width="85px"
-                      >
-                        {" "}
-                        Add{" "}
-                      </Button>
-                    </Flex>
-                  </form>
-                  <ModuleSortContainer
-                    showAdditionalDetails={
-                      showAdditionalDetails
-                    }
-                  />
-                </Stack>
-              </Box>
+                      <Box>
+                        <Link as={NextLink} href="/extension">
+                          <Button
+                            size="xs"
+                            colorScheme={"blue"}
+                          >
+                            Learn more
+                          </Button>
+                        </Link>
+                      </Box>
+                    </PopoverFooter>
+                  </PopoverContent>
+                </Popover>
+              </Flex>
+              <InputGroup>
+                {/* <InputLeftAddon>Export link</InputLeftAddon> */}
 
-              <StepSeparator />
-            </Step>
-          </Box>
-          <Box width="100%" ref={step2Ref}>
-            <Step>
-              <StepIndicator>
-                <StepStatus
-                  complete={<StepIcon />}
-                  incomplete={<StepNumber />}
-                  active={<StepNumber />}
+                <InputLeftElement>
+                  <CopyIcon />
+                </InputLeftElement>
+                <Input
+                  readOnly
+                  value={shareLink}
+                  onClick={clickedCopy}
                 />
-              </StepIndicator>
+                <InputRightElement width="4.5rem">
+                  <Button
+                    h="1.75rem"
+                    size="sm"
+                    onClick={clickedCopy}
+                    w="70px"
+                    colorScheme={hasCopied ? "green" : "gray"}
+                    mr={2}
+                  >
+                    {hasCopied ? "Copied!" : "Copy"}
+                  </Button>
+                </InputRightElement>
+              </InputGroup>
+            </Box>
+          </Stack>
 
-              <Box w="100%" ml={2}>
-                <Flex
-                  alignItems={"center"}
-                  justifyContent="space-between"
-                >
-                  <Box>
-                    <StepTitle>{steps[1].title}</StepTitle>
-                    <StepDescription>
-                      {steps[1].description}
-                    </StepDescription>
-                  </Box>
-                  {DetailsButton}
-                </Flex>
-                <Stack p={1}>
-                  <ClassSortContainer
-                    showAdditionalDetails={
-                      showAdditionalDetails
-                    }
-                  />
-                </Stack>
-              </Box>
-
-              <StepSeparator />
-            </Step>
-          </Box>
-          <Box w="100%" ref={step3Ref}>
-            <Step>
-              <StepIndicator>
-                <StepStatus
-                  complete={<StepIcon />}
-                  incomplete={<StepNumber />}
-                  active={<StepNumber />}
-                />
-              </StepIndicator>
-
-              <Box w="100%" ml={2}>
-                <Flex
-                  alignItems={"center"}
-                  justifyContent="space-between"
-                >
-                  <Box>
-                    <StepTitle>{steps[2].title}</StepTitle>
-                    <StepDescription>
-                      {steps[2].description}
-                    </StepDescription>
-                  </Box>
-                  {DetailsButton}
-                </Flex>
-                <Stack p={1}>
-                  <ResultContainer
-                    showAdditionalDetails={
-                      showAdditionalDetails
-                    }
-                    setShareLink={setShareLink}
-                  />
-                </Stack>
-              </Box>
-
-              <StepSeparator />
-            </Step>
-          </Box>
-          <Box w="100%" ref={step4Ref}>
-            <Step>
-              <StepIndicator>
-                <StepStatus
-                  complete={<StepIcon />}
-                  incomplete={<StepNumber />}
-                  active={<StepNumber />}
-                />
-              </StepIndicator>
-
-              <Box w="100%" ml={2}>
-                <Flex
-                  alignItems={"center"}
-                  justifyContent="space-between"
-                >
-                  <Box>
-                    <StepTitle>{steps[3].title}</StepTitle>
-                    <StepDescription>
-                      {steps[3].description}
-                    </StepDescription>
-                  </Box>
-                  {/* {DetailsButton} */}
-                </Flex>
-              </Box>
-
-              <StepSeparator />
-            </Step>
-          </Box>
-        </Stepper>
-        <Stack p={1}>
-          <Box>
-            <Flex
-              fontWeight="semibold"
-              mb={2}
-              ml={2}
-              display="flex"
-              flexWrap={"wrap"}
+          {showShortcuts && (
+            <Text
+              mt={10}
+              fontWeight="light"
+              textAlign={"right"}
+              fontSize="sm"
             >
               {" "}
-              Export link
-              <Popover>
-                <PopoverTrigger>
-                  <Text
-                    as={Box}
-                    ml={2}
-                    fontWeight="normal"
-                    borderBottom={"2px dotted"}
-                    // borderBottomColor={useColorModeValue(
-                    //     "black",
-                    //     "white"
-                    // )}
-                    cursor="help"
-                  >
-                    to Tutreg Companion Extension
-                  </Text>
-                </PopoverTrigger>
-                <PopoverContent>
-                  <PopoverArrow />
-                  <PopoverCloseButton />
-
-                  <PopoverBody fontWeight={"normal"}>
-                    The Tutreg Companion Extension helps you
-                    import the ranking of classes you just made
-                    above into EduRec with just two button
-                    presses.
-                  </PopoverBody>
-                  <PopoverFooter
-                    display="flex"
-                    justifyContent={"right"}
-                    w="100%"
-                    alignItems={"center"}
-                  >
-                    <Box>
-                      <Link
-                        // as={NextLink}
-                        isExternal
-                        href="https://chrome.google.com/webstore/detail/tutreg-companion-extensio/alklihigfndbjjihbglpfpadlmkcgdja"
-                        // open in new window
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <Button
-                          size="xs"
-                          mr={2}
-                          colorScheme="orange"
-                        >
-                          Get extension{" "}
-                        </Button>
-                      </Link>
-                    </Box>
-                    <Box>
-                      <Link as={NextLink} href="/extension">
-                        <Button
-                          size="xs"
-                          colorScheme={"blue"}
-                        >
-                          Learn more
-                        </Button>
-                      </Link>
-                    </Box>
-                  </PopoverFooter>
-                </PopoverContent>
-              </Popover>
-            </Flex>
-            <InputGroup>
-              {/* <InputLeftAddon>Export link</InputLeftAddon> */}
-
-              <InputLeftElement>
-                <CopyIcon />
-              </InputLeftElement>
-              <Input
-                readOnly
-                value={shareLink}
-                onClick={clickedCopy}
-              />
-              <InputRightElement width="4.5rem">
-                <Button
-                  h="1.75rem"
-                  size="sm"
-                  onClick={clickedCopy}
-                  w="70px"
-                  colorScheme={hasCopied ? "green" : "gray"}
-                  mr={2}
-                >
-                  {hasCopied ? "Copied!" : "Copy"}
-                </Button>
-              </InputRightElement>
-            </InputGroup>
-          </Box>
+              Pst, did you know you can press <Kbd>1</Kbd> <Kbd> 2</Kbd>{" "}
+              <Kbd> 3</Kbd> <Kbd>4</Kbd> to jump steps?{" "}
+            </Text>
+          )}
         </Stack>
-
-        {showShortcuts && (
-          <Text
-            mt={10}
-            fontWeight="light"
-            textAlign={"right"}
-            fontSize="sm"
-          >
-            {" "}
-            Pst, did you know you can press <Kbd>1</Kbd> <Kbd> 2</Kbd>{" "}
-            <Kbd> 3</Kbd> <Kbd>4</Kbd> to jump steps?{" "}
-          </Text>
-        )}
-      </Stack>
+      </Container>
       <Box
         position="sticky"
         top="64px"          // below your Nav height
@@ -1133,7 +1159,23 @@ const Order: NextPage = () => {
         maxH="calc(100vh - 64px)"
         overflowY="auto"    //</SimpleGrid>>
       >
-        <Flex justifyContent={"right"} mb={3}>
+        <Flex justifyContent={"space-between"} mb={3}>
+          <Grid gridTemplateColumns={'64px 1fr'} alignItems={'center'} columnGap={4}>
+            <HStack>{colorList.map((color, index) => <Button key={`solid-${index}`} size="xxs" colorScheme={color}></Button>)}
+            </HStack>
+            <Text>Biddable classes (first choice)</Text>
+            <HStack>
+              {colorList.map((color, index) => <Button key={`subtle-${index}`} size="xxs" colorScheme={color} variant="subtle"></Button>)}
+            </HStack>
+            <Text>Biddable classes (not first choice)</Text>
+            <Box style={{
+              width: "64px",
+              height: "1rem",
+              backgroundImage: STATIC_STRIPED_BG_COLOR,
+            }}></Box>
+            <Text>Reference classes</Text>
+
+          </Grid>
 
           {isBiggerThanXl && <Button onClick={() => setDualMode((prev) => !prev)} colorScheme="teal" size="sm"> {dualMode ? "Switch to single view" : "Switch to dual view"} <Tag ml={3} size={"sm"} style={{
             background: "linear-gradient(135deg, #ffd6e7 0%, #ffe7c7 18%, #fff6bf 36%, #d9ffd6 54%, #d6f0ff 72%, #ead6ff 90%, #ffd6e7 100%)",
@@ -1144,7 +1186,7 @@ const Order: NextPage = () => {
 
       </Box>
     </SimpleGrid>
-  </Wrapper>);
+  </FullPage>);
 };
 
 export default Order;
