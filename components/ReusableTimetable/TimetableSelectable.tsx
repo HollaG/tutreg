@@ -237,44 +237,52 @@ const TimetableSelectable: React.FC<{
                   {class_.classNo}
                 </Text> */}
                 <Stack spacing={0}>
-                  <Text
-                    // fontSize={{
-                    //     base: "xs",
-                    //     md: "md",
-                    // }}
-                    fontSize={{
-                      base: "0.9rem",
-                      md: "md",
-                    }}
-                    fontWeight="semibold"
-                    mr={2}
-                  >
-                    {class_.moduleCode}
-                  </Text>
-                  <Text
-                    fontSize={{
-                      base: "0.8rem",
-                      md: "sm",
-                    }}
-                  >
-                    {(encodeLessonTypeToShorthand(class_.lessonType))} [{class_.classNo}]
-                  </Text>
-                  <Text
-                    fontSize={{
-                      base: "0.65rem",
-                      md: "xs",
-                    }}
-                  >
-                    {class_.venue}
-                  </Text>
-                  <Text
-                    fontSize={{
-                      base: "0.65rem",
-                      md: "xs",
-                    }}
-                  >
-                    Wks {weeksDisplay}{" "}
-                  </Text>
+                  {(showModuleCode || showLessonType) && (
+                    <Text fontSize={{ base: "xs", md: "sm" }}>
+                      {showModuleCode ? class_.moduleCode : ""}{" "}
+                      {showLessonType
+                        ? encodeLessonTypeToShorthand(
+                          class_.lessonType
+                        )
+                        : ""}
+                    </Text>
+                  )}
+                  <Flex flexWrap={"wrap"}>
+                    <Text
+                      // fontSize={{
+                      //     base: "xs",
+                      //     md: "md",
+                      // }}
+                      fontSize={{
+                        base: "sm",
+                        md: tinyMode ? "sm" : "2xl",
+                      }}
+                      fontWeight="semibold"
+                      mr={2}
+                    >
+                      {class_.classNo}
+                    </Text>
+                    {displayMode === "detailed" ? <Stack spacing={0}>
+                      <Text
+                        fontSize={{
+                          base: "0.65rem",
+                          md: tinyMode ? "0.65rem" : "xs",
+                        }}
+                      // fontWeight="light"
+                      >
+                        {class_.venue}
+                      </Text>
+                      <Text
+                        fontSize={{
+                          base: "0.65rem",
+                          md: tinyMode ? "0.65rem" : "xs",
+                        }}
+                      // fontWeight="light"
+                      >
+                        Wks {weeksDisplay}{" "}
+                      </Text>
+                    </Stack> : null}
+                  </Flex>
                 </Stack>
               </Flex>
             </Button>

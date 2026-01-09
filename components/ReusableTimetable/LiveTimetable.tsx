@@ -88,19 +88,44 @@ export const LiveTimetable: React.FC = () => {
     }}>{`#${index + 1}`}</Tag>
   }
 
+  const getProperty = (cls: TimetableLessonEntry): "selected" | "static" => {
+    const moduleCodeLessonType = `${cls.moduleCode}: ${cls.lessonType}`
+    const classListForModule = classesInfo.selectedClasses[moduleCodeLessonType]
+    if (classListForModule) {
+      return "selected"
+    }
+    return "static"
+  }
+
+  // const handleClick = () => {
+
+  //   // // when opening the modal, set the changed classes to the currently selected classes, or none if there's none
+  //   // if (data.selectedClasses[moduleCodeLessonType]) {
+  //   //   dispatch(
+  //   //     classesActions.setChangedClasses(
+  //   //       data.selectedClasses[moduleCodeLessonType].map(
+  //   //         (class_) => class_.classNo
+  //   //       ) || []
+  //   //     )
+  //   //   );
+  //   // }
+  //   // onOpen();
+  // };
+
   return <Timetable
-    classesToDraw={selectedBiddableClasses}
+    classesToDraw={[selectedBiddableClasses, nonBiddable].flat()}
     showModuleCode={true}
     showLessonType={true}
     onSelected={() => { }} //no action
-    property={(entry) => "selected"}
-    minWidth="1500px"
-    staticClasses={nonBiddable}
+    property={getProperty}
+    minWidth="1600px"
+    // staticClasses={nonBiddable}
 
     getOverrideColor={getColor}
     getDisplayMode={getDisplayMode}
     getFillMode={getFillMode}
     getTag={getTag}
+    canDownload
 
   />
 }

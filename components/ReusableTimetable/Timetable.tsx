@@ -9,8 +9,9 @@ import {
   Box,
   Stack,
   HStack,
+  Button,
 } from "@chakra-ui/react";
-import React from "react";
+import React, { useRef, useState } from "react";
 
 import { keepAndCapFirstThree } from "../../lib/functions";
 import { Day } from "../../types/modules";
@@ -18,6 +19,7 @@ import { DayRows, TimetableLessonEntry } from "../../types/timetable";
 import { ClassOverview } from "../../types/types";
 
 import TimetableSelectable, { ExampleTimetableSelectableStatic } from "./TimetableSelectable";
+import { toJpeg, toPng } from "html-to-image";
 
 const order = [
   "Monday",
@@ -25,8 +27,8 @@ const order = [
   "Wednesday",
   "Thursday",
   "Friday",
-  "Saturday",
-  "Sunday",
+  // "Saturday",
+  // "Sunday",
 ];
 
 const GRID_ITEM_HEIGHT_BIG = 85;
@@ -67,6 +69,7 @@ const Timetable: React.FC<{
   getFillMode?: (class_: TimetableLessonEntry) => "solid" | "outline"
   getDisplayMode?: (class_: TimetableLessonEntry) => "detailed" | "compact" | "hidden"
   getTag?: (class_: TimetableLessonEntry) => React.ReactNode | string | undefined;
+  canDownload?: boolean;
 }> = ({
   minWidth = "750px",
   classesToDraw,
@@ -81,7 +84,8 @@ const Timetable: React.FC<{
   getOverrideColor,
   getDisplayMode,
   getFillMode,
-  getTag
+  getTag,
+  canDownload = false
 }) => {
     const GRID_ITEM_HEIGHT_RESPONSIVE = useBreakpointValue({
       base: GRID_ITEM_HEIGHT_SMALL,
@@ -100,6 +104,12 @@ const Timetable: React.FC<{
 
     const BORDER_WIDTH = "1px";
     const BORDER_RADIUS = "5px";
+
+    const screenshotRef = useRef<HTMLDivElement>(null);
+    const [isTakingScreenshot, setIsTakingScreenshot] = useState(false);
+
+
+
     let timetableList: TimetableLessonEntry[] = [];
 
     let earliestTiming = "2400";
@@ -111,8 +121,8 @@ const Timetable: React.FC<{
       Wednesday: 1,
       Thursday: 1,
       Friday: 1,
-      Saturday: 1,
-      Sunday: 1,
+      Saturday: 0,
+      Sunday: 0,
     };
 
     const allClassesToDraw: (ClassOverview & { unselectable?: boolean })[] = [...classesToDraw, ...(staticClasses || []).map((c) => ({ ...c, unselectable: true }))];
@@ -245,12 +255,40 @@ const Timetable: React.FC<{
         60
       ) + 1; // # of hours in timetable + 1
 
+    if (totalDayRowsToDraw.Saturday === 0) {
+      // remove saturday from rowMappingForDays
+      rowMappingForDays.splice(5, 1);
+    }
+    if (totalDayRowsToDraw.Sunday === 0) {
+      // remove sunday from rowMappingForDays
+      rowMappingForDays.splice(5, 1);
+    }
+
+    const bgColor = useColorModeValue("#ffffff", "1a202c");
+    const takeScreenshot = () => {
+      if (!screenshotRef.current) return;
+      setIsTakingScreenshot(true);
+
+      toPng(screenshotRef.current, { cacheBust: true, pixelRatio: 3 }).then((dataUrl) => {
+        // Create a link to download the image
+        const link = document.createElement('a');
+        link.download = 'tutreg-order.png';
+        link.href = dataUrl;
+        link.click();
+      })
+        .catch((err) => {
+          console.error('oops, something went wrong!', err);
+        }).finally(() => {
+          setIsTakingScreenshot(false);
+        });
+    }
     return (
       <Stack>
 
 
-        <Box overflowX="scroll">
+        <Box overflowX="scroll"  >
           <Grid
+            ref={screenshotRef}
             minW={minWidth}
             margin="auto"
             gridTemplateRows={"25px 1fr"}
@@ -269,6 +307,7 @@ const Timetable: React.FC<{
                     alignItems={"flex-end"}
                     height="100%"
                     ml="-18px"
+                    backgroundColor={bgColor}
                   >
                     {c !== 0 ? (
                       <Text
@@ -487,6 +526,9 @@ const Timetable: React.FC<{
             </GridItem>
           </Grid>
         </Box>
+        <Flex justifyContent={"end"} mt={4}>
+          {canDownload && <Button isLoading={isTakingScreenshot} onClick={() => takeScreenshot()} size="sm" colorScheme="blue"> Download as image </Button>}
+        </Flex>
 
         {/* To be implemented */}
         {/* <Box>

@@ -652,7 +652,7 @@ const Order: NextPage = () => {
 
 
   return (<FullPage>
-    <SimpleGrid columns={2} spacing={"6rem"}>
+    <SimpleGrid columns={{ base: 1, xl: 2 }} spacing={"6rem"}>
 
       <Stack>
         {alertNewer && (
