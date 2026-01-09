@@ -115,12 +115,16 @@ import { FullPage } from "../components/PageWrap/FullPage";
 import { ContainedPage } from "../components/PageWrap/ContainedPage";
 import Timetable from "../components/ReusableTimetable/Timetable";
 import { LiveTimetable } from "../components/ReusableTimetable/LiveTimetable";
+import useLocalStorageState from "use-local-storage-state";
 const ay = process.env.NEXT_PUBLIC_AY;
 const sem = process.env.NEXT_PUBLIC_SEM;
 const SYNC_COLLECTION_NAME =
   process.env.NEXT_PUBLIC_SYNC_COLLECTION_NAME || "userStorage";
 const Order: NextPage = () => {
-  const [dualMode, setDualMode] = useState(true)
+  const [dualMode, setDualMode] = useLocalStorageState("dualMode", {
+    defaultValue: true
+  })
+  const isBiggerThanXl = useBreakpointValue({ base: false, xl: true });
 
   const toast = useToast();
   const user = useSelector((state: RootState) => state.user);
@@ -1132,10 +1136,10 @@ const Order: NextPage = () => {
         <LiveTimetable />
         <Flex justifyContent={"right"} mt={3}>
 
-          <Button onClick={() => setDualMode((prev) => !prev)} colorScheme="teal" size="sm"> {dualMode ? "Switch to single view" : "Switch to dual view"} <Tag ml={3} size={"sm"} style={{
+          {isBiggerThanXl && <Button onClick={() => setDualMode((prev) => !prev)} colorScheme="teal" size="sm"> {dualMode ? "Switch to single view" : "Switch to dual view"} <Tag ml={3} size={"sm"} style={{
             background: "linear-gradient(135deg, #ffd6e7 0%, #ffe7c7 18%, #fff6bf 36%, #d9ffd6 54%, #d6f0ff 72%, #ead6ff 90%, #ffd6e7 100%)",
             color: "#111"
-          }}>NEW</Tag></Button>
+          }}>NEW</Tag></Button>}
         </Flex>
       </Box>
     </SimpleGrid>

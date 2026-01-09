@@ -40,7 +40,8 @@
         "redux": "^4.2.0",
         "serverless-mysql": "^1.5.4",
         "sortablejs": "^1.15.0",
-        "telegram-login-button": "^0.0.3"
+        "telegram-login-button": "^0.0.3",
+        "use-local-storage-state": "^19.5.0"
     },
     "devDependencies": {
         "@redux-devtools/core": "^3.13.1",
