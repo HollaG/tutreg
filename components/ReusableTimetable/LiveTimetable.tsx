@@ -132,8 +132,9 @@ export const LiveTimetable: React.FC = () => {
     }
     return <LightMode><Tag size='sm' colorScheme={getColor(cls)} style={{
       position: "absolute",
-      bottom: "4px",
-      right: "3px",
+      bottom: "5.5px",
+      right: "3%",
+      transform: "scale(0.95)"
     }}>{`#${index + 1}`}</Tag> </LightMode>
   }
 
