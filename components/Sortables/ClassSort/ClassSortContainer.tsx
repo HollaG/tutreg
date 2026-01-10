@@ -98,7 +98,7 @@ const ClassSortContainer: React.FC<{ showAdditionalDetails: boolean, dualMode: b
           loadedData.moduleOrder.map(
             (moduleCodeLessonType, index) => (
               // <Card key={index}>
-              <Stack spacing={3} key={index}>
+              <Stack spacing={3} key={index} id={`class-sort-container-${moduleCodeLessonType}`}>
                 <Box textAlign="left">
                   <Flex
                     key={index}

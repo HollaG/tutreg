@@ -344,6 +344,11 @@ export const LiveTimetable: React.FC = () => {
       // setIsModifying(true); // by setting the selected class in the store, the timetable will automatically be set to modify mode
 
       dispatch(miscActions.setTimetableModifyingMode(class_))
+      // if in dual-mode, scroll to the section in the left panel
+      const element = document.getElementById(`class-sort-container-${class_.moduleCode}: ${class_.lessonType}`);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
 
     }
 
