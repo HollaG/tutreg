@@ -28,6 +28,7 @@ export interface MiscState {
   currentlyHoveredClassInTimetable: FullInfo | null;
 
   dualMode: boolean;
+  offset: number;
 }
 let loadedState = loadState();
 
@@ -60,6 +61,7 @@ const initialState: MiscState = loadedState || {
   },
   timetableModifyingMode: null,
   dualMode: true,
+  offset: 0.0,
 };
 
 const miscSlice = createSlice({
@@ -99,6 +101,9 @@ const miscSlice = createSlice({
     },
     setDualMode: (state, action: PayloadAction<boolean>) => {
       state.dualMode = action.payload;
+    },
+    setOffset: (state, action: PayloadAction<number>) => {
+      state.offset = action.payload;
     },
   },
 });

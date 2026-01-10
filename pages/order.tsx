@@ -119,6 +119,7 @@ import { ContainedPage } from "../components/PageWrap/ContainedPage";
 import Timetable from "../components/ReusableTimetable/Timetable";
 import { LiveTimetable } from "../components/ReusableTimetable/LiveTimetable";
 import useLocalStorageState from "use-local-storage-state";
+import { TbZoomIn, TbZoomOut } from "react-icons/tb";
 const ay = process.env.NEXT_PUBLIC_AY;
 const sem = process.env.NEXT_PUBLIC_SEM;
 const SYNC_COLLECTION_NAME =
@@ -129,6 +130,8 @@ const Order: NextPage = () => {
   const [miscState, setMiscState] = useState<MiscState | null>(null);
   const _dualMode = useSelector((state: RootState) => state.misc.dualMode);
   const [dualMode, setDualMode] = useState(true);
+  const _offset = useSelector((state: RootState) => state.misc.offset);
+  const [offset, setOffset] = useState(0);
   useEffect(() => {
     setDualMode(_dualMode);
   }, [_dualMode]);
@@ -136,6 +139,9 @@ const Order: NextPage = () => {
   useEffect(() => {
     setMiscState(_miscState);
   }, [_miscState]);
+  useEffect(() => {
+    setOffset(_offset);
+  }, [_offset]);
 
 
   const toast = useToast();
@@ -689,103 +695,109 @@ const Order: NextPage = () => {
   )
 
 
+
+
   return (<FullPage>
-    <SimpleGrid columns={{ base: 1, xl: (dualMode) ? 2 : 1 }} spacingX={"6rem"} spacingY="2rem">
-      <Container maxW={"container.lg"}>
+    <Container minW="container.lg">
+      {alertNewer && (
+        <Alert
+          status="warning"
+          justifyContent={"space-between"}
+          // flexWrap="wrap"
+          alignItems={"center"}
+        >
+          <Flex alignItems={"center"}>
+            <AlertIcon />A newer version of your ranking has been
+            detected in the cloud (uploaded{" "}
+            {formatTimeElapsed(new Date(alertNewer).toString())}).
+          </Flex>
+          <Flex
+            minWidth={"160px"}
+            flexWrap="wrap"
+            justifyContent={"end"}
+          >
+            <Button
+              size="xs"
+              colorScheme={"red"}
+              onClick={replaceLocalData}
+              mb={1}
+            >
+              Download cloud
+            </Button>
+            <Button
+              size="xs"
+              colorScheme={"red"}
+              ml={2}
+              onClick={uploadLocalData}
+            >
+              Upload local
+            </Button>
+          </Flex>
+        </Alert>
+      )}
+      {alertOlder && (
+        <Alert
+          status="warning"
+          justifyContent={"space-between"}
+          alignItems={"center"}
+        >
+          <Flex alignItems={"center"} flexGrow={1}>
+            <AlertIcon />
+            An older version of your ranking has been detected in
+            the cloud (uploaded{" "}
+            {formatTimeElapsed(new Date(alertOlder).toString())}).
+          </Flex>
+          <Flex
+            minWidth={"160px"}
+            flexWrap="wrap"
+            justifyContent={"end"}
+
+          >
+            <Button
+              size="xs"
+              colorScheme={"red"}
+              mb={1}
+              onClick={replaceLocalData}
+            >
+              Download cloud
+            </Button>
+            <Button
+              size="xs"
+              colorScheme={"red"}
+              onClick={uploadLocalData}
+              ml={2}
+            >
+              Upload local
+            </Button>
+          </Flex>
+        </Alert>
+      )}
+      <CTA_GENERAL
+        title="🥇 Rank your classes"
+        description="Not sure how to rank your classes for Tutorial Registration? Use this tool to generate the most optimal ranking for you, based on your preferences!"
+        image={OrderImage}
+        ButtonLeft={
+          <Button
+            // rounded={"full"}
+            // size={"lg"}
+            fontWeight={"normal"}
+            px={6}
+            colorScheme={"blue"}
+            onClick={beginOnboarding}
+          >
+            Get started
+          </Button>
+        }
+        ButtonRight={HOW_IT_WORKS}
+      />
+    </Container>
+
+    <Grid templateColumns={{ base: "1fr", xl: (dualMode) ? `${1 + offset}fr ${1 - offset}fr` : "1fr" }} rowGap={"6rem"} columnGap="2rem">
+      <Container maxW={dualMode ? "100%" : "container.lg"}>
 
 
         <Stack>
-          {alertNewer && (
-            <Alert
-              status="warning"
-              justifyContent={"space-between"}
-              // flexWrap="wrap"
-              alignItems={"center"}
-            >
-              <Flex alignItems={"center"}>
-                <AlertIcon />A newer version of your ranking has been
-                detected in the cloud (uploaded{" "}
-                {formatTimeElapsed(new Date(alertNewer).toString())}).
-              </Flex>
-              <Flex
-                minWidth={"160px"}
-                flexWrap="wrap"
-                justifyContent={"end"}
-              >
-                <Button
-                  size="xs"
-                  colorScheme={"red"}
-                  onClick={replaceLocalData}
-                  mb={1}
-                >
-                  Download cloud
-                </Button>
-                <Button
-                  size="xs"
-                  colorScheme={"red"}
-                  ml={2}
-                  onClick={uploadLocalData}
-                >
-                  Upload local
-                </Button>
-              </Flex>
-            </Alert>
-          )}
-          {alertOlder && (
-            <Alert
-              status="warning"
-              justifyContent={"space-between"}
-              alignItems={"center"}
-            >
-              <Flex alignItems={"center"} flexGrow={1}>
-                <AlertIcon />
-                An older version of your ranking has been detected in
-                the cloud (uploaded{" "}
-                {formatTimeElapsed(new Date(alertOlder).toString())}).
-              </Flex>
-              <Flex
-                minWidth={"160px"}
-                flexWrap="wrap"
-                justifyContent={"end"}
 
-              >
-                <Button
-                  size="xs"
-                  colorScheme={"red"}
-                  mb={1}
-                  onClick={replaceLocalData}
-                >
-                  Download cloud
-                </Button>
-                <Button
-                  size="xs"
-                  colorScheme={"red"}
-                  onClick={uploadLocalData}
-                  ml={2}
-                >
-                  Upload local
-                </Button>
-              </Flex>
-            </Alert>
-          )}
-          <CTA_GENERAL
-            title="🥇 Rank your classes"
-            description="Not sure how to rank your classes for Tutorial Registration? Use this tool to generate the most optimal ranking for you, based on your preferences!"
-            image={OrderImage}
-            ButtonLeft={
-              <Button
-                // rounded={"full"}
-                // size={"lg"}
-                fontWeight={"normal"}
-                px={6}
-                colorScheme={"blue"}
-                onClick={beginOnboarding}
-              >
-                Get started
-              </Button>
-            }
-            ButtonRight={HOW_IT_WORKS}
-          />
           <Stepper index={activeStep} orientation="vertical" w="full">
             <Box width="100%" ref={step1Ref}>
               <Step>
@@ -1211,18 +1223,32 @@ const Order: NextPage = () => {
           }
 
           {isBiggerThanXl &&
-            <Button onClick={() => { dispatch(miscActions.setDualMode(!dualMode)); dispatch(miscActions.setTimetableModifyingMode(null)) }} colorScheme="teal" size="sm">
-              {dualMode ? "Switch to single view" : "Switch to dual view"}
-              {!dualMode ? <Tag ml={3} size={"sm"} style={{
-                background: "linear-gradient(135deg, #ffd6e7 0%, #ffe7c7 18%, #fff6bf 36%, #d9ffd6 54%, #d6f0ff 72%, #ead6ff 90%, #ffd6e7 100%)",
-                color: "#111"
-              }}>NEW</Tag> : null}
-            </Button>}
+            <HStack>
+              {dualMode ? <Flex justifyContent={'center'} gap="0.25rem">
+                <Tooltip label="Decrease the size of the timetable view">
+
+                  <Button isDisabled={offset >= 0.5} onClick={() => dispatch(miscActions.setOffset(Math.min(offset + 0.1, 0.5)))} colorScheme="blue" variant="subtle" size="sm">  <TbZoomOut /> </Button>
+                </Tooltip>
+                <Tooltip label="Increase the size of the timetable view">
+
+                  <Button isDisabled={offset <= -0.5} onClick={() => dispatch(miscActions.setOffset(Math.max(offset - 0.1, -0.5)))} colorScheme="blue" variant="subtle" size="sm"> <TbZoomIn /> </Button>
+                </Tooltip>
+              </Flex> : <></>}
+              <Button onClick={() => { dispatch(miscActions.setDualMode(!dualMode)); dispatch(miscActions.setTimetableModifyingMode(null)) }} colorScheme="teal" size="sm">
+
+                {dualMode ? "Switch to single view" : "Switch to dual view"}
+                {!dualMode ? <Tag ml={3} size={"sm"} style={{
+                  background: "linear-gradient(135deg, #ffd6e7 0%, #ffe7c7 18%, #fff6bf 36%, #d9ffd6 54%, #d6f0ff 72%, #ead6ff 90%, #ffd6e7 100%)",
+                  color: "#111"
+                }}>NEW</Tag> : null}
+              </Button>
+            </HStack>
+          }
         </Flex>
         <LiveTimetable />
 
       </Box>
-    </SimpleGrid>
+    </Grid>
   </FullPage>);
 };
 
