@@ -112,7 +112,7 @@ import { LiveTimetable } from "../components/ReusableTimetable/LiveTimetable";
 import { TbZoomIn, TbZoomOut } from "react-icons/tb";
 import { createPortal } from "react-dom";
 
-import logo from "../public/icons/icon_small.png";
+import logo from "../public/icons/favicon-32x32.png";
 
 const ay = process.env.NEXT_PUBLIC_AY;
 const sem = process.env.NEXT_PUBLIC_SEM;
@@ -1262,7 +1262,7 @@ const Order: NextPage = () => {
             </Grid>
 
         }
-        <HStack gap={'1.05rem'}>
+        <HStack gap={'0.8rem'}>
 
           <Image src={logo.src} alt="Tutreg Logo" width="30px" height="30px" />
           <Heading as="h4" size="md">
