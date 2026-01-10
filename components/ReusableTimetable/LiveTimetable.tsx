@@ -145,7 +145,7 @@ export const LiveTimetable: React.FC = () => {
         const classListForModule = selectedClasses[moduleCodeLessonType]
         const thisClassNo = cls.classNo
         if (classListForModule) {
-          const isSelected = !!classListForModule.find(c => c.classNo === thisClassNo)
+          const isSelected = !!classListForModule.find(c => c.classNo === thisClassNo && c.moduleCode === cls.moduleCode && c.lessonType === cls.lessonType)
           if (isSelected) {
             return "selected"
           }
