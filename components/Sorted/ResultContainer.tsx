@@ -1,5 +1,7 @@
 import { DragHandleIcon, LockIcon, UnlockIcon } from "@chakra-ui/icons";
 import {
+  Alert,
+  AlertIcon,
   Box,
   Button,
   Center,
@@ -330,6 +332,10 @@ const ResultContainer: React.FC<{
           </Box>
         )}
       />
+      {decouple && <Alert status="warning">
+        <AlertIcon />
+        Decouple mode active. Displayed timetable will not be accurate.
+      </Alert>}
     </Stack>
   );
 };

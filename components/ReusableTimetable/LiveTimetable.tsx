@@ -18,7 +18,9 @@ import { convertToTimetableList, FullInfo } from "../../pages/swap/create"
 import { AddIcon, EditIcon, InfoIcon, QuestionIcon } from "@chakra-ui/icons"
 export const LiveTimetable: React.FC = () => {
   const _classesInfo = useSelector((state: RootState) => state.classesInfo)
-  const { isOpen, onOpen, onClose } = useDisclosure()
+  const { isOpen: isAddOpen, onOpen: onAddOpen, onClose: onAddClose } = useDisclosure()
+  const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure()
+  const [classForDeletion, setClassForDeletion] = useState<TimetableLessonEntry | null>(null);
 
   const [classesInfo, setClassesInfo] = useState<ClassState | null>(null)
 
@@ -193,7 +195,7 @@ export const LiveTimetable: React.FC = () => {
     }
 
     // close the handler
-    onClose();
+    onAddClose();
 
     // reset the internal states
     setCurrentClassInfo({
@@ -227,6 +229,17 @@ export const LiveTimetable: React.FC = () => {
     else return undefined;
   };
 
+  const deleteHandler = () => {
+    if (classForDeletion) {
+      dispatch(classesActions.removeNonBiddableClass({
+        classNo: classForDeletion.classNo,
+        lessonType: classForDeletion.lessonType,
+        moduleCode: classForDeletion.moduleCode
+      }));
+      setClassForDeletion(null);
+      onDeleteClose();
+    }
+  }
 
   const onSelect = (class_: TimetableLessonEntry) => {
     console.log("Selected class: ", class_);
@@ -234,9 +247,11 @@ export const LiveTimetable: React.FC = () => {
     // if the class is from non-biddable, remove it
     const isInNonBiddable = nonBiddable.find(c => c.classNo === class_.classNo && c.moduleCode === class_.moduleCode && c.lessonType === class_.lessonType)
     if (isInNonBiddable) {
-      dispatch(classesActions.removeNonBiddableClass({
-        classNo: class_.classNo, lessonType: class_.lessonType, moduleCode: class_.moduleCode
-      }));
+      // dispatch(classesActions.removeNonBiddableClass({
+      //   classNo: class_.classNo, lessonType: class_.lessonType, moduleCode: class_.moduleCode
+      // }));
+      setClassForDeletion(class_);
+      onDeleteOpen();
       return;
     }
 
@@ -276,14 +291,14 @@ export const LiveTimetable: React.FC = () => {
               classNo: class_.classNo,
               moduleCodeLessonType: `${class_.moduleCode}: ${class_.lessonType}`,
             }))
-            // setIsModifying(false);
+            setIsModifying(false); // TODO: decide if we want to disable modifying mode after each action
             return;
           } else {
             dispatch(classesActions.addSelectedClass({
               classNo: class_.classNo,
               moduleCodeLessonType: `${class_.moduleCode}: ${class_.lessonType}`,
             }))
-            // setIsModifying(false);
+            setIsModifying(false); // TODO: decide if we want to disable modifying mode after each action
           }
         }
       }
@@ -313,6 +328,7 @@ export const LiveTimetable: React.FC = () => {
     classesToDraw = classesInfo.totalModuleCodeLessonTypeMap[mclt] || [] // will be the list of classes from the totalModuleCodeLessonTypeMap 
     // how to figure out which classes have been selected? we can check the classesInfo.selectedClasses. Then, the getProperty function can be modified to return "selected" only for the selected classes.
   }
+
 
 
 
@@ -353,7 +369,7 @@ export const LiveTimetable: React.FC = () => {
 
         : <></>}
       <Tooltip label="Add a class (e.g. a Lecture) for your reference. This will not affect your tutorial ranking, and you can remove the class simply by clicking on it. Reference classes have a diagonal stripe pattern background.">
-        {<Button leftIcon={<AddIcon />} size="sm" variant="subtle" colorScheme="blue" onClick={() => onOpen()}> Add reference class </Button>}
+        {<Button leftIcon={<AddIcon />} size="sm" variant="subtle" colorScheme="blue" onClick={() => onAddOpen()}> Add reference class </Button>}
 
       </Tooltip>
 
@@ -365,7 +381,7 @@ export const LiveTimetable: React.FC = () => {
       props={
         {
           size: "6xl",
-          isOpen: isOpen,
+          isOpen: isAddOpen,
 
           onClose: closeHandler,
         } as ModalProps
@@ -391,6 +407,22 @@ export const LiveTimetable: React.FC = () => {
 
       />
 
+    </BasicModal>
+    <BasicModal props={{
+      isOpen: isDeleteOpen,
+      onClose: deleteHandler,
+      size: "xl"
+    } as ModalProps}
+      title={`Remove reference class ${classForDeletion?.moduleCode} ${classForDeletion?.lessonType} ${classForDeletion?.classNo} from timetable?`}
+      closeButton="Cancel"
+
+    >
+      <Alert status="info" mb={3}>
+        <AlertIcon />
+        You reached this screen because you clicked on a reference class (angled striped background) in your timetable.
+      </Alert>
+      <Text>Are you sure you want to remove this reference class {selectedClass?.moduleCode} {selectedClass?.lessonType} {selectedClass?.classNo} from your timetable?</Text>
+      <Button width={"100%"} mt={4} colorScheme="red" onClick={deleteHandler}> Yes, remove class </Button>
     </BasicModal>
   </Stack>
 }
