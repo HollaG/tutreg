@@ -99,7 +99,7 @@ import {
 import { GrSync } from "react-icons/gr";
 import { IconContext } from "react-icons";
 import { miscActions } from "../store/misc";
-import { CopyIcon, InfoOutlineIcon } from "@chakra-ui/icons";
+import { CopyIcon, InfoOutlineIcon, QuestionIcon, QuestionOutlineIcon } from "@chakra-ui/icons";
 import Image from "next/image";
 import OrderImage from "../public/assets/order_illustration.svg";
 import CTA_GENERAL, { PlayIcon } from "../components/CTA_general";
@@ -1163,17 +1163,24 @@ const Order: NextPage = () => {
           <Grid gridTemplateColumns={'64px 1fr'} alignItems={'center'} columnGap={4}>
             <HStack>{colorList.map((color, index) => <Button key={`solid-${index}`} size="xxs" colorScheme={color}></Button>)}
             </HStack>
-            <Text>Biddable classes (first choice)</Text>
+            <Tooltip label="These are the classes that you intend to bid for in Tutorial Registration. Solid colours indicate your top choices.">
+              <Text>Biddable classes (first choice) <QuestionOutlineIcon fontSize={"sm"} /></Text>
+            </Tooltip>
             <HStack>
               {colorList.map((color, index) => <Button key={`subtle-${index}`} size="xxs" colorScheme={color} variant="subtle"></Button>)}
             </HStack>
-            <Text>Biddable classes (not first choice)</Text>
+            <Tooltip label="These are the classes that you intend to bid for in Tutorial Registration. Subtle colours indicate your lower choices.">
+              <Text>Biddable classes (not first choice) <QuestionOutlineIcon fontSize={"sm"} /></Text>
+            </Tooltip>
             <Box style={{
               width: "64px",
               height: "1rem",
               backgroundImage: STATIC_STRIPED_BG_COLOR,
             }}></Box>
-            <Text>Reference classes</Text>
+            <Tooltip label="These are reference classes that you do not intend to bid for in Tutorial Registration. They are added to your timetable for reference only.">
+
+              <Text>Reference classes <QuestionOutlineIcon fontSize={"sm"} /></Text>
+            </Tooltip>
 
           </Grid>
 
