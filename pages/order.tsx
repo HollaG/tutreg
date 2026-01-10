@@ -1185,11 +1185,11 @@ const Order: NextPage = () => {
               {dualMode ? <Flex justifyContent={'center'} gap="0.25rem">
                 <Tooltip label="Decrease the size of the timetable view">
 
-                  <Button isDisabled={offset >= 0.5} onClick={() => dispatch(miscActions.setOffset(Math.min(offset + 0.1, 0.5)))} colorScheme="blue" variant="subtle" size="sm">  <TbZoomOut /> </Button>
+                  <Button isDisabled={offset >= 0.6} onClick={() => dispatch(miscActions.setOffset(Math.min(offset + 0.1, 0.6)))} colorScheme="blue" variant="subtle" size="sm">  <TbZoomOut /> </Button>
                 </Tooltip>
                 <Tooltip label="Increase the size of the timetable view">
 
-                  <Button isDisabled={offset <= -0.5} onClick={() => dispatch(miscActions.setOffset(Math.max(offset - 0.1, -0.5)))} colorScheme="blue" variant="subtle" size="sm"> <TbZoomIn /> </Button>
+                  <Button isDisabled={offset <= -0.6} onClick={() => dispatch(miscActions.setOffset(Math.max(offset - 0.1, -0.6)))} colorScheme="blue" variant="subtle" size="sm"> <TbZoomIn /> </Button>
                 </Tooltip>
               </Flex> : <></>}
               <Button onClick={() => { dispatch(miscActions.setDualMode(!dualMode)); dispatch(miscActions.setTimetableModifyingMode(null)) }} colorScheme="teal" size="sm">
