@@ -33,24 +33,52 @@ export interface MiscState {
 let loadedState = loadState();
 
 // Migration script
-// (() => {
-//   // if no notifications key, add it
-//   if (loadedState && !("notifications" in loadedState)) {
-//     loadedState = {
-//       ...loadedState,
-//       notifications: {
-//         changedTo2023S1: false,
-//       },
-//     };
-//   }
+(() => {
+  // if no notifications key, add it
+  if (loadedState && !("notifications" in loadedState)) {
+    loadedState = {
+      ...loadedState,
+      notifications: {
+        changedTo2023S1: false,
+      },
+    };
+  }
 
-//   if (loadedState && !("timetableModifyingMode" in loadedState)) {
-//     loadedState = {
-//       ...loadedState,
-//       timetableModifyingMode: null,
-//     };
-//   }
-// })();
+  if (loadedState && !("timetableModifyingMode" in loadedState)) {
+    loadedState = {
+      ...loadedState,
+      timetableModifyingMode: null,
+    };
+  }
+
+  if (loadedState && !("currentlyHoveredClassInMain" in loadedState)) {
+    loadedState = {
+      ...loadedState,
+      currentlyHoveredClassInMain: null,
+    };
+  }
+
+  if (loadedState && !("currentlyHoveredClassInTimetable" in loadedState)) {
+    loadedState = {
+      ...loadedState,
+      currentlyHoveredClassInTimetable: null,
+    };
+  }
+
+  if (loadedState && !("dualMode" in loadedState)) {
+    loadedState = {
+      ...loadedState,
+      dualMode: true,
+    };
+  }
+
+  if (loadedState && !("offset" in loadedState)) {
+    loadedState = {
+      ...loadedState,
+      offset: 0.0,
+    };
+  }
+})();
 
 const initialState: MiscState = loadedState || {
   needsLogIn: false,
