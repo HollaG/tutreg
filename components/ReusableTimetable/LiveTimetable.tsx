@@ -411,11 +411,14 @@ export const LiveTimetable: React.FC = () => {
 
 
     >
-      <Tooltip label='Click on a biddable class to add / remove class options, then click "Finish editing" when you are done.     Click on a reference class to remove it.'>
 
-        <Button size="sm" leftIcon={<QuestionIcon />}> Usage tips </Button>
-      </Tooltip>
-      <Flex flex={1}></Flex>
+      <Flex grow={1}>
+
+        <Tooltip label='Click on a biddable class to add / remove class options, then click "Finish editing" when you are done.     Click on a reference class to remove it.'>
+
+          <Button size="sm" leftIcon={<QuestionIcon />}> Usage tips </Button>
+        </Tooltip>
+      </Flex>
       {isModifying ?
         <Button size="sm" colorScheme="green" onClick={() => {
           // setIsModifying(false)

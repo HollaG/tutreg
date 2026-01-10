@@ -302,7 +302,7 @@ const Timetable: React.FC<{
             ref={screenshotRef}
             minW={minWidth ? minWidth : `${(totalColumnsToDraw - 1) * 125 + 50}px`} // the minimum width of a a column must be 125px
             margin="auto"
-            gridTemplateRows={"25px 1fr"}
+            gridTemplateRows={"auto 25px 1fr"}
             templateColumns={`${COLUMN_WIDTH_START} repeat(${totalColumnsToDraw - 1
               }, 1fr)`}
           // templateAreas={`"header header"
@@ -310,6 +310,9 @@ const Timetable: React.FC<{
 
           // }
           >
+            <GridItem id="live-timetable-legend" colSpan={totalColumnsToDraw} bgColor={bgColor}>
+
+            </GridItem>
             {/* Headers for timing */}
             {Array.from({ length: totalColumnsToDraw }).map((_, c) => {
               return (
@@ -538,6 +541,8 @@ const Timetable: React.FC<{
                 </Grid>
               </Box>
             </GridItem>
+
+
           </Grid>
         </Box>
         <Flex justifyContent={"end"} mt={4} gap={'1rem'}>

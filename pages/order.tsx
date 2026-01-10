@@ -120,6 +120,7 @@ import Timetable from "../components/ReusableTimetable/Timetable";
 import { LiveTimetable } from "../components/ReusableTimetable/LiveTimetable";
 import useLocalStorageState from "use-local-storage-state";
 import { TbZoomIn, TbZoomOut } from "react-icons/tb";
+import { createPortal } from "react-dom";
 const ay = process.env.NEXT_PUBLIC_AY;
 const sem = process.env.NEXT_PUBLIC_SEM;
 const SYNC_COLLECTION_NAME =
@@ -1180,50 +1181,14 @@ const Order: NextPage = () => {
         maxH="calc(100vh - 64px)"
         overflowY="auto"    //</SimpleGrid>>
       >
-        <Flex justifyContent={"space-between"} mb={3}>
-          {miscState && <>
+        <LiveTimetable />
+        <Flex justifyContent={"end"} mt={3}>
 
-            {!miscState.timetableModifyingMode ? <Grid gridTemplateColumns={'64px 1fr'} alignItems={'center'} columnGap={4}>
-              <HStack>{colorList.map((color, index) => <Button key={`solid-${index}`} size="xxs" colorScheme={color}></Button>)}
-              </HStack>
-              <Tooltip label="These are the classes that you intend to bid for in Tutorial Registration. Solid colours indicate your top choices.">
-                <Text>Biddable classes (first choice) <QuestionOutlineIcon fontSize={"sm"} /></Text>
-              </Tooltip>
-              <HStack>
-                {colorList.map((color, index) => <Button key={`subtle-${index}`} size="xxs" colorScheme={color} variant="subtle"></Button>)}
-              </HStack>
-              <Tooltip label="These are the classes that you intend to bid for in Tutorial Registration. Subtle colours indicate your lower choices.">
-                <Text>Biddable classes (not first choice) <QuestionOutlineIcon fontSize={"sm"} /></Text>
-              </Tooltip>
-              <Box style={{
-                width: "64px",
-                height: "1rem",
-                backgroundImage: STATIC_STRIPED_BG_COLOR,
-              }}></Box>
-              <Tooltip label="These are reference classes that you do not intend to bid for in Tutorial Registration. They are added to your timetable for reference only.">
-
-                <Text>Reference classes <QuestionOutlineIcon fontSize={"sm"} /></Text>
-              </Tooltip>
-
-            </Grid> : <Grid gridTemplateColumns={'64px 1fr'} alignItems={'center'} columnGap={4}>
-              <Button size="xxs" colorScheme={getModuleColor(colorMap, `${miscState.timetableModifyingMode.moduleCode}: ${miscState.timetableModifyingMode.lessonType}`)}></Button>
-              <Text>Classes you've selected for {miscState.timetableModifyingMode.moduleCode}: {miscState.timetableModifyingMode.lessonType}</Text>
-              <Button size="xxs" colorScheme={getModuleColor(colorMap, `${miscState.timetableModifyingMode.moduleCode}: ${miscState.timetableModifyingMode.lessonType}`)} variant={"outline"}></Button>
-
-              <Text>Other classes you can select (click to select)</Text>
-              <Box style={{
-                width: "64px",
-                height: "1rem",
-                backgroundImage: STATIC_STRIPED_BG_COLOR,
-              }}></Box>
-              <Text>Classes not relating to {miscState.timetableModifyingMode.moduleCode}: {miscState.timetableModifyingMode.lessonType}</Text>
-
-            </Grid>}
-          </>
-          }
 
           {isBiggerThanXl &&
             <HStack>
+
+
               {dualMode ? <Flex justifyContent={'center'} gap="0.25rem">
                 <Tooltip label="Decrease the size of the timetable view">
 
@@ -1245,10 +1210,64 @@ const Order: NextPage = () => {
             </HStack>
           }
         </Flex>
-        <LiveTimetable />
+
 
       </Box>
     </Grid>
+
+    {miscState && document.getElementById("live-timetable-legend") &&
+
+      createPortal(<>
+
+        {!miscState.timetableModifyingMode ?
+
+
+          <Grid gridTemplateColumns={'64px 1fr'} alignItems={'center'} columnGap={4}>
+            <>
+              <HStack>{colorList.map((color, index) => <Button key={`solid-${index}`} size="xxs" colorScheme={color}></Button>)}
+              </HStack>
+              <Tooltip label="These are the classes that you intend to bid for in Tutorial Registration. Solid colours indicate your top choices.">
+                <Text>Biddable classes (first choice) <QuestionOutlineIcon fontSize={"sm"} /></Text>
+              </Tooltip>
+              <HStack>
+                {colorList.map((color, index) => <Button key={`subtle-${index}`} size="xxs" colorScheme={color} variant="subtle"></Button>)}
+              </HStack>
+              <Tooltip label="These are the classes that you intend to bid for in Tutorial Registration. Subtle colours indicate your lower choices.">
+                <Text>Biddable classes (not first choice) <QuestionOutlineIcon fontSize={"sm"} /></Text>
+              </Tooltip>
+              <Box style={{
+                width: "64px",
+                height: "1rem",
+                backgroundImage: STATIC_STRIPED_BG_COLOR,
+              }}></Box>
+              <Tooltip label="These are reference classes that you do not intend to bid for in Tutorial Registration. They are added to your timetable for reference only.">
+
+                <Text>Reference classes <QuestionOutlineIcon fontSize={"sm"} /></Text>
+              </Tooltip>
+            </>
+
+
+          </Grid>
+
+
+
+          :
+          <Grid gridTemplateColumns={'64px 1fr'} alignItems={'center'} columnGap={4}>
+            <Button size="xxs" colorScheme={getModuleColor(colorMap, `${miscState.timetableModifyingMode.moduleCode}: ${miscState.timetableModifyingMode.lessonType}`)}></Button>
+            <Text>Classes you've selected for {miscState.timetableModifyingMode.moduleCode}: {miscState.timetableModifyingMode.lessonType}</Text>
+            <Button size="xxs" colorScheme={getModuleColor(colorMap, `${miscState.timetableModifyingMode.moduleCode}: ${miscState.timetableModifyingMode.lessonType}`)} variant={"outline"}></Button>
+
+            <Text>Other classes you can select (click to select)</Text>
+            <Box style={{
+              width: "64px",
+              height: "1rem",
+              backgroundImage: STATIC_STRIPED_BG_COLOR,
+            }}></Box>
+            <Text>Classes not relating to {miscState.timetableModifyingMode.moduleCode}: {miscState.timetableModifyingMode.lessonType}</Text>
+
+          </Grid>}
+      </>, document.getElementById("live-timetable-legend")!)
+    }
   </FullPage>);
 };
 
