@@ -398,7 +398,7 @@ export const LiveTimetable: React.FC = () => {
       showLessonType={true}
       onSelected={onSelect} //no action
       property={getProperty}
-      minWidth="1600px"
+      // minWidth="1600px"
       // staticClasses={nonBiddable}
 
       getOverrideColor={getColor}

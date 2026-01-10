@@ -77,7 +77,7 @@ const Timetable: React.FC<{
   children?: React.ReactNode | React.ReactNode[];
 
 } & React.PropsWithChildren> = ({
-  minWidth = "750px",
+  minWidth,
   classesToDraw,
   staticClasses,
   property,
@@ -291,6 +291,8 @@ const Timetable: React.FC<{
           setIsTakingScreenshot(false);
         });
     }
+
+
     return (
       <Stack>
 
@@ -298,7 +300,7 @@ const Timetable: React.FC<{
         <Box overflowX="scroll"  >
           <Grid
             ref={screenshotRef}
-            minW={minWidth}
+            minW={minWidth ? minWidth : `${(totalColumnsToDraw - 1) * 125 + 50}px`} // the minimum width of a a column must be 125px
             margin="auto"
             gridTemplateRows={"25px 1fr"}
             templateColumns={`${COLUMN_WIDTH_START} repeat(${totalColumnsToDraw - 1
