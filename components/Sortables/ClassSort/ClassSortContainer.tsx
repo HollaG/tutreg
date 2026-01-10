@@ -33,56 +33,26 @@ import { Data } from "../../../pages/api/import";
 import { LessonType } from "../../../types/modules";
 import BasicModal from "../../Modal/Modal";
 import TimetableModal from "../../Timetable/TimetableModal";
+import { miscActions } from "../../../store/misc";
 
-const ClassSortContainer: React.FC<{ showAdditionalDetails: boolean }> = ({
+const ClassSortContainer: React.FC<{ showAdditionalDetails: boolean, dualMode: boolean }> = ({
   showAdditionalDetails,
+  dualMode
 }) => {
   const data = useSelector((state: RootState) => state.classesInfo);
+  const miscState = useSelector((state: RootState) => state.misc);
   const dispatch = useDispatch();
 
   const [loadedData, setLoadedData] = useState<Data>();
+  const [loadedMisc, setLoadedMisc] = useState<typeof miscState>();
 
   useEffect(() => {
     if (data) setLoadedData(data);
   }, [data]);
 
-  const generateOptionsForModule = useCallback(
-    (moduleCodeLessonType: string) => {
-      if (!data.totalModuleCodeLessonTypeMap[moduleCodeLessonType])
-        return [];
-      const selectedClassesForThisModule = (
-        data.selectedClasses[moduleCodeLessonType] || []
-      ).map((class_) => class_.classNo);
-      const moduleData =
-        data.totalModuleCodeLessonTypeMap[moduleCodeLessonType].filter(
-          (class_) =>
-            !selectedClassesForThisModule.includes(class_.classNo)
-        ) || [];
-      if (!moduleData || !moduleData.length) return [];
-      const classes = moduleData.map((classOpt) => {
-        const lessonText = classOpt.classes
-          .map(
-            (class_) =>
-              `${class_.day} ${class_.startTime}-${class_.endTime}`
-          )
-          .join("\n");
-
-        return {
-          value: classOpt.classNo,
-          label: `${encodeLessonTypeToShorthand(
-            moduleCodeLessonType.split(": ")[1] as LessonType
-          )} [${classOpt.classNo}]\n${lessonText}`,
-        };
-      });
-      // return sorted by alphanumerical order
-      return classes.sort((a, b) => a.value.localeCompare(b.value));
-    },
-    [data.selectedClasses, data.totalModuleCodeLessonTypeMap]
-  );
-
-  const [selectClassContainer, setSelectClassContainer] = useState<{
-    [moduleCodeLessonType: string]: Option[]; // classNo
-  }>({});
+  useEffect(() => {
+    if (miscState) setLoadedMisc(miscState);
+  }, [miscState]);
 
   // Handle adding modal
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -90,20 +60,31 @@ const ClassSortContainer: React.FC<{ showAdditionalDetails: boolean }> = ({
     useState<string>("");
 
   const handleOpen = (moduleCodeLessonType: string) => {
-    setSelectedModuleCodeLessonType(moduleCodeLessonType);
-
-    // when opening the modal, set the changed classes to the currently selected classes, or none if there's none
-    if (data.selectedClasses[moduleCodeLessonType]) {
-      dispatch(
-        classesActions.setChangedClasses(
-          data.selectedClasses[moduleCodeLessonType].map(
-            (class_) => class_.classNo
-          ) || []
-        )
-      );
+    if (!dualMode) { // if not dual mode, open as per normal
+      setSelectedModuleCodeLessonType(moduleCodeLessonType);
+      // when opening the modal, set the changed classes to the currently selected classes, or none if there's none
+      if (data.selectedClasses[moduleCodeLessonType]) {
+        dispatch(
+          classesActions.setChangedClasses(
+            data.selectedClasses[moduleCodeLessonType].map(
+              (class_) => class_.classNo
+            ) || []
+          )
+        );
+      }
+      onOpen();
+    } else {
+      const [moduleCode, lessonType] = moduleCodeLessonType.split(": ")
+      // set the timetable modifying mode to true
+      dispatch(miscActions.setTimetableModifyingMode({
+        moduleCode,
+        lessonType: lessonType as LessonType
+      }));
     }
-    onOpen();
+
   };
+
+  let currentlyActiveModifyingMCLT = loadedMisc?.timetableModifyingMode ? `${loadedMisc.timetableModifyingMode.moduleCode}: ${loadedMisc.timetableModifyingMode.lessonType}` : null;
   return (
     <>
       <TimetableModal
@@ -111,15 +92,7 @@ const ClassSortContainer: React.FC<{ showAdditionalDetails: boolean }> = ({
         onClose={onClose}
         selectedModuleCodeLessonType={selectedModuleCodeLessonType}
       ></TimetableModal>
-      {/* <SimpleGrid
-                columns={{
-                    base: 1,
-                    // md: loadedData?.moduleOrder.length === 1 ? 1 : 2,
-                    md: 2,
-                }}
-                spacing={5}
-                w="100%"
-            > */}
+
       <Stack spacing={6} divider={<Divider />}>
         {loadedData &&
           loadedData.moduleOrder.map(
@@ -154,7 +127,11 @@ const ClassSortContainer: React.FC<{ showAdditionalDetails: boolean }> = ({
                       </Icon>
                       {index + 1}. {moduleCodeLessonType}
                     </Text>
-                    <Button
+                    {currentlyActiveModifyingMCLT === moduleCodeLessonType ? <Button size="xs" colorScheme="green" onClick={() => {
+                      // setIsModifying(false)
+                      // setSelectedClass(null)
+                      dispatch(miscActions.setTimetableModifyingMode(null))
+                    }}> Finish editing </Button> : <Button
                       colorScheme="blue"
                       onClick={() =>
                         handleOpen(moduleCodeLessonType)
@@ -162,7 +139,7 @@ const ClassSortContainer: React.FC<{ showAdditionalDetails: boolean }> = ({
                       size="xs"
                     >
                       Add classes
-                    </Button>
+                    </Button>}
                   </Flex>
 
                   {showAdditionalDetails && (
@@ -211,49 +188,7 @@ const ClassSortContainer: React.FC<{ showAdditionalDetails: boolean }> = ({
                   moduleCodeLessonType
                 ] && <Text> No classes selected yet! </Text>}
 
-                {/* <Entry>
-                                        <Flex>
-                                            <Box flex={1} mr={3}>
-                                                <Select
-                                                    instanceId={
-                                                        moduleCodeLessonType
-                                                    }
-                                                    isMulti
-                                                    closeMenuOnSelect={false}
-                                                    isSearchable={false}
-                                                    placeholder="Add another slot..."
-                                                    size="sm"
-                                                    options={generateOptionsForModule(
-                                                        moduleCodeLessonType
-                                                    )}
-                                                    value={
-                                                        selectClassContainer[
-                                                            moduleCodeLessonType
-                                                        ]
-                                                    }
-                                                    onChange={(opt: any) =>
-                                                        selectClassHandler(
-                                                            opt,
-                                                            moduleCodeLessonType
-                                                        )
-                                                    }
-                                                    classNamePrefix="lp-copy-sel"
-                                                />
-                                            </Box>
 
-                                            <Button
-                                                colorScheme="blue"
-                                                size="sm"
-                                                onClick={() =>
-                                                    addClassHandler(
-                                                        moduleCodeLessonType
-                                                    )
-                                                }
-                                            >
-                                                Add
-                                            </Button>
-                                        </Flex>
-                                    </Entry> */}
               </Stack>
 
               // </Card>

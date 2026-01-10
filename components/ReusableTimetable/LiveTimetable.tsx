@@ -14,23 +14,33 @@ import TimetableContainer from "../Timetable/TimetableContainer"
 import { GetClassesResponse } from "../../pages/api/swap/getClasses"
 import { LessonType } from "../../types/modules"
 import { sendPOST } from "../../lib/fetcher"
-import { convertToTimetableList, FullInfo } from "../../pages/swap/create"
+import { convertToTimetableList, FullInfo, HalfInfo } from "../../pages/swap/create"
 import { AddIcon, EditIcon, InfoIcon, QuestionIcon } from "@chakra-ui/icons"
+import { miscActions } from "../../store/misc"
 export const LiveTimetable: React.FC = () => {
   const _classesInfo = useSelector((state: RootState) => state.classesInfo)
+  const _modifyingInfo = useSelector((state: RootState) => state.misc.timetableModifyingMode)
   const { isOpen: isAddOpen, onOpen: onAddOpen, onClose: onAddClose } = useDisclosure()
   const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure()
   const [classForDeletion, setClassForDeletion] = useState<TimetableLessonEntry | null>(null);
 
   const [classesInfo, setClassesInfo] = useState<ClassState | null>(null)
+  const [modifyingInfo, setModifyingInfo] = useState<(HalfInfo & { classNo?: string }) | null>(null)
 
   useEffect(() => {
     setClassesInfo(_classesInfo)
   }, [_classesInfo])
 
+  useEffect(() => {
+    setModifyingInfo(_modifyingInfo)
+  }, [_modifyingInfo])
+
+  const isModifying = modifyingInfo !== null
+  const selectedClass = modifyingInfo
+
 
   // states for selecting a new class to add as reference (MODAL POPUP)
-  const [currentClassInfo, setCurrentClassInfo] = useState<FullInfo>({
+  const [referenceClassToAdd, setReferenceClassToAdd] = useState<FullInfo>({
     moduleCode: "",
     lessonType: "Lecture",
     classNo: "",
@@ -41,8 +51,16 @@ export const LiveTimetable: React.FC = () => {
 
 
   // states for selecting / deselecting from the possible classes for this (MAIN VIEW)
-  const [isModifying, setIsModifying] = useState<boolean>(false);
-  const [selectedClass, setSelectedClass] = useState<TimetableLessonEntry | null>(null);
+  // When in dual mode, it is possible to enter modifying mode by clicking "Add class" on the left panel.
+  // const [isModifying, setIsModifying] = useState<boolean>(false);
+
+  // const [selectedClass, setSelectedClass] = useState<HalfInfo & {
+  //   classNo?: string; // CAN BE OPTIONAL - this occurs when entering modifying mode from "Add class" button
+  // } | null>(null);
+
+
+
+
   const dispatch = useDispatch()
 
   if (!classesInfo) {
@@ -143,6 +161,7 @@ export const LiveTimetable: React.FC = () => {
   }
 
 
+  // ----------- FOR ADDING REFERENCE CLASSES ------------
   const onSelectModule = async (options: Option[]) => {
     const moduleCodeLessonType = options[0].value;
 
@@ -161,7 +180,7 @@ export const LiveTimetable: React.FC = () => {
     if (response.success && response.data) {
       // on success, reset the list of possible classes
 
-      setCurrentClassInfo({
+      setReferenceClassToAdd({
         moduleCode,
         lessonType,
         classNo: "",
@@ -180,13 +199,13 @@ export const LiveTimetable: React.FC = () => {
 
 
   const closeHandler = () => {
-    if (currentClassInfo.classNo !== "") {
+    if (referenceClassToAdd.classNo !== "") {
       // if we have selected a class, then we need to find the ClassOverview of this class, 
       // so we know what to display
-      const classToAdd = possibleClassesOfModule.filter((c) => c.classNo === currentClassInfo.classNo);
+      const classToAdd = possibleClassesOfModule.filter((c) => c.classNo === referenceClassToAdd.classNo);
       if (classToAdd) {
         // dispatch to add this class as non-biddable 
-        const mclt = `${currentClassInfo.moduleCode}: ${currentClassInfo.lessonType}`;
+        const mclt = `${referenceClassToAdd.moduleCode}: ${referenceClassToAdd.lessonType}`;
         dispatch(classesActions.addNonBiddableClass({
           [mclt]: classToAdd
         }));
@@ -198,7 +217,7 @@ export const LiveTimetable: React.FC = () => {
     onAddClose();
 
     // reset the internal states
-    setCurrentClassInfo({
+    setReferenceClassToAdd({
       moduleCode: "",
       lessonType: "Lecture",
       classNo: "",
@@ -206,18 +225,17 @@ export const LiveTimetable: React.FC = () => {
     setPossibleClassesOfModule([]);
   }
 
-
-  const selectCurrentClassHandler = (
+  const selectReferenceClassToAddHandler = (
     class_: TimetableLessonEntry,
     selected: boolean
   ) => {
     if (selected) {
-      setCurrentClassInfo((prevState) => ({
+      setReferenceClassToAdd((prevState) => ({
         ...prevState,
         classNo: class_.classNo,
       }));
     } else {
-      setCurrentClassInfo((prevState) => ({
+      setReferenceClassToAdd((prevState) => ({
         ...prevState,
         classNo: "",
       }));
@@ -225,7 +243,7 @@ export const LiveTimetable: React.FC = () => {
   };
 
   const getPropertyForAdding: (class_: TimetableLessonEntry) => "readonly" | "selected" | "static" | undefined = (class_: TimetableLessonEntry) => {
-    if (currentClassInfo.classNo === class_.classNo) return "selected";
+    if (referenceClassToAdd.classNo === class_.classNo) return "selected";
     else return undefined;
   };
 
@@ -241,6 +259,9 @@ export const LiveTimetable: React.FC = () => {
     }
   }
 
+  // ----------- END FOR ADDING REFERENCE CLASSES ------------
+
+  // ----------- MAIN TIMETABLE SELECTION HANDLER ------------
   const onSelect = (class_: TimetableLessonEntry) => {
     console.log("Selected class: ", class_);
 
@@ -255,7 +276,8 @@ export const LiveTimetable: React.FC = () => {
       return;
     }
 
-    setSelectedClass(class_)
+    // setSelectedClass(class_)
+
     // if the class is from biddable, then:
 
 
@@ -275,40 +297,53 @@ export const LiveTimetable: React.FC = () => {
 
       // if not the same MCLT, just exit modifying mode
       if (selectedClass && moduleCodeLessonType !== `${selectedClass.moduleCode}: ${selectedClass.lessonType}`) {
-        setIsModifying(false);
-        setSelectedClass(null);
+        // setIsModifying(false);
+        // setSelectedClass(null);
+        dispatch(miscActions.setTimetableModifyingMode(null))
         return;
       }
 
       const selectedClasses = classesInfo.selectedClasses
-      if (selectedClasses) {
-        const classListForModule = selectedClasses[moduleCodeLessonType]
-        const thisClassNo = class_.classNo
-        if (classListForModule) {
-          const isSelected = !!classListForModule.find(c => c.classNo === thisClassNo)
-          if (isSelected) {
-            dispatch(classesActions.removeSelectedClass({
-              classNo: class_.classNo,
-              moduleCodeLessonType: `${class_.moduleCode}: ${class_.lessonType}`,
-            }))
-            setIsModifying(false); // TODO: decide if we want to disable modifying mode after each action
-            return;
-          } else {
-            dispatch(classesActions.addSelectedClass({
-              classNo: class_.classNo,
-              moduleCodeLessonType: `${class_.moduleCode}: ${class_.lessonType}`,
-            }))
-            setIsModifying(false); // TODO: decide if we want to disable modifying mode after each action
-          }
+
+      const classListForModule = selectedClasses[moduleCodeLessonType]
+      const thisClassNo = class_.classNo
+      if (classListForModule) {
+        const isSelected = !!classListForModule.find(c => c.classNo === thisClassNo)
+        if (isSelected) {
+          dispatch(classesActions.removeSelectedClass({
+            classNo: class_.classNo,
+            moduleCodeLessonType: `${class_.moduleCode}: ${class_.lessonType}`,
+          }))
+          // setIsModifying(false); // TODO: decide if we want to disable modifying mode after each action
+
+          return;
+        } else {
+          dispatch(classesActions.addSelectedClass({
+            classNo: class_.classNo,
+            moduleCodeLessonType: `${class_.moduleCode}: ${class_.lessonType}`,
+          }))
+          // setIsModifying(false); // TODO: decide if we want to disable modifying mode after each action
         }
+      } else {
+        // we have never selected anything from this module before,
+        // we have to add it
+        dispatch(classesActions.addSelectedClass({
+          classNo: class_.classNo,
+          moduleCodeLessonType: `${class_.moduleCode}: ${class_.lessonType}`,
+        }))
+        // setIsModifying(false); // TODO: decide if we want to disable modifying mode after each action
+
       }
+
+
 
 
 
 
     } else {
-      setIsModifying(true);
+      // setIsModifying(true); // by setting the selected class in the store, the timetable will automatically be set to modify mode
 
+      dispatch(miscActions.setTimetableModifyingMode(class_))
 
     }
 
@@ -363,8 +398,9 @@ export const LiveTimetable: React.FC = () => {
       <Flex flex={1}></Flex>
       {isModifying ?
         <Button size="sm" colorScheme="green" onClick={() => {
-          setIsModifying(false)
-          setSelectedClass(null)
+          // setIsModifying(false)
+          // setSelectedClass(null)
+          dispatch(miscActions.setTimetableModifyingMode(null))
         }}> Finish editing </Button>
 
         : <></>}
@@ -400,7 +436,7 @@ export const LiveTimetable: React.FC = () => {
       />
       <Timetable
         classesToDraw={possibleClassesOfModule}
-        onSelected={selectCurrentClassHandler}
+        onSelected={selectReferenceClassToAddHandler}
         property={getPropertyForAdding}
         selectedColor="blue"
 
@@ -410,7 +446,7 @@ export const LiveTimetable: React.FC = () => {
     </BasicModal>
     <BasicModal props={{
       isOpen: isDeleteOpen,
-      onClose: deleteHandler,
+      onClose: onDeleteClose,
       size: "xl"
     } as ModalProps}
       title={`Remove reference class ${classForDeletion?.moduleCode} ${classForDeletion?.lessonType} ${classForDeletion?.classNo} from timetable?`}

@@ -128,6 +128,7 @@ const Order: NextPage = () => {
     defaultValue: true
   })
   const isBiggerThanXl = useBreakpointValue({ base: false, xl: true });
+  const miscState = useSelector((state: RootState) => state.misc);
 
   const toast = useToast();
   const user = useSelector((state: RootState) => state.user);
@@ -964,6 +965,7 @@ const Order: NextPage = () => {
                       showAdditionalDetails={
                         showAdditionalDetails
                       }
+                      dualMode={dualMode}
                     />
                   </Stack>
                 </Box>
@@ -1160,7 +1162,7 @@ const Order: NextPage = () => {
         overflowY="auto"    //</SimpleGrid>>
       >
         <Flex justifyContent={"space-between"} mb={3}>
-          <Grid gridTemplateColumns={'64px 1fr'} alignItems={'center'} columnGap={4}>
+          {!miscState.timetableModifyingMode ? <Grid gridTemplateColumns={'64px 1fr'} alignItems={'center'} columnGap={4}>
             <HStack>{colorList.map((color, index) => <Button key={`solid-${index}`} size="xxs" colorScheme={color}></Button>)}
             </HStack>
             <Tooltip label="These are the classes that you intend to bid for in Tutorial Registration. Solid colours indicate your top choices.">
@@ -1182,12 +1184,29 @@ const Order: NextPage = () => {
               <Text>Reference classes <QuestionOutlineIcon fontSize={"sm"} /></Text>
             </Tooltip>
 
-          </Grid>
+          </Grid> : <Grid gridTemplateColumns={'64px 1fr'} alignItems={'center'} columnGap={4}>
+            <Button size="xxs" colorScheme={getModuleColor(colorMap, `${miscState.timetableModifyingMode.moduleCode}: ${miscState.timetableModifyingMode.lessonType}`)}></Button>
+            <Text>Classes you've selected for {miscState.timetableModifyingMode.moduleCode}: {miscState.timetableModifyingMode.lessonType}</Text>
+            <Button size="xxs" colorScheme={getModuleColor(colorMap, `${miscState.timetableModifyingMode.moduleCode}: ${miscState.timetableModifyingMode.lessonType}`)} variant={"outline"}></Button>
 
-          {isBiggerThanXl && <Button onClick={() => setDualMode((prev) => !prev)} colorScheme="teal" size="sm"> {dualMode ? "Switch to single view" : "Switch to dual view"} <Tag ml={3} size={"sm"} style={{
-            background: "linear-gradient(135deg, #ffd6e7 0%, #ffe7c7 18%, #fff6bf 36%, #d9ffd6 54%, #d6f0ff 72%, #ead6ff 90%, #ffd6e7 100%)",
-            color: "#111"
-          }}>NEW</Tag></Button>}
+            <Text>Other classes you can select (click to select)</Text>
+            <Box style={{
+              width: "64px",
+              height: "1rem",
+              backgroundImage: STATIC_STRIPED_BG_COLOR,
+            }}></Box>
+            <Text>Classes not relating to {miscState.timetableModifyingMode.moduleCode}: {miscState.timetableModifyingMode.lessonType}</Text>
+
+          </Grid>}
+
+          {isBiggerThanXl &&
+            <Button onClick={() => { setDualMode((prev) => !prev); dispatch(miscActions.setTimetableModifyingMode(null)) }} colorScheme="teal" size="sm">
+              {dualMode ? "Switch to single view" : "Switch to dual view"}
+              {!dualMode ? <Tag ml={3} size={"sm"} style={{
+                background: "linear-gradient(135deg, #ffd6e7 0%, #ffe7c7 18%, #fff6bf 36%, #d9ffd6 54%, #d6f0ff 72%, #ead6ff 90%, #ffd6e7 100%)",
+                color: "#111"
+              }}>NEW</Tag> : null}
+            </Button>}
         </Flex>
         <LiveTimetable />
 

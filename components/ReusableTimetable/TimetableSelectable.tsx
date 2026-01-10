@@ -221,7 +221,9 @@ const TimetableSelectable: React.FC<{
               {...({
                 variant: "outline",
                 opacity: 1,
-                colorScheme: BTN_COLOR_SCHEME,
+                colorScheme: 'gray', // TODO: decide if we want this to be GRAY or the BTN_COLOR_SCHEME. 
+                // considerations: gray makes it look more uniform, BTN_COLOR_SCHEME makes it more obvious which module it is from. 
+                // this is especially important in dual-module add-class mode.
               }
               )}
               overflow="hidden"
