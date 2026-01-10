@@ -1254,7 +1254,7 @@ const Order: NextPage = () => {
           :
           <Grid gridTemplateColumns={'64px 1fr'} alignItems={'center'} columnGap={4}>
             <Button size="xxs" colorScheme={getModuleColor(colorMap, `${miscState.timetableModifyingMode.moduleCode}: ${miscState.timetableModifyingMode.lessonType}`)}></Button>
-            <Text>Classes you've selected for {miscState.timetableModifyingMode.moduleCode}: {miscState.timetableModifyingMode.lessonType}</Text>
+            <Text>Classes you&apos;ve selected for {miscState.timetableModifyingMode.moduleCode}: {miscState.timetableModifyingMode.lessonType}</Text>
             <Button size="xxs" colorScheme={getModuleColor(colorMap, `${miscState.timetableModifyingMode.moduleCode}: ${miscState.timetableModifyingMode.lessonType}`)} variant={"outline"}></Button>
 
             <Text>Other classes you can select (click to select)</Text>
