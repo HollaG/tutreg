@@ -7,7 +7,7 @@ import { ClassOverview, Option, RootState } from "../../types/types"
 import { classesActions, ClassState } from "../../store/classesReducer"
 import { TimetableLessonEntry } from "../../types/timetable"
 import { getModuleColor } from "../../lib/functions"
-import { Alert, AlertIcon, Button, Flex, ModalProps, Stack, Tag, Text, Tooltip, useDisclosure } from "@chakra-ui/react"
+import { Alert, AlertIcon, Button, Flex, LightMode, ModalProps, Stack, Tag, Text, Tooltip, useDisclosure } from "@chakra-ui/react"
 import ModuleSelect from "../Select/ModuleSelect"
 import BasicModal from "../Modal/Modal";
 import TimetableContainer from "../Timetable/TimetableContainer"
@@ -130,11 +130,11 @@ export const LiveTimetable: React.FC = () => {
     if (index === -1) {
       return undefined
     }
-    return <Tag size='sm' colorScheme={getColor(cls)} style={{
+    return <LightMode><Tag size='sm' colorScheme={getColor(cls)} style={{
       position: "absolute",
       bottom: "4px",
       right: "3px",
-    }}>{`#${index + 1}`}</Tag>
+    }}>{`#${index + 1}`}</Tag> </LightMode>
   }
 
   const getProperty = (cls: TimetableLessonEntry): "selected" | "static" | undefined => {
