@@ -64,12 +64,12 @@ const ClassList: React.FC<{
 
   const deleteIconColor = useColorModeValue("red.500", "red.500");
 
-  const currentlyHoveredClass = useSelector((state: RootState) => state.misc.currentlyHoveredClassInTimetable);
-  function isHoveredInTimetable(class_: FullInfo) {
-    return currentlyHoveredClass?.moduleCode === class_.moduleCode &&
-      currentlyHoveredClass?.lessonType === class_.lessonType &&
-      currentlyHoveredClass?.classNo === class_.classNo;
-  }
+  // const currentlyHoveredClass = useSelector((state: RootState) => state.misc.currentlyHoveredClassInTimetable);
+  // function isHoveredInTimetable(class_: FullInfo) {
+  //   return currentlyHoveredClass?.moduleCode === class_.moduleCode &&
+  //     currentlyHoveredClass?.lessonType === class_.lessonType &&
+  //     currentlyHoveredClass?.classNo === class_.classNo;
+  // }
 
   return (
     <List
@@ -90,8 +90,9 @@ const ClassList: React.FC<{
         isOutOfBounds,
       }) => (
         <Box {...props} key={index} borderRadius="md"
-          onMouseEnter={() => dispatch(miscActions.setCurrentlyHoveredClassInMain(moduleData))}
-          onMouseLeave={() => dispatch(miscActions.setCurrentlyHoveredClassInMain(null))}
+          // KNOWN ISSUE: spamming mouseclicks cause issues with react-movable.
+          onMouseDown={() => dispatch(miscActions.setCurrentlyHoveredClassInMain(moduleData))}
+          onMouseUp={() => dispatch(miscActions.setCurrentlyHoveredClassInMain(null))}
 
         >
           <Entry
@@ -105,7 +106,8 @@ const ClassList: React.FC<{
             // key={index}
             // {...props}
             dragProps={{
-              isSelected: isSelected || isHoveredInTimetable(moduleData), // potential to have bugs here because of mouseLeave not being called
+              isSelected: isSelected,
+              // || isHoveredInTimetable(moduleData), // potential to have bugs here because of mouseLeave not being called
               isDragged,
               isOutOfBounds,
             }}
