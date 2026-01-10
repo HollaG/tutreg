@@ -178,7 +178,7 @@ function MyApp({ Component, pageProps }: AppProps) {
           gtag('config', 'G-9RW9HSMN26');
         `}
           </Script>
-          <Flex minHeight="100%" flexDirection="column">
+          <Flex minHeight="100%" flexDirection="column" className="scrollable-root">
             <Nav />
             <Component {...pageProps} />
             <Box>

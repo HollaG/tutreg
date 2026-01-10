@@ -1,40 +1,41 @@
+// deprecated
 import {
-    Accordion,
-    AccordionButton,
-    AccordionIcon,
-    AccordionItem,
-    AccordionPanel,
-    Alert,
-    AlertIcon,
-    Box,
-    Button,
-    Center,
-    Code,
-    Highlight,
-    Link,
-    Modal,
-    ModalBody,
-    ModalCloseButton,
-    ModalContent,
-    ModalFooter,
-    ModalHeader,
-    ModalOverlay,
-    Stack,
-    Text,
-    useDisclosure,
+  Accordion,
+  AccordionButton,
+  AccordionIcon,
+  AccordionItem,
+  AccordionPanel,
+  Alert,
+  AlertIcon,
+  Box,
+  Button,
+  Center,
+  Code,
+  Highlight,
+  Link,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  Stack,
+  Text,
+  useDisclosure,
 } from "@chakra-ui/react";
 import React from "react";
 
 const Explanation: React.FC = () => {
-    const { isOpen, onOpen, onClose } = useDisclosure();
-    return (
-        <Stack spacing={3}>
-            <Alert status="warning">
-                <AlertIcon />
-                Important: ModReg only allows you to select up to 20 tutorial
-                slots! Be mindful of this when selecting your slots.
-            </Alert>
-            {/* <Text>
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  return (
+    <Stack spacing={3}>
+      <Alert status="warning">
+        <AlertIcon />
+        Important: ModReg only allows you to select up to 20 tutorial
+        slots! Be mindful of this when selecting your slots.
+      </Alert>
+      {/* <Text>
                 This page helps you to rank your tutorials during ModReg (SELECT
                 TUTORIALS/LABS) Rounds 1 and 2.
             </Text>
@@ -43,13 +44,13 @@ const Explanation: React.FC = () => {
                 The ranking algorithm is based on that in the message by Sam
                 Chan, which is routinely forwarded during ModReg rounds.
             </Text> */}
-            <Center>
-                <Button size="xs" onClick={onOpen}>
-                    {" "}
-                    View ranking algorithm
-                </Button>
-            </Center>
-            {/* <Box>
+      <Center>
+        <Button size="xs" onClick={onOpen}>
+          {" "}
+          View ranking algorithm
+        </Button>
+      </Center>
+      {/* <Box>
                 <Text>
                     {" "}
                     First, select or import some courses, then rank the courses
@@ -65,13 +66,13 @@ const Explanation: React.FC = () => {
                 </Text>
             </Box> */}
 
-            <Modal isOpen={isOpen} onClose={onClose} size="full">
-                <ModalOverlay />
-                <ModalContent>
-                    <ModalHeader>Message by Sam Chan</ModalHeader>
-                    <ModalCloseButton />
-                    <ModalBody whiteSpace={"break-spaces"}>
-                        {`Balloting process 
+      <Modal isOpen={isOpen} onClose={onClose} size="full">
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Message by Sam Chan</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody whiteSpace={"break-spaces"}>
+            {`Balloting process 
 
 How to ballot like a senior 
 (by sam chan. feel free to share, and please remember to credit 😃)
@@ -142,17 +143,17 @@ Basically you "reflect" your mods. Since you're quite likely to get your choices
 www.nusmods.com
 An awesome timetable builder/planner where you can drag and drop all the possible
 tutorial and lecture slots to create your ideal timetable.`}
-                    </ModalBody>
+          </ModalBody>
 
-                    <ModalFooter>
-                        <Button colorScheme="blue" mr={3} onClick={onClose}>
-                            Close
-                        </Button>
-                    </ModalFooter>
-                </ModalContent>
-            </Modal>
-        </Stack>
-    );
+          <ModalFooter>
+            <Button colorScheme="blue" mr={3} onClick={onClose}>
+              Close
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+    </Stack>
+  );
 };
 
 export default React.memo(Explanation);
