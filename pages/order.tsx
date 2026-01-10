@@ -112,7 +112,7 @@ import { LiveTimetable } from "../components/ReusableTimetable/LiveTimetable";
 import { TbZoomIn, TbZoomOut } from "react-icons/tb";
 import { createPortal } from "react-dom";
 
-import logo from "../public/icons/icon.png";
+import logo from "../public/icons/icon_small.png";
 
 const ay = process.env.NEXT_PUBLIC_AY;
 const sem = process.env.NEXT_PUBLIC_SEM;
