@@ -35,12 +35,12 @@ import BasicModal from "../../Modal/Modal";
 import TimetableModal from "../../Timetable/TimetableModal";
 import { miscActions } from "../../../store/misc";
 
-const ClassSortContainer: React.FC<{ showAdditionalDetails: boolean, dualMode: boolean }> = ({
+const ClassSortContainer: React.FC<{ showAdditionalDetails: boolean }> = ({
   showAdditionalDetails,
-  dualMode
 }) => {
   const data = useSelector((state: RootState) => state.classesInfo);
   const miscState = useSelector((state: RootState) => state.misc);
+  const dualMode = useSelector((state: RootState) => state.misc.dualMode);
   const dispatch = useDispatch();
 
   const [loadedData, setLoadedData] = useState<Data>();

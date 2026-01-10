@@ -438,8 +438,8 @@ const Timetable: React.FC<{
                                     )}%`}
                                     position={"relative"}
 
-                                    onMouseEnter={() => dispatch(miscActions.setCurrentlyHoveredClassInTimetable(class_))}
-                                    onMouseLeave={() => dispatch(miscActions.setCurrentlyHoveredClassInTimetable(null))}
+                                  // onMouseEnter={() => dispatch(miscActions.setCurrentlyHoveredClassInTimetable(class_))}
+                                  // onMouseLeave={() => dispatch(miscActions.setCurrentlyHoveredClassInTimetable(null))}
                                   >
                                     <TimetableSelectable
                                       class_={

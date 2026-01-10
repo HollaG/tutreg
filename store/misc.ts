@@ -26,6 +26,8 @@ export interface MiscState {
 
   currentlyHoveredClassInMain: FullInfo | null;
   currentlyHoveredClassInTimetable: FullInfo | null;
+
+  dualMode: boolean;
 }
 let loadedState = loadState();
 
@@ -57,6 +59,7 @@ const initialState: MiscState = loadedState || {
     changedTo2023S1: false,
   },
   timetableModifyingMode: null,
+  dualMode: true,
 };
 
 const miscSlice = createSlice({
@@ -93,6 +96,9 @@ const miscSlice = createSlice({
       action: PayloadAction<FullInfo | null>
     ) => {
       state.currentlyHoveredClassInTimetable = action.payload;
+    },
+    setDualMode: (state, action: PayloadAction<boolean>) => {
+      state.dualMode = action.payload;
     },
   },
 });

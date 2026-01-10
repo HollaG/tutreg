@@ -21,6 +21,7 @@ export const LiveTimetable: React.FC = () => {
   const _classesInfo = useSelector((state: RootState) => state.classesInfo)
   const _modifyingInfo = useSelector((state: RootState) => state.misc.timetableModifyingMode)
   const currentlyHoveredClass = useSelector((state: RootState) => state.misc.currentlyHoveredClassInMain);
+  const dualMode = useSelector((state: RootState) => state.misc.dualMode);
 
   const { isOpen: isAddOpen, onOpen: onAddOpen, onClose: onAddClose } = useDisclosure()
   const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure()
@@ -347,7 +348,7 @@ export const LiveTimetable: React.FC = () => {
       dispatch(miscActions.setTimetableModifyingMode(class_))
       // if in dual-mode, scroll to the section in the left panel
       const element = document.getElementById(`class-sort-container-${class_.moduleCode}: ${class_.lessonType}`);
-      if (element) {
+      if (element && dualMode) {
         element.scrollIntoView({ behavior: "smooth", block: "center" });
       }
 

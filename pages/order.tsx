@@ -98,7 +98,7 @@ import {
 
 import { GrSync } from "react-icons/gr";
 import { IconContext } from "react-icons";
-import { miscActions } from "../store/misc";
+import { miscActions, MiscState } from "../store/misc";
 import { CopyIcon, InfoOutlineIcon, QuestionIcon, QuestionOutlineIcon } from "@chakra-ui/icons";
 import Image from "next/image";
 import OrderImage from "../public/assets/order_illustration.svg";
@@ -124,11 +124,19 @@ const sem = process.env.NEXT_PUBLIC_SEM;
 const SYNC_COLLECTION_NAME =
   process.env.NEXT_PUBLIC_SYNC_COLLECTION_NAME || "userStorage";
 const Order: NextPage = () => {
-  const [dualMode, setDualMode] = useLocalStorageState("dualMode", {
-    defaultValue: true
-  })
   const isBiggerThanXl = useBreakpointValue({ base: false, xl: true });
-  const miscState = useSelector((state: RootState) => state.misc);
+  const _miscState = useSelector((state: RootState) => state.misc);
+  const [miscState, setMiscState] = useState<MiscState | null>(null);
+  const _dualMode = useSelector((state: RootState) => state.misc.dualMode);
+  const [dualMode, setDualMode] = useState(true);
+  useEffect(() => {
+    setDualMode(_dualMode);
+  }, [_dualMode]);
+
+  useEffect(() => {
+    setMiscState(_miscState);
+  }, [_miscState]);
+
 
   const toast = useToast();
   const user = useSelector((state: RootState) => state.user);
@@ -682,7 +690,7 @@ const Order: NextPage = () => {
 
 
   return (<FullPage>
-    <SimpleGrid columns={{ base: 1, xl: dualMode ? 2 : 1 }} spacingX={"6rem"} spacingY="2rem">
+    <SimpleGrid columns={{ base: 1, xl: (dualMode) ? 2 : 1 }} spacingX={"6rem"} spacingY="2rem">
       <Container maxW={"container.lg"}>
 
 
@@ -965,7 +973,6 @@ const Order: NextPage = () => {
                       showAdditionalDetails={
                         showAdditionalDetails
                       }
-                      dualMode={dualMode}
                     />
                   </Stack>
                 </Box>
@@ -1162,45 +1169,49 @@ const Order: NextPage = () => {
         overflowY="auto"    //</SimpleGrid>>
       >
         <Flex justifyContent={"space-between"} mb={3}>
-          {!miscState.timetableModifyingMode ? <Grid gridTemplateColumns={'64px 1fr'} alignItems={'center'} columnGap={4}>
-            <HStack>{colorList.map((color, index) => <Button key={`solid-${index}`} size="xxs" colorScheme={color}></Button>)}
-            </HStack>
-            <Tooltip label="These are the classes that you intend to bid for in Tutorial Registration. Solid colours indicate your top choices.">
-              <Text>Biddable classes (first choice) <QuestionOutlineIcon fontSize={"sm"} /></Text>
-            </Tooltip>
-            <HStack>
-              {colorList.map((color, index) => <Button key={`subtle-${index}`} size="xxs" colorScheme={color} variant="subtle"></Button>)}
-            </HStack>
-            <Tooltip label="These are the classes that you intend to bid for in Tutorial Registration. Subtle colours indicate your lower choices.">
-              <Text>Biddable classes (not first choice) <QuestionOutlineIcon fontSize={"sm"} /></Text>
-            </Tooltip>
-            <Box style={{
-              width: "64px",
-              height: "1rem",
-              backgroundImage: STATIC_STRIPED_BG_COLOR,
-            }}></Box>
-            <Tooltip label="These are reference classes that you do not intend to bid for in Tutorial Registration. They are added to your timetable for reference only.">
+          {miscState && <>
 
-              <Text>Reference classes <QuestionOutlineIcon fontSize={"sm"} /></Text>
-            </Tooltip>
+            {!miscState.timetableModifyingMode ? <Grid gridTemplateColumns={'64px 1fr'} alignItems={'center'} columnGap={4}>
+              <HStack>{colorList.map((color, index) => <Button key={`solid-${index}`} size="xxs" colorScheme={color}></Button>)}
+              </HStack>
+              <Tooltip label="These are the classes that you intend to bid for in Tutorial Registration. Solid colours indicate your top choices.">
+                <Text>Biddable classes (first choice) <QuestionOutlineIcon fontSize={"sm"} /></Text>
+              </Tooltip>
+              <HStack>
+                {colorList.map((color, index) => <Button key={`subtle-${index}`} size="xxs" colorScheme={color} variant="subtle"></Button>)}
+              </HStack>
+              <Tooltip label="These are the classes that you intend to bid for in Tutorial Registration. Subtle colours indicate your lower choices.">
+                <Text>Biddable classes (not first choice) <QuestionOutlineIcon fontSize={"sm"} /></Text>
+              </Tooltip>
+              <Box style={{
+                width: "64px",
+                height: "1rem",
+                backgroundImage: STATIC_STRIPED_BG_COLOR,
+              }}></Box>
+              <Tooltip label="These are reference classes that you do not intend to bid for in Tutorial Registration. They are added to your timetable for reference only.">
 
-          </Grid> : <Grid gridTemplateColumns={'64px 1fr'} alignItems={'center'} columnGap={4}>
-            <Button size="xxs" colorScheme={getModuleColor(colorMap, `${miscState.timetableModifyingMode.moduleCode}: ${miscState.timetableModifyingMode.lessonType}`)}></Button>
-            <Text>Classes you've selected for {miscState.timetableModifyingMode.moduleCode}: {miscState.timetableModifyingMode.lessonType}</Text>
-            <Button size="xxs" colorScheme={getModuleColor(colorMap, `${miscState.timetableModifyingMode.moduleCode}: ${miscState.timetableModifyingMode.lessonType}`)} variant={"outline"}></Button>
+                <Text>Reference classes <QuestionOutlineIcon fontSize={"sm"} /></Text>
+              </Tooltip>
 
-            <Text>Other classes you can select (click to select)</Text>
-            <Box style={{
-              width: "64px",
-              height: "1rem",
-              backgroundImage: STATIC_STRIPED_BG_COLOR,
-            }}></Box>
-            <Text>Classes not relating to {miscState.timetableModifyingMode.moduleCode}: {miscState.timetableModifyingMode.lessonType}</Text>
+            </Grid> : <Grid gridTemplateColumns={'64px 1fr'} alignItems={'center'} columnGap={4}>
+              <Button size="xxs" colorScheme={getModuleColor(colorMap, `${miscState.timetableModifyingMode.moduleCode}: ${miscState.timetableModifyingMode.lessonType}`)}></Button>
+              <Text>Classes you've selected for {miscState.timetableModifyingMode.moduleCode}: {miscState.timetableModifyingMode.lessonType}</Text>
+              <Button size="xxs" colorScheme={getModuleColor(colorMap, `${miscState.timetableModifyingMode.moduleCode}: ${miscState.timetableModifyingMode.lessonType}`)} variant={"outline"}></Button>
 
-          </Grid>}
+              <Text>Other classes you can select (click to select)</Text>
+              <Box style={{
+                width: "64px",
+                height: "1rem",
+                backgroundImage: STATIC_STRIPED_BG_COLOR,
+              }}></Box>
+              <Text>Classes not relating to {miscState.timetableModifyingMode.moduleCode}: {miscState.timetableModifyingMode.lessonType}</Text>
+
+            </Grid>}
+          </>
+          }
 
           {isBiggerThanXl &&
-            <Button onClick={() => { setDualMode((prev) => !prev); dispatch(miscActions.setTimetableModifyingMode(null)) }} colorScheme="teal" size="sm">
+            <Button onClick={() => { dispatch(miscActions.setDualMode(!dualMode)); dispatch(miscActions.setTimetableModifyingMode(null)) }} colorScheme="teal" size="sm">
               {dualMode ? "Switch to single view" : "Switch to dual view"}
               {!dualMode ? <Tag ml={3} size={"sm"} style={{
                 background: "linear-gradient(135deg, #ffd6e7 0%, #ffe7c7 18%, #fff6bf 36%, #d9ffd6 54%, #d6f0ff 72%, #ead6ff 90%, #ffd6e7 100%)",
