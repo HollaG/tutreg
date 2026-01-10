@@ -1224,12 +1224,12 @@ const Order: NextPage = () => {
 
           <Grid gridTemplateColumns={'64px 1fr'} alignItems={'center'} columnGap={4}>
             <>
-              <HStack>{colorList.map((color, index) => <Button key={`solid-${index}`} size="xxs" colorScheme={color}></Button>)}
+              <HStack justifyContent={'end'}>{colorList.map((color, index) => <Button key={`solid-${index}`} size="xxs" colorScheme={color}></Button>)}
               </HStack>
               <Tooltip label="These are the classes that you intend to bid for in Tutorial Registration. Solid colours indicate your top choices.">
                 <Text>Biddable classes (first choice) <QuestionOutlineIcon fontSize={"sm"} /></Text>
               </Tooltip>
-              <HStack>
+              <HStack justifyContent={'end'}>
                 {colorList.map((color, index) => <Button key={`subtle-${index}`} size="xxs" colorScheme={color} variant="subtle"></Button>)}
               </HStack>
               <Tooltip label="These are the classes that you intend to bid for in Tutorial Registration. Subtle colours indicate your lower choices.">
