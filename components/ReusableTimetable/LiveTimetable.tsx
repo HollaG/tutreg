@@ -111,7 +111,7 @@ export const LiveTimetable: React.FC = () => {
       return "solid"
     }
 
-    const isFirstChoice = firstChoices.find(c => c.classNo === cls.classNo && c.moduleCode === cls.moduleCode)
+    const isFirstChoice = firstChoices.find(c => c.classNo === cls.classNo && c.moduleCode === cls.moduleCode && c.lessonType === cls.lessonType)
     if (isFirstChoice) {
       return "solid"
     }
