@@ -273,7 +273,7 @@ const Timetable: React.FC<{
       rowMappingForDays.splice(5, 1);
     }
 
-    const bgColor = useColorModeValue("#ffffff", "1a202c");
+    const bgColor = useColorModeValue("#ffffff", "#1a202c");
     const takeScreenshot = () => {
       if (!screenshotRef.current) return;
       setIsTakingScreenshot(true);
