@@ -21,6 +21,8 @@ import { ClassOverview } from "../../types/types";
 import TimetableSelectable, { ExampleTimetableSelectableStatic } from "./TimetableSelectable";
 import { toJpeg, toPng } from "html-to-image";
 import { DownloadIcon } from "@chakra-ui/icons";
+import { useDispatch } from "react-redux";
+import { miscActions } from "../../store/misc";
 
 const order = [
   "Monday",
@@ -93,6 +95,8 @@ const Timetable: React.FC<{
 
   children
 }) => {
+    const dispatch = useDispatch();
+
     const GRID_ITEM_HEIGHT_RESPONSIVE = useBreakpointValue({
       base: GRID_ITEM_HEIGHT_SMALL,
       md: tinyMode ? GRID_ITEM_HEIGHT_SMALL : GRID_ITEM_HEIGHT_BIG,
@@ -202,7 +206,6 @@ const Timetable: React.FC<{
       });
     });
 
-    console.log({ timetableList })
 
     // we need to ensure that the end_time and the start time differ by a whole number of hours.
     // start: 1000, end: 1800 --> OK
@@ -434,6 +437,9 @@ const Timetable: React.FC<{
                                       latestTiming
                                     )}%`}
                                     position={"relative"}
+
+                                    onMouseEnter={() => dispatch(miscActions.setCurrentlyHoveredClassInTimetable(class_))}
+                                    onMouseLeave={() => dispatch(miscActions.setCurrentlyHoveredClassInTimetable(null))}
                                   >
                                     <TimetableSelectable
                                       class_={

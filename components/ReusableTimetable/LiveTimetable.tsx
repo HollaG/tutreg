@@ -20,6 +20,8 @@ import { miscActions } from "../../store/misc"
 export const LiveTimetable: React.FC = () => {
   const _classesInfo = useSelector((state: RootState) => state.classesInfo)
   const _modifyingInfo = useSelector((state: RootState) => state.misc.timetableModifyingMode)
+  const currentlyHoveredClass = useSelector((state: RootState) => state.misc.currentlyHoveredClassInMain);
+
   const { isOpen: isAddOpen, onOpen: onAddOpen, onClose: onAddClose } = useDisclosure()
   const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure()
   const [classForDeletion, setClassForDeletion] = useState<TimetableLessonEntry | null>(null);
@@ -263,7 +265,6 @@ export const LiveTimetable: React.FC = () => {
 
   // ----------- MAIN TIMETABLE SELECTION HANDLER ------------
   const onSelect = (class_: TimetableLessonEntry) => {
-    console.log("Selected class: ", class_);
 
     // if the class is from non-biddable, remove it
     const isInNonBiddable = nonBiddable.find(c => c.classNo === class_.classNo && c.moduleCode === class_.moduleCode && c.lessonType === class_.lessonType)
@@ -369,8 +370,20 @@ export const LiveTimetable: React.FC = () => {
     // how to figure out which classes have been selected? we can check the classesInfo.selectedClasses. Then, the getProperty function can be modified to return "selected" only for the selected classes.
   }
 
+  // ----------- END MAIN TIMETABLE SELECTION HANDLER ------------
 
-
+  // ----------- HANDLE PULSING WHEN HOVERING A CLASS ON THE MAIN PAGE ------------
+  const getClassNames = (class_: TimetableLessonEntry) => {
+    let classNames = "";
+    if (currentlyHoveredClass) {
+      if (currentlyHoveredClass.moduleCode === class_.moduleCode &&
+        currentlyHoveredClass.lessonType === class_.lessonType &&
+        currentlyHoveredClass.classNo === class_.classNo) {
+        classNames += "pulse";
+      }
+    }
+    return classNames;
+  }
 
 
   return <Stack>
@@ -392,6 +405,7 @@ export const LiveTimetable: React.FC = () => {
       getFillMode={getFillMode}
       getTag={getTag}
       canDownload
+      getClassNames={getClassNames}
 
 
 

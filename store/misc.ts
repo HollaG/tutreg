@@ -3,7 +3,7 @@ import { TelegramUser } from "telegram-login-button";
 import { canBeBidFor } from "../lib/functions";
 import { Data } from "../pages/api/import";
 import { ModuleCodeLessonType, ClassOverview } from "../types/types";
-import { HalfInfo } from "../pages/swap/create";
+import { FullInfo, HalfInfo } from "../pages/swap/create";
 
 const loadState = () => {
   try {
@@ -23,28 +23,31 @@ export interface MiscState {
     changedTo2023S1: boolean;
   };
   timetableModifyingMode: (HalfInfo & { classNo?: string }) | null; // true when user clicks "Add class" in dual mode
+
+  currentlyHoveredClassInMain: FullInfo | null;
+  currentlyHoveredClassInTimetable: FullInfo | null;
 }
 let loadedState = loadState();
 
 // Migration script
-(() => {
-  // if no notifications key, add it
-  if (loadedState && !("notifications" in loadedState)) {
-    loadedState = {
-      ...loadedState,
-      notifications: {
-        changedTo2023S1: false,
-      },
-    };
-  }
+// (() => {
+//   // if no notifications key, add it
+//   if (loadedState && !("notifications" in loadedState)) {
+//     loadedState = {
+//       ...loadedState,
+//       notifications: {
+//         changedTo2023S1: false,
+//       },
+//     };
+//   }
 
-  if (loadedState && !("timetableModifyingMode" in loadedState)) {
-    loadedState = {
-      ...loadedState,
-      timetableModifyingMode: false,
-    };
-  }
-})();
+//   if (loadedState && !("timetableModifyingMode" in loadedState)) {
+//     loadedState = {
+//       ...loadedState,
+//       timetableModifyingMode: null,
+//     };
+//   }
+// })();
 
 const initialState: MiscState = loadedState || {
   needsLogIn: false,
@@ -77,6 +80,19 @@ const miscSlice = createSlice({
       action: PayloadAction<(HalfInfo & { classNo?: string }) | null>
     ) => {
       state.timetableModifyingMode = action.payload;
+    },
+
+    setCurrentlyHoveredClassInMain: (
+      state,
+      action: PayloadAction<FullInfo | null>
+    ) => {
+      state.currentlyHoveredClassInMain = action.payload;
+    },
+    setCurrentlyHoveredClassInTimetable: (
+      state,
+      action: PayloadAction<FullInfo | null>
+    ) => {
+      state.currentlyHoveredClassInTimetable = action.payload;
     },
   },
 });
