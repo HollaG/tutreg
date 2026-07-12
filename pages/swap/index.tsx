@@ -112,6 +112,7 @@ import {
   SUCCESS_TOAST_OPTIONS,
 } from "../../lib/toasts.utils";
 import executeQuery from "../../lib/db";
+import { ContainedPage } from "../../components/PageWrap/ContainedPage";
 
 const SWAP_VISIBLE_AMOUNT = 20;
 const CustomCardProps = {
@@ -577,7 +578,7 @@ const Swap = (
     });
     return () => unsubscribe();
   }, [user]);
-  return (
+  return (<ContainedPage>
     <Stack spacing={5} h="100%">
       <Alert status='success'>
         <AlertIcon />
@@ -799,7 +800,7 @@ const Swap = (
         userRequest={userRequest}
       />
     </Stack>
-  );
+  </ContainedPage>);
 };
 
 export default Swap;

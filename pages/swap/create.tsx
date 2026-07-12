@@ -74,6 +74,7 @@ import {
   ERROR_TOAST_OPTIONS,
   SUCCESS_TOAST_OPTIONS,
 } from "../../lib/toasts.utils";
+import { ContainedPage } from "../../components/PageWrap/ContainedPage";
 
 const steps = [
   {
@@ -841,8 +842,8 @@ const CreateSwap: NextPage = () => {
     }
   }, [hookOrientation]);
 
-  return (
-    user && (
+  return (<ContainedPage>
+    {user && (
       <Stack spacing={5} alignItems="center" h="100%">
         <Stepper index={activeStep} w="100%" orientation={orientation}>
           {steps.map((step, index) => (
@@ -919,8 +920,8 @@ const CreateSwap: NextPage = () => {
           />
         )}
       </Stack>
-    )
-  );
+    )}
+  </ContainedPage>);
 };
 
 export default CreateSwap;

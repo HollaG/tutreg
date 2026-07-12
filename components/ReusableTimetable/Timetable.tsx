@@ -9,8 +9,9 @@ import {
   Box,
   Stack,
   HStack,
+  Button,
 } from "@chakra-ui/react";
-import React from "react";
+import React, { useRef, useState } from "react";
 
 import { keepAndCapFirstThree } from "../../lib/functions";
 import { Day } from "../../types/modules";
@@ -18,6 +19,10 @@ import { DayRows, TimetableLessonEntry } from "../../types/timetable";
 import { ClassOverview } from "../../types/types";
 
 import TimetableSelectable, { ExampleTimetableSelectableStatic } from "./TimetableSelectable";
+import { toJpeg, toPng } from "html-to-image";
+import { DownloadIcon } from "@chakra-ui/icons";
+import { useDispatch } from "react-redux";
+import { miscActions } from "../../store/misc";
 
 const order = [
   "Monday",
@@ -25,14 +30,34 @@ const order = [
   "Wednesday",
   "Thursday",
   "Friday",
-  "Saturday",
-  "Sunday",
+  // "Saturday",
+  // "Sunday",
 ];
 
 const GRID_ITEM_HEIGHT_BIG = 85;
 const GRID_ITEM_HEIGHT_SMALL = 75;
 
+/**
+ * 
+ * @param classesToDraw Classes that are selectable and editable by user
+ * @param staticClasses Classes that are static and not editable by user
+ * @param property Called on each class to determine whether it is:
+ *  "readonly" - cannot be selected nor unselected but should be displayed as selected (used in swap)
+ *  "selected" - can be unselected
+ *  "static" - cannot be selected nor unselected, used to denote non-tutorial classes the user already has
+ *  Static classes display all information by default.
+ * 
+ * @param tinyMode Whether to render in tiny mode (for smaller screens)
+ * @param onSelected Callback when a class is selected
+ * @param selectedColor Optional color to override selected color. Will apply to the WHOLE timetable
+ * 
+ * @param overrideColor Optional function to override color of each class block. Takes priority OVER selectedColor.
+ * @param fillMode Optional function to determine fill mode of each class block when selected.
+ * @param displayMode Optional function to determine display mode of each class block. Used to show ranking.
+ * @returns 
+ */
 const Timetable: React.FC<{
+  minWidth?: string; //px
   classesToDraw: ClassOverview[];
   staticClasses?: ClassOverview[];
   property: (class_: TimetableLessonEntry) => "readonly" | "selected" | "static" | undefined;
@@ -42,7 +67,17 @@ const Timetable: React.FC<{
   showModuleCode?: boolean;
   showLessonType?: boolean;
   getClassNames?: (class_: TimetableLessonEntry) => string;
-}> = ({
+
+  getOverrideColor?: (class_: TimetableLessonEntry) => string;
+  getFillMode?: (class_: TimetableLessonEntry) => "solid" | "outline" | "subtle";
+  getDisplayMode?: (class_: TimetableLessonEntry) => "detailed" | "compact" | "hidden"
+  getTag?: (class_: TimetableLessonEntry) => React.ReactNode | string | undefined;
+  canDownload?: boolean;
+
+  children?: React.ReactNode | React.ReactNode[];
+
+} & React.PropsWithChildren> = ({
+  minWidth,
   classesToDraw,
   staticClasses,
   property,
@@ -52,7 +87,16 @@ const Timetable: React.FC<{
   showModuleCode,
   showLessonType,
   getClassNames,
+  getOverrideColor,
+  getDisplayMode,
+  getFillMode,
+  getTag,
+  canDownload = false,
+
+  children
 }) => {
+    const dispatch = useDispatch();
+
     const GRID_ITEM_HEIGHT_RESPONSIVE = useBreakpointValue({
       base: GRID_ITEM_HEIGHT_SMALL,
       md: tinyMode ? GRID_ITEM_HEIGHT_SMALL : GRID_ITEM_HEIGHT_BIG,
@@ -70,6 +114,12 @@ const Timetable: React.FC<{
 
     const BORDER_WIDTH = "1px";
     const BORDER_RADIUS = "5px";
+
+    const screenshotRef = useRef<HTMLDivElement>(null);
+    const [isTakingScreenshot, setIsTakingScreenshot] = useState(false);
+
+
+
     let timetableList: TimetableLessonEntry[] = [];
 
     let earliestTiming = "2400";
@@ -81,8 +131,8 @@ const Timetable: React.FC<{
       Wednesday: 1,
       Thursday: 1,
       Friday: 1,
-      Saturday: 1,
-      Sunday: 1,
+      Saturday: 0,
+      Sunday: 0,
     };
 
     const allClassesToDraw: (ClassOverview & { unselectable?: boolean })[] = [...classesToDraw, ...(staticClasses || []).map((c) => ({ ...c, unselectable: true }))];
@@ -156,7 +206,6 @@ const Timetable: React.FC<{
       });
     });
 
-    console.log({ timetableList })
 
     // we need to ensure that the end_time and the start time differ by a whole number of hours.
     // start: 1000, end: 1800 --> OK
@@ -215,15 +264,45 @@ const Timetable: React.FC<{
         60
       ) + 1; // # of hours in timetable + 1
 
+    if (totalDayRowsToDraw.Saturday === 0) {
+      // remove saturday from rowMappingForDays
+      rowMappingForDays.splice(5, 1);
+    }
+    if (totalDayRowsToDraw.Sunday === 0) {
+      // remove sunday from rowMappingForDays
+      rowMappingForDays.splice(5, 1);
+    }
+
+    const bgColor = useColorModeValue("#ffffff", "#1a202c");
+    const takeScreenshot = () => {
+      if (!screenshotRef.current) return;
+      setIsTakingScreenshot(true);
+
+      toPng(screenshotRef.current, { cacheBust: true, pixelRatio: 5 }).then((dataUrl) => {
+        // Create a link to download the image
+        const link = document.createElement('a');
+        link.download = 'tutreg-order.png';
+        link.href = dataUrl;
+        link.click();
+      })
+        .catch((err) => {
+          console.error('oops, something went wrong!', err);
+        }).finally(() => {
+          setIsTakingScreenshot(false);
+        });
+    }
+
+
     return (
       <Stack>
 
 
-        <Box overflowX="scroll">
+        <Box overflowX="scroll"  >
           <Grid
-            minW={"750px"}
+            ref={screenshotRef}
+            minW={minWidth ? minWidth : `${(totalColumnsToDraw - 1) * 125 + 50}px`} // the minimum width of a a column must be 125px
             margin="auto"
-            gridTemplateRows={"25px 1fr"}
+            gridTemplateRows={"auto 25px 1fr"}
             templateColumns={`${COLUMN_WIDTH_START} repeat(${totalColumnsToDraw - 1
               }, 1fr)`}
           // templateAreas={`"header header"
@@ -231,6 +310,9 @@ const Timetable: React.FC<{
 
           // }
           >
+            <GridItem id="live-timetable-legend" colSpan={totalColumnsToDraw} bgColor={bgColor}>
+
+            </GridItem>
             {/* Headers for timing */}
             {Array.from({ length: totalColumnsToDraw }).map((_, c) => {
               return (
@@ -239,6 +321,7 @@ const Timetable: React.FC<{
                     alignItems={"flex-end"}
                     height="100%"
                     ml="-18px"
+                    backgroundColor={bgColor}
                   >
                     {c !== 0 ? (
                       <Text
@@ -358,6 +441,10 @@ const Timetable: React.FC<{
                                       earliestTiming,
                                       latestTiming
                                     )}%`}
+                                    position={"relative"}
+
+                                  // onMouseEnter={() => dispatch(miscActions.setCurrentlyHoveredClassInTimetable(class_))}
+                                  // onMouseLeave={() => dispatch(miscActions.setCurrentlyHoveredClassInTimetable(null))}
                                   >
                                     <TimetableSelectable
                                       class_={
@@ -383,7 +470,12 @@ const Timetable: React.FC<{
                                       getClassNames={
                                         getClassNames
                                       }
+                                      getOverrideColor={getOverrideColor}
+                                      getDisplayMode={getDisplayMode}
+                                      getFillMode={getFillMode}
+                                    // getTag={getTag}
                                     />
+                                    {getTag ? (getTag(class_)) : <></>}
                                   </Box>
                                 );
                               })}
@@ -449,8 +541,14 @@ const Timetable: React.FC<{
                 </Grid>
               </Box>
             </GridItem>
+
+
           </Grid>
         </Box>
+        <Flex justifyContent={"end"} mt={4} gap={'1rem'}>
+          {children}
+          {canDownload && <Button leftIcon={<DownloadIcon />} isLoading={isTakingScreenshot} onClick={() => takeScreenshot()} size="sm" colorScheme="blue"> Download as image </Button>}
+        </Flex>
 
         {/* To be implemented */}
         {/* <Box>

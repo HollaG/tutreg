@@ -35,17 +35,35 @@ const TimetableSelectable: React.FC<{
   showLessonType?: boolean;
 
   getClassNames?: (class_: TimetableLessonEntry) => string;
+
+
+  getOverrideColor?: (class_: TimetableLessonEntry) => string;
+  getFillMode?: (class_: TimetableLessonEntry) => "solid" | "outline" | "subtle"
+  getDisplayMode?: (class_: TimetableLessonEntry) => "detailed" | "compact" | "hidden"
 }> = ({
   class_,
   property,
   onSelected,
   tinyMode = false,
-  selectedColor: BTN_COLOR_SCHEME = "teal",
+  selectedColor = "teal",
+  getOverrideColor,
+  getDisplayMode,
+  getFillMode,
+
+
   showModuleCode = false,
   showLessonType = false,
   getClassNames,
 }) => {
+    const BTN_COLOR_SCHEME = getOverrideColor
+      ? getOverrideColor(class_)
+      : selectedColor || "teal";
+
+    const displayMode = getDisplayMode ? getDisplayMode(class_) : "detailed";
+    const fillMode = getFillMode ? getFillMode(class_) : "solid";
+
     const GRAY_BACKGROUND = useColorModeValue("gray.100", "gray.900");
+
     const HOVER_COLOR = useColorModeValue(
       `${BTN_COLOR_SCHEME}.100`,
       `${BTN_COLOR_SCHEME}.800`
@@ -160,7 +178,7 @@ const TimetableSelectable: React.FC<{
       );
     }
 
-    // STATIC property: display ALL information, NO 
+    // STATIC property: display ALL information, NO matter the extra params
     if (property === "static") {
 
       return (
@@ -180,8 +198,15 @@ const TimetableSelectable: React.FC<{
               right={0}
               bottom={0}
               backgroundImage={STATIC_STRIPED_BG_COLOR}
-              pointerEvents="none"
+              // pointerEvents="none"
               borderRadius="md"
+
+              // we want the "button" look, but not block clicks
+              // cannot put the onClick in the Button as that would trigger the hover animation
+              // TODO: implement a specific variable to manage this behaviour
+              onClick={() => toggleHandler()}
+              cursor={'pointer'}
+
             />
             <Button
               pointerEvents={'none'}
@@ -191,15 +216,16 @@ const TimetableSelectable: React.FC<{
               justifyContent={"left"}
               textAlign="left"
               pl={{ base: 1, md: 2 }}
-              cursor="not-allowed"
+              // cursor="not-allowed"
               position="relative"
               {...({
                 variant: "outline",
                 opacity: 1,
-                colorScheme: 'blue',
+                colorScheme: 'gray', // TODO: decide if we want this to be GRAY or the BTN_COLOR_SCHEME. 
+                // considerations: gray makes it look more uniform, BTN_COLOR_SCHEME makes it more obvious which module it is from. 
+                // this is especially important in dual-module add-class mode.
               }
               )}
-              // onClick={() => toggleHandler()}
               overflow="hidden"
             >
               <Flex flexWrap={"wrap"} alignItems="center">
@@ -219,44 +245,52 @@ const TimetableSelectable: React.FC<{
                   {class_.classNo}
                 </Text> */}
                 <Stack spacing={0}>
-                  <Text
-                    // fontSize={{
-                    //     base: "xs",
-                    //     md: "md",
-                    // }}
-                    fontSize={{
-                      base: "0.9rem",
-                      md: "md",
-                    }}
-                    fontWeight="semibold"
-                    mr={2}
-                  >
-                    {class_.moduleCode}
-                  </Text>
-                  <Text
-                    fontSize={{
-                      base: "0.8rem",
-                      md: "sm",
-                    }}
-                  >
-                    {(encodeLessonTypeToShorthand(class_.lessonType))} [{class_.classNo}]
-                  </Text>
-                  <Text
-                    fontSize={{
-                      base: "0.65rem",
-                      md: "xs",
-                    }}
-                  >
-                    {class_.venue}
-                  </Text>
-                  <Text
-                    fontSize={{
-                      base: "0.65rem",
-                      md: "xs",
-                    }}
-                  >
-                    Wks {weeksDisplay}{" "}
-                  </Text>
+                  {(showModuleCode || showLessonType) && (
+                    <Text fontSize={{ base: "xs", md: "sm" }}>
+                      {showModuleCode ? class_.moduleCode : ""}{" "}
+                      {showLessonType
+                        ? encodeLessonTypeToShorthand(
+                          class_.lessonType
+                        )
+                        : ""}
+                    </Text>
+                  )}
+                  <Flex flexWrap={"wrap"}>
+                    <Text
+                      // fontSize={{
+                      //     base: "xs",
+                      //     md: "md",
+                      // }}
+                      fontSize={{
+                        base: "sm",
+                        md: tinyMode ? "sm" : "2xl",
+                      }}
+                      fontWeight="semibold"
+                      mr={2}
+                    >
+                      {class_.classNo}
+                    </Text>
+                    {displayMode === "detailed" ? <Stack spacing={0}>
+                      <Text
+                        fontSize={{
+                          base: "0.65rem",
+                          md: tinyMode ? "0.65rem" : "xs",
+                        }}
+                      // fontWeight="light"
+                      >
+                        {class_.venue}
+                      </Text>
+                      <Text
+                        fontSize={{
+                          base: "0.65rem",
+                          md: tinyMode ? "0.65rem" : "xs",
+                        }}
+                      // fontWeight="light"
+                      >
+                        Wks {weeksDisplay}{" "}
+                      </Text>
+                    </Stack> : null}
+                  </Flex>
                 </Stack>
               </Flex>
             </Button>
@@ -265,8 +299,25 @@ const TimetableSelectable: React.FC<{
       );
     }
 
+    const btnProps = sel
+      ? {
+        variant: fillMode,
+        opacity: 1,
+        colorScheme: BTN_COLOR_SCHEME,
+      }
+      : {
+        bgColor: GRAY_BACKGROUND,
+        variant: "outline",
+        opacity: 0.7,
+        colorScheme: BTN_COLOR_SCHEME,
+        _hover: {
+          opacity: 1,
+          bgColor: HOVER_COLOR,
+        },
+      }
+
     return (
-      <Center w="100%" h="100%">
+      <Center w="100%" h={"100%"}>
         <Flex
           height="95%"
           transform={"scale(0.95)"}
@@ -281,22 +332,7 @@ const TimetableSelectable: React.FC<{
             h="100%"
             justifyContent={"left"}
             textAlign="left"
-            {...(sel
-              ? {
-                variant: "solid",
-                opacity: 1,
-                colorScheme: BTN_COLOR_SCHEME,
-              }
-              : {
-                bgColor: GRAY_BACKGROUND,
-                variant: "outline",
-                opacity: 0.7,
-                colorScheme: "grey",
-                _hover: {
-                  opacity: 1,
-                  bgColor: HOVER_COLOR,
-                },
-              })}
+            {...(btnProps)}
             onClick={() => toggleHandler()}
             className={getClassNames ? getClassNames(class_) : ""}
           >
@@ -326,7 +362,7 @@ const TimetableSelectable: React.FC<{
                 >
                   {class_.classNo}
                 </Text>
-                <Stack spacing={0}>
+                {displayMode === "detailed" ? <Stack spacing={0}>
                   <Text
                     fontSize={{
                       base: "0.65rem",
@@ -345,7 +381,7 @@ const TimetableSelectable: React.FC<{
                   >
                     Wks {weeksDisplay}{" "}
                   </Text>
-                </Stack>
+                </Stack> : null}
               </Flex>
             </Stack>
           </Button>
