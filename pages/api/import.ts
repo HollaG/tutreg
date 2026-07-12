@@ -24,7 +24,7 @@ const moduleCache = new Map<string, any>();
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<ImportResponseData>
+  res: NextApiResponse<ImportResponseData>,
 ) {
   try {
     if (req.method === "POST") {
@@ -127,71 +127,18 @@ export default async function handler(
           continue;
         }
 
-        const lessons = selectedLessons.split(";");
+        const lessons = selectedLessons.split(",");
 
         const timetable: { [key: string]: string } = {};
 
         for (const lesson of lessons) {
           if (lesson.includes(":")) {
-            let lessonType = lesson.split(":")[0] as LessonTypeAbbrev;
-
-            const classIndicesStr: string = lesson.split(":")[1];
-            const classIndices = getIndicesFromString(classIndicesStr);
-
-            // Get classNo
-
-            const data = await getModuleData(moduleCode);
-            const array = getSemesterTimetable(data, sem);
-            if (!array) {
-              return res.status(400).json({
-                success: false,
-                error: `Error getting data for ${moduleCode}.
-									Check that this ${moduleCode} is offered for the upcoming semester.`,
-              });
-            }
-            const classNos = new Set<string>();
-
-            for (const classIndex of classIndices) {
-              // URL is invalid if the index is out of range
-              const length = array.length;
-
-              if (classIndex < 0 || classIndex >= length) {
-                return res.status(400).json({
-                  success: false,
-                  error:
-                    "Invalid URL! Please refresh NUSMods, re-generate URL, and try again.",
-                });
-              }
-
-              // URL is invalid if the index does not correspond to the correct lesson type
-              if (
-                array[classIndex].lessonType !=
-                decodeLessonTypeShorthand(lessonType)
-              ) {
-                return res.status(400).json({
-                  success: false,
-                  error:
-                    "Invalid URL! Please refresh NUSMods, re-generate URL, and try again.",
-                });
-              }
-
-              const classNo = array[classIndex].classNo;
-              classNos.add(classNo);
-            }
-
-            // URL is invalid if indices for 1 lesson type correspond to multiple class numbers
-            if (classNos.size != 1) {
-              return res.status(400).json({
-                success: false,
-                error:
-                  "Invalid URL! Please refresh NUSMods, re-generate URL, and try again.",
-              });
-            }
-
-            const classNosArray = [...classNos];
-
+            const [lessonType, classNo] = lesson.split(":") as [
+              LessonTypeAbbrev,
+              string,
+            ];
             const decodedLessonType = decodeLessonTypeShorthand(lessonType);
-            timetable[decodedLessonType] = classNosArray[0];
+            timetable[decodedLessonType] = classNo;
           }
         }
 
@@ -209,7 +156,7 @@ export default async function handler(
       }
 
       const moduleCodes = classesSelected.map(
-        (classselected) => classselected.moduleCode
+        (classselected) => classselected.moduleCode,
       );
       // check if the system has up to date (1 day old or less) data for the semester and module codes for this AY
 
@@ -220,7 +167,7 @@ export default async function handler(
           values: [moduleCode],
         });
 
-        const data: Module = moduleCache.get(moduleCode).data; // there will ALWAYS be data here bc we fetched it earlier
+        const data: Module = await getModuleData(moduleCode);
 
         // insert the module data into the database
         await executeQuery({
@@ -313,7 +260,7 @@ export default async function handler(
 
         // don't need to filter by lessonType and moduleCode because we are already in that group
         const classes = totalModuleCodeLessonTypeMap[moduleCodeLessonType].find(
-          (classItem) => classItem.classNo === availableClass.classNo
+          (classItem) => classItem.classNo === availableClass.classNo,
         );
         if (classes) classes.classes.push(availableClass);
         else
@@ -340,7 +287,7 @@ export default async function handler(
                 .toLowerCase()
                 // todo - upodate this part to exact match
                 .includes(lessonType.toLowerCase()) &&
-              classData.moduleCode === moduleCode
+              classData.moduleCode === moduleCode,
           ); // use filter bc there might be 2 of the same classNo / lessonType / moduleCode, aka when you have 2 tuts per wk
 
           if (classData.length) {
@@ -360,7 +307,7 @@ export default async function handler(
             }
 
             const classes = moduleCodeLessonTypeMap[moduleCodeLessonType].find(
-              (classItem) => classItem.classNo === classNo
+              (classItem) => classItem.classNo === classNo,
             );
             if (classes) classes.classes.push(...classData);
             else
@@ -415,7 +362,7 @@ function getIndicesFromString(classIndicesStr: string): number[] {
 
 function getSemesterTimetable(
   data: Module,
-  sem: string | undefined
+  sem: string | undefined,
 ): RawLesson[] | undefined {
   const semNum = Number(sem);
   for (let semesterData of data.semesterData) {
@@ -436,7 +383,7 @@ async function getModuleData(moduleCode: string) {
   }
 
   const result = await fetch(
-    `https://api.nusmods.com/v2/${ay}/modules/${moduleCode}.json`
+    `https://api.nusmods.com/v2/${ay}/modules/${moduleCode}.json`,
   );
 
   const data = await result.json();
@@ -449,8 +396,8 @@ async function getModuleData(moduleCode: string) {
   });
   console.log(
     `Added ${moduleCode} data to cache with expiry ${new Date(
-      moduleCache.get(moduleCode).expiry
-    ).toString()}`
+      moduleCache.get(moduleCode).expiry,
+    ).toString()}`,
   );
 
   return data;
