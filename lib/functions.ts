@@ -121,7 +121,8 @@ export const canBeBidFor = (moduleCode: string, lessonType: string) => {
   return !(
     lessonType.toLocaleLowerCase().startsWith("lec") ||
     moduleCode.toUpperCase().startsWith("RV") ||
-    moduleCode.toUpperCase().startsWith("UT")
+    moduleCode.toUpperCase().startsWith("UT") ||
+    lessonType.toUpperCase() === "TA"
   );
 };
 

@@ -82,7 +82,7 @@ const classesSlice = createSlice({
           if (
             canBeBidFor(
               moduleCodeLessonType.split(": ")[0],
-              moduleCodeLessonType.split(": ")[1]
+              moduleCodeLessonType.split(": ")[1],
             )
           ) {
             selectedBiddableClasses[moduleCodeLessonType] =
@@ -91,7 +91,7 @@ const classesSlice = createSlice({
             nonBiddableClasses[moduleCodeLessonType] =
               action.payload.selectedClasses[moduleCodeLessonType];
           }
-        }
+        },
       );
 
       return {
@@ -154,7 +154,7 @@ const classesSlice = createSlice({
       // );
 
       const newModuleOrder: string[] = state.moduleOrder.filter(
-        (moduleCode) => moduleCode !== action.payload
+        (moduleCode) => moduleCode !== action.payload,
       );
 
       // delete the selected classes
@@ -181,7 +181,7 @@ const classesSlice = createSlice({
       const moduleCode = action.payload.split(": ")[0];
       // if no more moduleCode in the moduleOrder, remove all entries starting with that moduleCode from non biddables.
       const stillExists = newModuleOrder.find((mclt) =>
-        mclt.startsWith(moduleCode + ": ")
+        mclt.startsWith(moduleCode + ": "),
       );
       const newNonBiddable: ModuleCodeLessonType = { ...state.nonBiddable };
       if (!stillExists) {
@@ -223,7 +223,7 @@ const classesSlice = createSlice({
       action: PayloadAction<{
         moduleCodeLessonType: string;
         classNo: string;
-      }>
+      }>,
     ) {
       const { moduleCodeLessonType, classNo } = action.payload;
 
@@ -232,7 +232,7 @@ const classesSlice = createSlice({
       };
 
       const selectedClass = copiedAvailableClasses[moduleCodeLessonType].find(
-        (class_) => class_.classNo === classNo
+        (class_) => class_.classNo === classNo,
       );
 
       if (!selectedClass) return;
@@ -255,7 +255,7 @@ const classesSlice = createSlice({
       action: PayloadAction<{
         moduleCodeLessonType: string;
         classNo: string;
-      }>
+      }>,
     ) {
       const { moduleCodeLessonType, classNo } = action.payload;
       const remainingClasses: ClassOverview[] = state.selectedClasses[
@@ -294,7 +294,7 @@ const classesSlice = createSlice({
       action: PayloadAction<{
         newOrder: ClassOverview[];
         moduleCodeLessonType: string;
-      }>
+      }>,
     ) {
       return {
         ...state,
@@ -334,7 +334,7 @@ const classesSlice = createSlice({
       action: PayloadAction<{
         class_: TimetableLessonEntry;
         selected: boolean;
-      }>
+      }>,
     ) {
       if (action.payload.selected) {
         // add
@@ -351,7 +351,7 @@ const classesSlice = createSlice({
         return {
           ...state,
           changedClasses: state.changedClasses.filter(
-            (classNo) => classNo !== action.payload.class_.classNo
+            (classNo) => classNo !== action.payload.class_.classNo,
           ),
           lastUpdated: new Date().getTime(),
         };
@@ -365,7 +365,7 @@ const classesSlice = createSlice({
       action: PayloadAction<{
         class_: TimetableLessonEntry;
         selected: boolean;
-      }>
+      }>,
     ) {
       const { class_, selected } = action.payload;
       if (selected) {
@@ -406,12 +406,12 @@ const classesSlice = createSlice({
       const previousClasses = previousOrder.map((class_) => class_.classNo);
 
       const newClasses = copiedChangedClasses.filter(
-        (classNo) => !previousClasses.includes(classNo)
+        (classNo) => !previousClasses.includes(classNo),
       );
 
       // only keep classes that were not removed
       const newOrderWithRemovedClasses = previousOrder.filter((class_) =>
-        copiedChangedClasses.includes(class_.classNo)
+        copiedChangedClasses.includes(class_.classNo),
       );
 
       // add the new classes at the end
@@ -473,7 +473,7 @@ const classesSlice = createSlice({
       }
 
       const remainingClasses = existingClasses.filter(
-        (class_) => class_.classNo !== action.payload.classNo
+        (class_) => class_.classNo !== action.payload.classNo,
       );
 
       if (remainingClasses.length) {

@@ -285,6 +285,7 @@ export default async function handler(
           const indivLessonInfoArr = lessonTypeInfo.split(",");
 
           for (const lesson of indivLessonInfoArr) {
+            if (!lesson) continue;
             console.log(
               `Running loop for TA ${taModule} ${lessonType.split(":")[0]}`,
             );
