@@ -1,10 +1,15 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from "next";
 import executeQuery from "../../lib/db";
-import { decodeLessonTypeShorthand, formatWeeks } from "../../lib/functions";
+import {
+  convertDayToAbbrev,
+  decodeLessonTypeShorthand,
+  formatWeeks,
+} from "../../lib/functions";
 import { ModuleDB, ModuleWithClassDB } from "../../types/db";
 import { LessonTypeAbbrev, Module, RawLesson } from "../../types/modules";
 import { ModuleCodeLessonType } from "../../types/types";
+import { match } from "assert";
 
 export interface Data {
   selectedClasses: ModuleCodeLessonType;
@@ -161,79 +166,7 @@ export default async function handler(
       // check if the system has up to date (1 day old or less) data for the semester and module codes for this AY
 
       for (const { moduleCode } of classesSelected) {
-        console.log(`Running loop for ${moduleCode}`);
-        await executeQuery({
-          query: `DELETE FROM modulelist WHERE moduleCode = ?`,
-          values: [moduleCode],
-        });
-
-        const data: Module = await getModuleData(moduleCode);
-
-        // insert the module data into the database
-        await executeQuery({
-          query: `INSERT INTO modulelist SET ?`,
-          values: [
-            {
-              moduleCode,
-              moduleName: data.title,
-            },
-          ],
-        });
-
-        // insert the class data into the database
-        await executeQuery({
-          query: `DELETE FROM classlist WHERE ay = ? AND moduleCode = ?`,
-          values: [process.env.NEXT_PUBLIC_AY, moduleCode],
-        });
-
-        let classDataSem1: any[] = []; // TODO
-
-        if (data.semesterData?.[0]?.timetable) {
-          classDataSem1 =
-            data.semesterData[0].timetable.map((classItem) => {
-              return [
-                moduleCode,
-                classItem.lessonType,
-                classItem.classNo,
-                classItem.day,
-                classItem.startTime,
-                classItem.endTime,
-                classItem.venue || "No venue",
-                classItem.size,
-                JSON.stringify(formatWeeks(classItem.weeks)),
-                process.env.NEXT_PUBLIC_AY,
-                data.semesterData[0].semester,
-              ];
-            }) || [];
-        }
-
-        let classDataSem2: any[] = []; // TODO
-        if (data.semesterData?.[1]?.timetable) {
-          classDataSem2 =
-            data.semesterData[1].timetable.map((classItem) => {
-              return [
-                moduleCode,
-                classItem.lessonType,
-                classItem.classNo,
-                classItem.day,
-                classItem.startTime,
-                classItem.endTime,
-                classItem.venue || "No venue",
-                classItem.size,
-                JSON.stringify(formatWeeks(classItem.weeks)),
-                process.env.NEXT_PUBLIC_AY,
-                data.semesterData[1].semester,
-              ];
-            }) || [];
-        }
-        const classData = [...classDataSem1, ...classDataSem2];
-
-        if (classData.length) {
-          const result = await executeQuery({
-            query: `INSERT INTO classlist (moduleCode, lessonType, classNo, day, startTime, endTime, venue, size, weeks, ay, semester) VALUES ?`,
-            values: [classData],
-          });
-        }
+        await updateModuleInDatabase(moduleCode);
       }
 
       const availableClassList: ModuleWithClassDB[] = await executeQuery({
@@ -323,6 +256,87 @@ export default async function handler(
         });
       });
 
+      for (const taModule of taModules) {
+        await updateModuleInDatabase(taModule);
+      }
+
+      const availableTaClassList = await executeQuery({
+        query: `SELECT * FROM modulelist LEFT JOIN classlist ON modulelist.moduleCode = classlist.moduleCode WHERE classlist.moduleCode IN (?) AND ay = ? AND semester = ?`,
+        values: [taModules, process.env.NEXT_PUBLIC_AY, semester],
+      });
+
+      for (const taModule of taModules) {
+        // Split into different lesson types
+        if (!params.has(taModule)) {
+          return res.status(400).json({
+            success: false,
+            error:
+              "Invalid URL! Please re-genearate URL from NUSMods and try again.",
+          });
+        }
+
+        // params will definitely contain taModule if url is correct
+        // Check with DB whether info in url is correct
+        const moduleCodeLessonType = `${taModule}: TA`;
+        const taModuleLessonTypes = params.get(taModule)!.split(";");
+
+        for (const lessonType of taModuleLessonTypes) {
+          const lessonTypeInfo = lessonType.split(":")[1].slice(1, -1);
+          const indivLessonInfoArr = lessonTypeInfo.split(",");
+
+          for (const lesson of indivLessonInfoArr) {
+            const [classNo, dayAbbrev, startTime, endTime, venue, weeks] =
+              lesson.split("|");
+
+            // Check if lesson exists in db
+            const lessonFromUrl = {
+              classNo,
+              dayAbbrev,
+              startTime,
+              endTime,
+              venue,
+              weeks: JSON.stringify(
+                weeks.split("_").map((week) => Number(week)),
+              ),
+            };
+
+            const matchingLesson = availableTaClassList.find(
+              (lesson: any) =>
+                lesson.classNo === lessonFromUrl.classNo &&
+                convertDayToAbbrev(lesson.day).toLowerCase() ===
+                  lessonFromUrl.dayAbbrev.toLowerCase() &&
+                lesson.startTime === lessonFromUrl.startTime &&
+                lesson.endTime === lessonFromUrl.endTime &&
+                lesson.venue === lessonFromUrl.venue &&
+                lesson.weeks === lessonFromUrl.weeks,
+            );
+
+            if (!matchingLesson) {
+              return res.status(400).json({
+                success: false,
+                error:
+                  "Invalid URL! Please re-genearate URL from NUSMods and try again.",
+              });
+            }
+
+            console.log("matching lesson ", matchingLesson);
+
+            if (!moduleCodeLessonTypeMap[moduleCodeLessonType]) {
+              moduleCodeLessonTypeMap[moduleCodeLessonType] = [
+                {
+                  moduleCode: taModule,
+                  lessonType: matchingLesson.lessonType,
+                  classNo: matchingLesson.classNo,
+                  classes: [],
+                  moduleName: matchingLesson.moduleName,
+                  size: matchingLesson.size,
+                },
+              ];
+            }
+          }
+        }
+      }
+
       res.status(200).json({
         success: true,
         data: {
@@ -344,6 +358,86 @@ export default async function handler(
       success: false,
       error:
         "Internal server error, please refresh NUSMods, re-generate URL, and try again. If the error persists, post an issue on Github.",
+    });
+  }
+}
+
+async function updateModuleInDatabase(moduleCode: string) {
+  console.log(`Running loop for ${moduleCode}`);
+  await executeQuery({
+    query: `DELETE FROM modulelist WHERE moduleCode = ?`,
+    values: [moduleCode],
+  });
+
+  const data: Module = await getModuleData(moduleCode);
+
+  // insert the module data into the database
+  await saveModuleAndClasses(moduleCode, data);
+}
+
+async function saveModuleAndClasses(moduleCode: string, data: Module) {
+  await executeQuery({
+    query: `INSERT INTO modulelist SET ?`,
+    values: [
+      {
+        moduleCode,
+        moduleName: data.title,
+      },
+    ],
+  });
+
+  // insert the class data into the database
+  await executeQuery({
+    query: `DELETE FROM classlist WHERE ay = ? AND moduleCode = ?`,
+    values: [process.env.NEXT_PUBLIC_AY, moduleCode],
+  });
+
+  let classDataSem1: any[] = []; // TODO
+
+  if (data.semesterData?.[0]?.timetable) {
+    classDataSem1 =
+      data.semesterData[0].timetable.map((classItem) => {
+        return [
+          moduleCode,
+          classItem.lessonType,
+          classItem.classNo,
+          classItem.day,
+          classItem.startTime,
+          classItem.endTime,
+          classItem.venue || "No venue",
+          classItem.size,
+          JSON.stringify(formatWeeks(classItem.weeks)),
+          process.env.NEXT_PUBLIC_AY,
+          data.semesterData[0].semester,
+        ];
+      }) || [];
+  }
+
+  let classDataSem2: any[] = []; // TODO
+  if (data.semesterData?.[1]?.timetable) {
+    classDataSem2 =
+      data.semesterData[1].timetable.map((classItem) => {
+        return [
+          moduleCode,
+          classItem.lessonType,
+          classItem.classNo,
+          classItem.day,
+          classItem.startTime,
+          classItem.endTime,
+          classItem.venue || "No venue",
+          classItem.size,
+          JSON.stringify(formatWeeks(classItem.weeks)),
+          process.env.NEXT_PUBLIC_AY,
+          data.semesterData[1].semester,
+        ];
+      }) || [];
+  }
+  const classData = [...classDataSem1, ...classDataSem2];
+
+  if (classData.length) {
+    const result = await executeQuery({
+      query: `INSERT INTO classlist (moduleCode, lessonType, classNo, day, startTime, endTime, venue, size, weeks, ay, semester) VALUES ?`,
+      values: [classData],
     });
   }
 }
