@@ -242,7 +242,7 @@ export default async function handler(
             const classes = moduleCodeLessonTypeMap[moduleCodeLessonType].find(
               (classItem) => classItem.classNo === classNo,
             );
-            if (classes) classes.classes.push(...classData);
+            if (classes) classes.classes.push(...Array.from(classData));
             else
               moduleCodeLessonTypeMap[moduleCodeLessonType].push({
                 moduleCode: moduleCode,
@@ -285,6 +285,9 @@ export default async function handler(
           const indivLessonInfoArr = lessonTypeInfo.split(",");
 
           for (const lesson of indivLessonInfoArr) {
+            console.log(
+              `Running loop for TA ${taModule} ${lessonType.split(":")[0]}`,
+            );
             const [classNo, dayAbbrev, startTime, endTime, venue, weeks] =
               lesson.split("|");
 
@@ -333,6 +336,23 @@ export default async function handler(
                 },
               ];
             }
+
+            const classes = moduleCodeLessonTypeMap[moduleCodeLessonType].find(
+              (classItem) =>
+                classItem.classNo === matchingLesson.classNo &&
+                classItem.lessonType === matchingLesson.lessonType,
+              // and same lesson type
+            );
+            if (classes) classes.classes.push(matchingLesson);
+            else
+              moduleCodeLessonTypeMap[moduleCodeLessonType].push({
+                moduleCode: taModule,
+                lessonType: matchingLesson.lessonType,
+                classNo: matchingLesson.classNo,
+                classes: [matchingLesson],
+                moduleName: matchingLesson.moduleName,
+                size: matchingLesson.size,
+              });
           }
         }
       }
