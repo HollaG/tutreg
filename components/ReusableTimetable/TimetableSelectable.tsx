@@ -82,6 +82,12 @@ const TimetableSelectable: React.FC<{
     // const showSmallerText = useBreakpointValue()
 
     const weeksDisplay = combineNumbersDatabase(class_.weeks);
+    const moduleLabelParts: string[] = [];
+    if (showModuleCode) moduleLabelParts.push(class_.moduleCode);
+    if (showLessonType) {
+      moduleLabelParts.push(encodeLessonTypeToShorthand(class_.lessonType));
+    }
+    const moduleLabel = moduleLabelParts.join(" ") + (class_.isTA && moduleLabelParts.length ? " (TA)" : "");
 
     const toggleHandler = () => {
       // handleSelect(class_, !sel)
@@ -127,12 +133,7 @@ const TimetableSelectable: React.FC<{
               <Stack spacing={0}>
                 {(showModuleCode || showLessonType) && (
                   <Text fontSize={{ base: "xs", md: "sm" }}>
-                    {showModuleCode ? class_.moduleCode : ""}{" "}
-                    {showLessonType
-                      ? encodeLessonTypeToShorthand(
-                        class_.lessonType
-                      )
-                      : ""}
+                    {moduleLabel}
                   </Text>
                 )}
                 <Flex flexWrap={"wrap"} alignItems="center">
@@ -247,12 +248,7 @@ const TimetableSelectable: React.FC<{
                 <Stack spacing={0}>
                   {(showModuleCode || showLessonType) && (
                     <Text fontSize={{ base: "xs", md: "sm" }}>
-                      {showModuleCode ? class_.moduleCode : ""}{" "}
-                      {showLessonType
-                        ? encodeLessonTypeToShorthand(
-                          class_.lessonType
-                        )
-                        : ""}
+                      {moduleLabel}
                     </Text>
                   )}
                   <Flex flexWrap={"wrap"}>
@@ -339,12 +335,7 @@ const TimetableSelectable: React.FC<{
             <Stack spacing={0}>
               {(showModuleCode || showLessonType) && (
                 <Text fontSize={{ base: "xs", md: "sm" }}>
-                  {showModuleCode ? class_.moduleCode : ""}{" "}
-                  {showLessonType
-                    ? encodeLessonTypeToShorthand(
-                      class_.lessonType
-                    )
-                    : ""}
+                  {moduleLabel}
                 </Text>
               )}
               <Flex flexWrap={"wrap"}>

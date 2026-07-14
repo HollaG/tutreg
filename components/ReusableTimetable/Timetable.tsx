@@ -182,6 +182,7 @@ const Timetable: React.FC<{
 
         timetableList.push({
           ...class_,
+          isTA: lesson.isTA || false,
           pushDown,
           minutesUntilPrevClass: 0,
           id: `${class_.moduleCode}-${class_.lessonType}-${class_.classNo}`,

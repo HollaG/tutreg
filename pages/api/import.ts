@@ -187,6 +187,7 @@ export default async function handler(
               moduleName: availableClass.moduleName,
               size: availableClass.size,
               classes: [],
+              isTA: false,
             },
           ];
         }
@@ -204,6 +205,7 @@ export default async function handler(
             moduleName: availableClass.moduleName,
             size: availableClass.size,
             classes: [availableClass],
+            isTA: false,
           });
       });
 
@@ -235,6 +237,7 @@ export default async function handler(
                   classes: [],
                   moduleName: classData[0].moduleName,
                   size: classData[0].size,
+                  isTA: false,
                 },
               ];
             }
@@ -251,6 +254,7 @@ export default async function handler(
                 classes: [],
                 moduleName: classData[0].moduleName,
                 size: classData[0].size,
+                isTA: false,
               });
           }
         });
@@ -334,6 +338,7 @@ export default async function handler(
                   classes: [],
                   moduleName: matchingLesson.moduleName,
                   size: matchingLesson.size,
+                  isTA: true,
                 },
               ];
             }
@@ -353,6 +358,7 @@ export default async function handler(
                 classes: [matchingLesson],
                 moduleName: matchingLesson.moduleName,
                 size: matchingLesson.size,
+                isTA: true,
               });
           }
         }
