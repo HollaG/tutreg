@@ -270,6 +270,8 @@ export default async function handler(
       });
 
       for (const taModule of taModules) {
+        // Skip TA modules that are hidden
+        if (hiddenModules.includes(taModule)) continue;
         // Split into different lesson types
         if (!params.has(taModule)) {
           return res.status(400).json({
