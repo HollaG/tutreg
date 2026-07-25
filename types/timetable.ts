@@ -15,6 +15,7 @@ export interface TimetableLessonEntry extends ModuleWithClassDB {
     overlaps: string[];
     disabled?: boolean,
     unselectable?: boolean,
+    isTA?: boolean,
 }
 
 export type DayRows = {

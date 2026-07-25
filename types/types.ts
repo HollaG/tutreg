@@ -19,6 +19,7 @@ export type ClassOverview = {
     moduleName: string;
     size: number;
     classes: ModuleWithClassDB[];
+    isTA?: boolean;
 };
 export type ModuleCodeLessonType = {
     [moduleCodeLessonType: string]: ClassOverview[];

@@ -47,7 +47,7 @@ export const LESSON_TYPE_FULL = {
 
 //     SEC
 export const encodeLessonTypeToShorthand = (
-  string: keyof LessonTypeAbbrevMap
+  string: keyof LessonTypeAbbrevMap,
 ) => {
   if (LESSON_TYPE_ABBREV[string]) return LESSON_TYPE_ABBREV[string];
   else return string.substring(0, 3).toUpperCase();
@@ -121,7 +121,8 @@ export const canBeBidFor = (moduleCode: string, lessonType: string) => {
   return !(
     lessonType.toLocaleLowerCase().startsWith("lec") ||
     moduleCode.toUpperCase().startsWith("RV") ||
-    moduleCode.toUpperCase().startsWith("UT")
+    moduleCode.toUpperCase().startsWith("UT") ||
+    lessonType.toUpperCase() === "TA"
   );
 };
 
@@ -177,7 +178,7 @@ export const combineNumbers = (numbers: (string | number)[]) => {
 // Function to generate the NUSMods Timetable Link based on the modules selected
 export const generateLink = (
   classesSelected: ModuleCodeLessonType,
-  priority = 0
+  priority = 0,
 ) => {
   const holder: {
     [moduleCode: string]: ClassOverview[];
@@ -205,7 +206,7 @@ export const generateLink = (
               (classes) =>
                 `${encodeLessonTypeToShorthand(classes.lessonType)}:${
                   classes.classNo
-                }`
+                }`,
             )
             .join(",")
         : "";
@@ -357,7 +358,7 @@ export const formatDate = (date: Date) => {
 export const encodeRank = (
   rank: ClassOverview[],
   moduleOrder: string[],
-  selectedClasses: ModuleCodeLessonType
+  selectedClasses: ModuleCodeLessonType,
 ) => {
   // let begin = `https://tutreg.com/?share=`;
   // let ranked = [];
@@ -376,7 +377,7 @@ export const encodeRank = (
     (class_) =>
       `${class_.moduleCode}:${encodeLessonTypeToShorthand(class_.lessonType)}:${
         class_.classNo
-      }`
+      }`,
   );
   begin += ranked.join(",");
 
@@ -409,7 +410,7 @@ export const tutregToNUSMods = (url: string) => {
   for (let class_ of selectedClasses) {
     const moduleCode: string = class_.split(":")[0];
     const abbreLessonType: LessonTypeAbbrev = class_.split(
-      ":"
+      ":",
     )[1] as LessonTypeAbbrev;
     const classNo: string = class_.split(":")[2];
 
@@ -497,7 +498,7 @@ const generateColors = (moduleCodeLessonTypeList: string[]) => {
  */
 export const getModuleColorWithShade = (
   colorMap: (string | null)[],
-  moduleCodeLessonType: string
+  moduleCodeLessonType: string,
 ) => {
   const index = colorMap.indexOf(moduleCodeLessonType);
 
@@ -508,7 +509,7 @@ export const getModuleColorWithShade = (
 
 export const getModuleColor = (
   colorMap: (string | null)[],
-  moduleCodeLessonType: string
+  moduleCodeLessonType: string,
 ) => {
   const index = colorMap.indexOf(moduleCodeLessonType);
   const color = COLOR_INDEX[index % COLOR_INDEX.length];
