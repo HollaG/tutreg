@@ -766,6 +766,10 @@ const Order: NextPage = () => {
           </Flex>
         </Alert>
       )}
+      <Alert status='success'>
+        <AlertIcon />
+        TutReg has been updated for AY26/27 Sem 1!
+      </Alert>
       <CTA_GENERAL
         title="🥇 Rank your classes"
         description="Not sure how to rank your classes for Tutorial Registration? Use this tool to generate the most optimal ranking for you, based on your preferences!"
