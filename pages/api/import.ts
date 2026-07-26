@@ -6,10 +6,9 @@ import {
   decodeLessonTypeShorthand,
   formatWeeks,
 } from "../../lib/functions";
-import { ModuleDB, ModuleWithClassDB } from "../../types/db";
-import { LessonTypeAbbrev, Module, RawLesson } from "../../types/modules";
+import { ModuleWithClassDB } from "../../types/db";
+import { LessonTypeAbbrev, Module } from "../../types/modules";
 import { ModuleCodeLessonType } from "../../types/types";
-import { match } from "assert";
 
 export interface Data {
   selectedClasses: ModuleCodeLessonType;
@@ -470,30 +469,6 @@ async function saveModuleAndClasses(moduleCode: string, data: Module) {
       query: `INSERT INTO classlist (moduleCode, lessonType, classNo, day, startTime, endTime, venue, size, weeks, ay, semester) VALUES ?`,
       values: [classData],
     });
-  }
-}
-
-function getIndicesFromString(classIndicesStr: string): number[] {
-  if (classIndicesStr.length <= 2) {
-    return [];
-  }
-
-  classIndicesStr = classIndicesStr.slice(1, -1);
-
-  return classIndicesStr
-    .split(",")
-    .map((classIndexString) => Number(classIndexString));
-}
-
-function getSemesterTimetable(
-  data: Module,
-  sem: string | undefined,
-): RawLesson[] | undefined {
-  const semNum = Number(sem);
-  for (let semesterData of data.semesterData) {
-    if (semesterData.semester == semNum) {
-      return semesterData.timetable;
-    }
   }
 }
 
