@@ -6,10 +6,9 @@ import {
   decodeLessonTypeShorthand,
   formatWeeks,
 } from "../../lib/functions";
-import { ModuleDB, ModuleWithClassDB } from "../../types/db";
-import { LessonTypeAbbrev, Module, RawLesson } from "../../types/modules";
+import { ModuleWithClassDB } from "../../types/db";
+import { LessonTypeAbbrev, Module } from "../../types/modules";
 import { ModuleCodeLessonType } from "../../types/types";
-import { match } from "assert";
 
 export interface Data {
   selectedClasses: ModuleCodeLessonType;
@@ -264,10 +263,12 @@ export default async function handler(
         await updateModuleInDatabase(taModule);
       }
 
-      const availableTaClassList: ModuleWithClassDB[] = await executeQuery({
-        query: `SELECT * FROM modulelist LEFT JOIN classlist ON modulelist.moduleCode = classlist.moduleCode WHERE classlist.moduleCode IN (?) AND ay = ? AND semester = ?`,
-        values: [taModules, process.env.NEXT_PUBLIC_AY, semester],
-      });
+      const availableTaClassList: ModuleWithClassDB[] = taModules.length
+        ? await executeQuery({
+            query: `SELECT * FROM modulelist LEFT JOIN classlist ON modulelist.moduleCode = classlist.moduleCode WHERE classlist.moduleCode IN (?) AND ay = ? AND semester = ?`,
+            values: [taModules, process.env.NEXT_PUBLIC_AY, semester],
+          })
+        : [];
 
       for (const taModule of taModules) {
         // Skip TA modules that are hidden
@@ -468,30 +469,6 @@ async function saveModuleAndClasses(moduleCode: string, data: Module) {
       query: `INSERT INTO classlist (moduleCode, lessonType, classNo, day, startTime, endTime, venue, size, weeks, ay, semester) VALUES ?`,
       values: [classData],
     });
-  }
-}
-
-function getIndicesFromString(classIndicesStr: string): number[] {
-  if (classIndicesStr.length <= 2) {
-    return [];
-  }
-
-  classIndicesStr = classIndicesStr.slice(1, -1);
-
-  return classIndicesStr
-    .split(",")
-    .map((classIndexString) => Number(classIndexString));
-}
-
-function getSemesterTimetable(
-  data: Module,
-  sem: string | undefined,
-): RawLesson[] | undefined {
-  const semNum = Number(sem);
-  for (let semesterData of data.semesterData) {
-    if (semesterData.semester == semNum) {
-      return semesterData.timetable;
-    }
   }
 }
 

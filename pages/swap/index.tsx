@@ -582,7 +582,7 @@ const Swap = (
     <Stack spacing={5} h="100%">
       <Alert status='success'>
         <AlertIcon />
-        The swap feature is now in beta testing for AY25/26 Sem 2. Do give it a try and provide feedback!
+        The swap feature is now in beta testing for AY26/27 Sem 1. Do give it a try and provide feedback!
         <div style={{ flex: 1 }}></div>
         <Link
           // as={NextLink}
