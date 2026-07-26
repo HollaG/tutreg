@@ -264,10 +264,12 @@ export default async function handler(
         await updateModuleInDatabase(taModule);
       }
 
-      const availableTaClassList: ModuleWithClassDB[] = await executeQuery({
-        query: `SELECT * FROM modulelist LEFT JOIN classlist ON modulelist.moduleCode = classlist.moduleCode WHERE classlist.moduleCode IN (?) AND ay = ? AND semester = ?`,
-        values: [taModules, process.env.NEXT_PUBLIC_AY, semester],
-      });
+      const availableTaClassList: ModuleWithClassDB[] = taModules.length
+        ? await executeQuery({
+            query: `SELECT * FROM modulelist LEFT JOIN classlist ON modulelist.moduleCode = classlist.moduleCode WHERE classlist.moduleCode IN (?) AND ay = ? AND semester = ?`,
+            values: [taModules, process.env.NEXT_PUBLIC_AY, semester],
+          })
+        : [];
 
       for (const taModule of taModules) {
         // Skip TA modules that are hidden
