@@ -5,6 +5,7 @@ import {
     Center,
     Divider,
     Flex,
+    Heading,
     HStack,
     Link,
     SimpleGrid,
@@ -100,6 +101,12 @@ const SwapCard: React.FC<{
                         drawnClasses={swapData.drawnClasses}
                         onRequest={onRequest}
                     />
+                    {swap.comments && (
+                        <Box>
+                            <Heading fontSize="lg">Comments</Heading>
+                            <Text>{swap.comments}</Text>
+                        </Box>
+                    )}
                 </Box>
             </Link>
         </NextLink>
