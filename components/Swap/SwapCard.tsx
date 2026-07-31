@@ -1,24 +1,24 @@
 import { TimeIcon } from "@chakra-ui/icons";
 import {
-    Badge,
-    Button,
-    Center,
-    Divider,
-    Flex,
-    Heading,
-    HStack,
-    Link,
-    SimpleGrid,
-    Stack,
-    Tag,
-    useColorModeValue,
-    Text,
-    Box,
+  Badge,
+  Button,
+  Center,
+  Divider,
+  Flex,
+  Heading,
+  HStack,
+  Link,
+  SimpleGrid,
+  Stack,
+  Tag,
+  useColorModeValue,
+  Text,
+  Box,
 } from "@chakra-ui/react";
 import {
-    cleanArrayString,
-    encodeLessonTypeToShorthand,
-    formatTimeElapsed,
+  cleanArrayString,
+  encodeLessonTypeToShorthand,
+  formatTimeElapsed,
 } from "../../lib/functions";
 import swap from "../../pages/swap";
 import user from "../../store/user";
@@ -37,232 +37,231 @@ import { GetSwapClassesData } from "../../pages/api/swap/[swapId]";
 import { useEffect, useState } from "react";
 import { FullInfo } from "../../pages/swap/create";
 const CustomCardProps = {
-    _hover: {
-        boxShadow: "lg",
-    },
-    cursor: "pointer",
+  _hover: {
+    boxShadow: "lg",
+  },
+  cursor: "pointer",
 };
 
 const SwapCard: React.FC<{
-    swap: ClassSwapRequest;
-    user: TelegramUser | null | undefined;
-    // requestSwap: (
-    //     swapId: number,
-    //     user: TelegramUser | null,
-    //     type: "request" | "remove"
-    // ) => any;
-    // hasRequestedSwap: string;
-    swapData: GetSwapClassesData;
+  swap: ClassSwapRequest;
+  user: TelegramUser | null | undefined;
+  // requestSwap: (
+  //     swapId: number,
+  //     user: TelegramUser | null,
+  //     type: "request" | "remove"
+  // ) => any;
+  // hasRequestedSwap: string;
+  swapData: GetSwapClassesData;
 
-    RequestButton?: React.ReactElement;
-    onRequest?: (class_: FullInfo) => void;
+  RequestButton?: React.ReactElement;
+  onRequest?: (class_: FullInfo) => void;
 }> = ({
-    swap,
-    user,
-    // requestSwap,
-    // hasRequestedSwap,
-    swapData,
-    RequestButton,
-    onRequest,
+  swap,
+  user,
+  // requestSwap,
+  // hasRequestedSwap,
+  swapData,
+  RequestButton,
+  onRequest,
 }) => {
-    const state = useSelector((state: RootState) => state);
-    const highlightedColor = useColorModeValue("green.200", "green.700");
+  const state = useSelector((state: RootState) => state);
+  const highlightedColor = useColorModeValue("green.200", "green.700");
 
-    // to prevent errors from the time elapsed function
-    // text content did not match
-    const [timeAgoString, setTimeAgoString] = useState("");
-    useEffect(() => {
-        if (swap)
-            setTimeAgoString(formatTimeElapsed(swap.createdAt.toString()));
-    }, [swap?.createdAt]);
-    if (!swapData) return null;
+  // to prevent errors from the time elapsed function
+  // text content did not match
+  const [timeAgoString, setTimeAgoString] = useState("");
+  useEffect(() => {
+    if (swap) setTimeAgoString(formatTimeElapsed(swap.createdAt.toString()));
+  }, [swap?.createdAt]);
+  if (!swapData) return null;
 
-    return (
-        <NextLink href={`/swap/${swap.swapId}`}>
-            <Link
-                style={{
-                    textDecoration: "none",
-                }}
-            >
-                <Flex justifyContent={"space-between"}>
-                    <Flex alignItems={"center"}>
-                        <UserDisplay user={swap} />
-                        {RequestButton && <Box ml={3}>{RequestButton}</Box>}
-                    </Flex>
-                    <Text fontSize="sm" fontWeight="semibold">
-                        {timeAgoString}
-                    </Text>
-                </Flex>
-                <Box p={4}>
-                    <SwapCodeIndicator
-                        currentClassInfo={swapData.currentClassInfo}
-                        desiredClassesInfo={swapData.desiredClasses}
-                        desiredModulesInfo={swapData.desiredModules}
-                        drawnClasses={swapData.drawnClasses}
-                        onRequest={onRequest}
-                    />
-                    {swap.comments && (
-                        <Box>
-                            <Heading fontSize="lg">Comments</Heading>
-                            <Text>{swap.comments}</Text>
-                        </Box>
-                    )}
-                </Box>
-            </Link>
-        </NextLink>
-    );
+  return (
+    <NextLink href={`/swap/${swap.swapId}`}>
+      <Link
+        style={{
+          textDecoration: "none",
+        }}
+      >
+        <Flex justifyContent={"space-between"}>
+          <Flex alignItems={"center"}>
+            <UserDisplay user={swap} />
+            {RequestButton && <Box ml={3}>{RequestButton}</Box>}
+          </Flex>
+          <Text fontSize="sm" fontWeight="semibold">
+            {timeAgoString}
+          </Text>
+        </Flex>
+        <Box p={4}>
+          <SwapCodeIndicator
+            currentClassInfo={swapData.currentClassInfo}
+            desiredClassesInfo={swapData.desiredClasses}
+            desiredModulesInfo={swapData.desiredModules}
+            drawnClasses={swapData.drawnClasses}
+            onRequest={onRequest}
+          />
+          {swap.comments && (
+            <Box mt={2}>
+              <Heading fontSize="lg">Comments</Heading>
+              <Text>{swap.comments}</Text>
+            </Box>
+          )}
+        </Box>
+      </Link>
+    </NextLink>
+  );
 
-    // return (
-    //     <NextLink href={`/swap/${swap.swapId}`}>
-    //         <Link
-    //             style={{
-    //                 textDecoration: "none",
-    //             }}
-    //         >
-    //             <Card {...CustomCardProps}>
-    //                 <Stack spacing={3}>
-    //                     <Flex
-    //                         alignItems="center"
-    //                         justifyContent="space-between"
-    //                     >
-    //                         <HStack>
-    //                             <HStack flex={1}>
-    //                                 <UserDisplay user={swap} />
-    //                             </HStack>
-    //                         </HStack>
+  // return (
+  //     <NextLink href={`/swap/${swap.swapId}`}>
+  //         <Link
+  //             style={{
+  //                 textDecoration: "none",
+  //             }}
+  //         >
+  //             <Card {...CustomCardProps}>
+  //                 <Stack spacing={3}>
+  //                     <Flex
+  //                         alignItems="center"
+  //                         justifyContent="space-between"
+  //                     >
+  //                         <HStack>
+  //                             <HStack flex={1}>
+  //                                 <UserDisplay user={swap} />
+  //                             </HStack>
+  //                         </HStack>
 
-    //                         {cleanArrayString(swap.requestors).includes(
-    //                             user?.id.toString() || ""
-    //                         ) ? (
-    //                             <Button
-    //                                 size="sm"
-    //                                 colorScheme="blue"
-    //                                 onClick={requestSwap(
-    //                                     swap.swapId,
-    //                                     user || null,
-    //                                     "remove"
-    //                                 )}
-    //                                 disabled={
-    //                                     hasRequestedSwap === "Unrequested!"
-    //                                 }
-    //                             >
-    //                                 {!user
-    //                                     ? "Request"
-    //                                     : hasRequestedSwap || "Unrequest"}
-    //                             </Button>
-    //                         ) : (
-    //                             <Button
-    //                                 size="sm"
-    //                                 colorScheme="blue"
-    //                                 onClick={requestSwap(
-    //                                     swap.swapId,
-    //                                     user || null,
-    //                                     "request"
-    //                                 )}
-    //                                 disabled={hasRequestedSwap === "Requested!"}
-    //                             >
-    //                                 {hasRequestedSwap === "Requested!" ||
-    //                                     "Request"}
-    //                             </Button>
-    //                         )}
-    //                     </Flex>
-    //                     <Center>
-    //                         {user &&
-    //                             cleanArrayString(swap.requestors).includes(
-    //                                 user?.id.toString() || ""
-    //                             ) && (
-    //                                 <Tag colorScheme="green" variant="solid">
-    //                                     {" "}
-    //                                     Requested{" "}
-    //                                 </Tag>
-    //                             )}
-    //                     </Center>
-    //                     <Divider />
+  //                         {cleanArrayString(swap.requestors).includes(
+  //                             user?.id.toString() || ""
+  //                         ) ? (
+  //                             <Button
+  //                                 size="sm"
+  //                                 colorScheme="blue"
+  //                                 onClick={requestSwap(
+  //                                     swap.swapId,
+  //                                     user || null,
+  //                                     "remove"
+  //                                 )}
+  //                                 disabled={
+  //                                     hasRequestedSwap === "Unrequested!"
+  //                                 }
+  //                             >
+  //                                 {!user
+  //                                     ? "Request"
+  //                                     : hasRequestedSwap || "Unrequest"}
+  //                             </Button>
+  //                         ) : (
+  //                             <Button
+  //                                 size="sm"
+  //                                 colorScheme="blue"
+  //                                 onClick={requestSwap(
+  //                                     swap.swapId,
+  //                                     user || null,
+  //                                     "request"
+  //                                 )}
+  //                                 disabled={hasRequestedSwap === "Requested!"}
+  //                             >
+  //                                 {hasRequestedSwap === "Requested!" ||
+  //                                     "Request"}
+  //                             </Button>
+  //                         )}
+  //                     </Flex>
+  //                     <Center>
+  //                         {user &&
+  //                             cleanArrayString(swap.requestors).includes(
+  //                                 user?.id.toString() || ""
+  //                             ) && (
+  //                                 <Tag colorScheme="green" variant="solid">
+  //                                     {" "}
+  //                                     Requested{" "}
+  //                                 </Tag>
+  //                             )}
+  //                     </Center>
+  //                     <Divider />
 
-    //                     <SwapEntry
-    //                         // badge="PS1101E"
-    //                         bgColor={
-    //                             state.misc.highlightedClassNos.includes(
-    //                                 swap.classNo
-    //                             )
-    //                                 ? highlightedColor
-    //                                 : undefined
-    //                         }
-    //                         title={`${swap.moduleCode}
-    // ${encodeLessonTypeToShorthand(swap.lessonType)}
-    // [${swap.classNo}]`}
-    //                         classNo={swap.classNo}
-    //                         classes={
-    //                             swapData.classData.filter(
-    //                                 (class_) =>
-    //                                     class_.classNo === swap.classNo &&
-    //                                     class_.moduleCode === swap.moduleCode &&
-    //                                     class_.lessonType === swap.lessonType
-    //                             ) || []
-    //                         }
-    //                     />
-    //                     <SwapArrows />
-    //                     <SimpleGrid
-    //                         columns={{
-    //                             base: 2,
-    //                             // sm: 3,
-    //                             // lg: 4,
-    //                         }}
-    //                     >
-    //                         {swapData.requestedClasses[swap.swapId].map(
-    //                             (requestedClass, index3) => (
-    //                                 <SwapEntry
-    //                                     bgColor={
-    //                                         state.misc.highlightedClassNos.includes(
-    //                                             requestedClass.wantedClassNo
-    //                                         )
-    //                                             ? highlightedColor
-    //                                             : undefined
-    //                                     }
-    //                                     key={index3}
-    //                                     classNo={requestedClass.wantedClassNo}
-    //                                     classes={
-    //                                         swapData.classData.filter(
-    //                                             (class_) =>
-    //                                                 class_.classNo ===
-    //                                                     requestedClass.wantedClassNo &&
-    //                                                 class_.moduleCode ===
-    //                                                     swap.moduleCode &&
-    //                                                 class_.lessonType ===
-    //                                                     swap.lessonType
-    //                                         ) || []
-    //                                     }
-    //                                     title={`${encodeLessonTypeToShorthand(
-    //                                         swap.lessonType
-    //                                     )}
-    //             [${requestedClass.wantedClassNo}]`}
-    //                                 />
-    //                             )
-    //                         )}
-    //                     </SimpleGrid>
+  //                     <SwapEntry
+  //                         // badge="PS1101E"
+  //                         bgColor={
+  //                             state.misc.highlightedClassNos.includes(
+  //                                 swap.classNo
+  //                             )
+  //                                 ? highlightedColor
+  //                                 : undefined
+  //                         }
+  //                         title={`${swap.moduleCode}
+  // ${encodeLessonTypeToShorthand(swap.lessonType)}
+  // [${swap.classNo}]`}
+  //                         classNo={swap.classNo}
+  //                         classes={
+  //                             swapData.classData.filter(
+  //                                 (class_) =>
+  //                                     class_.classNo === swap.classNo &&
+  //                                     class_.moduleCode === swap.moduleCode &&
+  //                                     class_.lessonType === swap.lessonType
+  //                             ) || []
+  //                         }
+  //                     />
+  //                     <SwapArrows />
+  //                     <SimpleGrid
+  //                         columns={{
+  //                             base: 2,
+  //                             // sm: 3,
+  //                             // lg: 4,
+  //                         }}
+  //                     >
+  //                         {swapData.requestedClasses[swap.swapId].map(
+  //                             (requestedClass, index3) => (
+  //                                 <SwapEntry
+  //                                     bgColor={
+  //                                         state.misc.highlightedClassNos.includes(
+  //                                             requestedClass.wantedClassNo
+  //                                         )
+  //                                             ? highlightedColor
+  //                                             : undefined
+  //                                     }
+  //                                     key={index3}
+  //                                     classNo={requestedClass.wantedClassNo}
+  //                                     classes={
+  //                                         swapData.classData.filter(
+  //                                             (class_) =>
+  //                                                 class_.classNo ===
+  //                                                     requestedClass.wantedClassNo &&
+  //                                                 class_.moduleCode ===
+  //                                                     swap.moduleCode &&
+  //                                                 class_.lessonType ===
+  //                                                     swap.lessonType
+  //                                         ) || []
+  //                                     }
+  //                                     title={`${encodeLessonTypeToShorthand(
+  //                                         swap.lessonType
+  //                                     )}
+  //             [${requestedClass.wantedClassNo}]`}
+  //                                 />
+  //                             )
+  //                         )}
+  //                     </SimpleGrid>
 
-    //                     <Divider />
-    //                     <Flex justifyContent="space-between">
-    //                         <HStack
-    //                             alignItems="center"
-    //                             // justifyContent="center"
-    //                         >
-    //                             <TimeIcon />
-    //                             <Text>
-    //                                 {formatTimeElapsed(
-    //                                     swap.createdAt.toString()
-    //                                 )}
-    //                             </Text>
-    //                         </HStack>{" "}
-    //                         <Badge colorScheme="orange" fontSize="1em">
-    //                             {swap.moduleCode}
-    //                         </Badge>
-    //                     </Flex>
-    //                 </Stack>
-    //             </Card>
-    //         </Link>
-    //     </NextLink>
-    // );
+  //                     <Divider />
+  //                     <Flex justifyContent="space-between">
+  //                         <HStack
+  //                             alignItems="center"
+  //                             // justifyContent="center"
+  //                         >
+  //                             <TimeIcon />
+  //                             <Text>
+  //                                 {formatTimeElapsed(
+  //                                     swap.createdAt.toString()
+  //                                 )}
+  //                             </Text>
+  //                         </HStack>{" "}
+  //                         <Badge colorScheme="orange" fontSize="1em">
+  //                             {swap.moduleCode}
+  //                         </Badge>
+  //                     </Flex>
+  //                 </Stack>
+  //             </Card>
+  //         </Link>
+  //     </NextLink>
+  // );
 };
 
 export default SwapCard;
