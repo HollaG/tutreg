@@ -138,6 +138,9 @@ export const LiveTimetable: React.FC = () => {
     }}>{`#${index + 1}`}</Tag> </LightMode>
   }
 
+  const getModuleCodeLessonTypeKey = (class_: { moduleCode: string; lessonType: string; isTA?: boolean }) =>
+    class_.isTA ? `${class_.moduleCode}: TA` : `${class_.moduleCode}: ${class_.lessonType}`;
+
   const getProperty = (cls: TimetableLessonEntry): "selected" | "static" | undefined => {
     const moduleCodeLessonType = `${cls.moduleCode}: ${cls.lessonType}`
     if (isModifying) {
@@ -256,7 +259,8 @@ export const LiveTimetable: React.FC = () => {
       dispatch(classesActions.removeNonBiddableClass({
         classNo: classForDeletion.classNo,
         lessonType: classForDeletion.lessonType,
-        moduleCode: classForDeletion.moduleCode
+        moduleCode: classForDeletion.moduleCode,
+        isTA: classForDeletion.isTA
       }));
       setClassForDeletion(null);
       onDeleteClose();
@@ -296,10 +300,10 @@ export const LiveTimetable: React.FC = () => {
 
     if (isModifying) {
       // if in selected, remove
-      const moduleCodeLessonType = `${class_.moduleCode}: ${class_.lessonType}`
+      const moduleCodeLessonType = getModuleCodeLessonTypeKey(class_)
 
       // if not the same MCLT, just exit modifying mode
-      if (selectedClass && moduleCodeLessonType !== `${selectedClass.moduleCode}: ${selectedClass.lessonType}`) {
+      if (selectedClass && moduleCodeLessonType !== getModuleCodeLessonTypeKey(selectedClass)) {
         // setIsModifying(false);
         // setSelectedClass(null);
         dispatch(miscActions.setTimetableModifyingMode(null))
@@ -367,7 +371,7 @@ export const LiveTimetable: React.FC = () => {
 
   let classesToDraw = defaultClasses
   if (isModifying && selectedClass) {
-    const mclt = `${selectedClass.moduleCode}: ${selectedClass.lessonType}`
+    const mclt = getModuleCodeLessonTypeKey(selectedClass)
     classesToDraw = classesInfo.totalModuleCodeLessonTypeMap[mclt] || [] // will be the list of classes from the totalModuleCodeLessonTypeMap 
     // how to figure out which classes have been selected? we can check the classesInfo.selectedClasses. Then, the getProperty function can be modified to return "selected" only for the selected classes.
   }
@@ -481,7 +485,7 @@ export const LiveTimetable: React.FC = () => {
         <AlertIcon />
         You reached this screen because you clicked on a reference class (angled striped background) in your timetable.
       </Alert>
-      <Text>Are you sure you want to remove this reference class {selectedClass?.moduleCode} {selectedClass?.lessonType} {selectedClass?.classNo} from your timetable?</Text>
+      <Text>Are you sure you want to remove this reference class {classForDeletion?.moduleCode} {classForDeletion?.lessonType} {classForDeletion?.classNo} from your timetable?</Text>
       <Button width={"100%"} mt={4} colorScheme="red" onClick={deleteHandler}> Yes, remove class </Button>
     </BasicModal>
   </Stack>

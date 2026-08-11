@@ -464,7 +464,7 @@ const classesSlice = createSlice({
 
     removeNonBiddableClass(state, action: PayloadAction<FullInfo>) {
       const newNonBiddable: ModuleCodeLessonType = { ...state.nonBiddable };
-      const mclt = `${action.payload.moduleCode}: ${action.payload.lessonType}`;
+      const mclt = action.payload.isTA ? `${action.payload.moduleCode}: TA` : `${action.payload.moduleCode}: ${action.payload.lessonType}`;
 
       // only remove the corresponding classNo
       const existingClasses = newNonBiddable[mclt];

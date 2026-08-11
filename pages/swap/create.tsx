@@ -661,6 +661,7 @@ export type HalfInfo = {
 };
 export type FullInfo = HalfInfo & {
   classNo: string;
+  isTA?: boolean;
 };
 const CreateSwap: NextPage = () => {
   // Stepper control
